@@ -1,0 +1,77 @@
+{# ───────────── NAVBAR PARTIAL ───────────── #}
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur shadow-sm">
+  <div class="container mx-auto flex items-center justify-between px-6 py-4">
+
+    <!-- Brand icon -->
+    <a href="{{ url_for('main.index') }}" class="mr-6 flex-shrink-0">
+      <img src="{{ url_for('static', filename='img/logo_nav.png') }}" alt="Elite Dating Search logo" class="h-12 w-auto"/>
+    </a>
+
+    <!-- Desktop menu -->
+    <ul class="hidden md:flex items-center text-[15px] font-semibold tracking-wide space-x-10">
+      <!-- ✨ Professional Matchmaking Services dropdown -->
+      <li class="relative group">
+        <button class="nav-link inline-flex items-center space-x-1 focus:outline-none">
+          <span>Professional Matchmaking Services</span>
+          <svg class="h-3 w-3 mt-0.5 opacity-70 transition-transform group-hover:rotate-180" fill="currentColor" viewBox="0 0 20 20"><path d="M5 7l5 5 5-5H5z"/></svg>
+        </button>
+        <ul class="absolute left-0 top-full w-64 rounded-xl bg-white shadow-xl ring-1 ring-[#d4af37]/50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transform scale-95 group-hover:scale-100 transition-all duration-200">
+          <li><a href="{{ url_for('main.matchmaking_services') }}" class="block px-5 py-3 text-sm text-gray-700 hover:bg-[#f8f5ec] hover:text-[#d4af37] transition-colors">Overview of Services</a></li>
+          <li><a href="{{ url_for('main.client_program') }}" class="block px-5 py-3 text-sm text-gray-700 hover:bg-[#f8f5ec] hover:text-[#d4af37] transition-colors">Client Program</a></li>
+          <li><a href="{{ url_for('main.candidate_program') }}" class="block px-5 py-3 text-sm text-gray-700 hover:bg-[#f8f5ec] hover:text-[#d4af37] transition-colors">Candidate Program (Complimentary)</a></li>
+        </ul>
+      </li>
+
+      <!-- Our Process -->
+      <li><a href="{{ url_for('main.our_process') }}" class="nav-link">Our Process</a></li>
+
+      <!-- Proven Results dropdown -->
+      <li class="relative group">
+        <button class="nav-link inline-flex items-center space-x-1 focus:outline-none">
+          <span>Proven Results</span>
+          <svg class="h-3 w-3 mt-0.5 opacity-70 transition-transform group-hover:rotate-180" fill="currentColor" viewBox="0 0 20 20"><path d="M5 7l5 5 5-5H5z"/></svg>
+        </button>
+        <ul class="absolute left-0 top-full w-56 rounded-xl bg-white shadow-xl ring-1 ring-[#d4af37]/50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transform scale-95 group-hover:scale-100 transition-all duration-200">
+          <li><a href="{{ url_for('main.roi_of_love') }}" class="block px-5 py-3 text-sm text-gray-700 hover:bg-[#f8f5ec] hover:text-[#d4af37] transition-colors">ROI of Love</a></li>
+          <li><a href="{{ url_for('main.testimonials') }}" class="block px-5 py-3 text-sm text-gray-700 hover:bg-[#f8f5ec] hover:text-[#d4af37] transition-colors">Testimonials</a></li>
+        </ul>
+      </li>
+
+      <li><a href="{{ url_for('main.about_us') }}" class="nav-link">About Us</a></li>
+    </ul>
+
+    <!-- CTA button (desktop) -->
+    <a href="{{ url_for('main.get_started') }}" class="hidden md:inline-flex btn btn-primary">Get Started</a>
+
+    <!-- Mobile hamburger -->
+    <button id="nav-toggle" class="md:hidden flex items-center h-10 w-10 justify-center rounded ring-1 ring-black/10 hover:ring-black/20 transition">
+      <span class="sr-only">Toggle menu</span>
+      <svg id="nav-icon" class="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+
+  <!-- Mobile drawer -->
+  <div id="mobile-menu" class="md:hidden bg-white shadow-lg border-t border-gray-100 absolute inset-x-0 top-full origin-top scale-y-0 transition-transform">
+    <ul class="flex flex-col text-base font-medium divide-y divide-gray-100">
+      <li><a href="{{ url_for('main.matchmaking_services') }}" class="mobile-link">Overview of Services</a></li>
+      <li><a href="{{ url_for('main.client_program') }}" class="mobile-link">Client Program</a></li>
+      <li><a href="{{ url_for('main.candidate_program') }}" class="mobile-link">Candidate Program (Complimentary)</a></li>
+      <li><a href="{{ url_for('main.our_process') }}" class="mobile-link">Our Process</a></li>
+      <li><a href="{{ url_for('main.roi_of_love') }}" class="mobile-link">ROI of Love</a></li>
+      <li><a href="{{ url_for('main.testimonials') }}" class="mobile-link">Testimonials</a></li>
+      <li><a href="{{ url_for('main.about_us') }}" class="mobile-link">About Us</a></li>
+      <li><a href="{{ url_for('main.get_started') }}" class="mobile-link font-semibold text-rose-600">Get Started</a></li>
+    </ul>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn  = document.getElementById('nav-toggle');
+      const menu = document.getElementById('mobile-menu');
+      btn.addEventListener('click', () => {
+        menu.classList.toggle('scale-y-0');
+        menu.classList.toggle('scale-y-100');
+      });
+    });
+  </script>
+</nav>

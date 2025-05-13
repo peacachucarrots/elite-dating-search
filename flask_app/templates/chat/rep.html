@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Rep Dashboard{% endblock %}
+
+{% block content %}
+<h2>Active Visitors</h2>
+<ul id="visitorList" class="space-y-2"></ul>
+
+<h2 class="mt-4">New Chats</h2>
+<ul id="newChatList" class="space-y-2"></ul>
+
+<h2 id="chatHeading" class="mt-6">Chat</h2>
+<div id="chatWindow" class="border h-72 overflow-y-auto p-2"></div>
+
+<form id="repForm" class="flex mt-2">
+  <input id="repInput" class="flex-1 border px-2 py-1" placeholder="Type…" />
+</form>
+
+<button id="disconnectBtn"
+			class="mt-4 px-3 py-1 border rounded bg-red-600 text-white">
+			Disconnect
+</button>
+{% endblock %}
+
+{% block live_chat %}{% endblock %}
+
+{% block scripts %}
+<script defer src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script defer src="{{ url_for('static', filename='chat/js/rep_dashboard.js') }}"></script>
+{% endblock %} 

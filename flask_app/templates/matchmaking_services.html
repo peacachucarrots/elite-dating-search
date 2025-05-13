@@ -1,0 +1,112 @@
+{# -------------------------------------------------------------
+  Matchmaking Services
+  ------------------------------------------------------------- #}
+{% extends "base.html" %}
+
+{% block title %}Matchmaking Services | EliteDatingSearch{% endblock %}
+{% block description %}
+EliteDatingSearch offers three tiered matchmaking programs—each led by a dedicated matchmaker and backed by executive-search rigor.
+{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ─────────────────────────────────────────────── -->
+<section class="relative bg-cover bg-center text-white"
+         style="background-image:url('{{ url_for('static', filename='img/services-hero.jpg') }}')">
+  <div class="absolute inset-0 bg-black/40"></div>
+
+  <div class="relative max-w-4xl mx-auto py-24 text-center px-4">
+    <h1 class="text-4xl md:text-6xl font-serif leading-tight">
+      Matchmaking&nbsp;Services
+    </h1>
+    <p class="mt-6 max-w-2xl mx-auto text-lg">
+      Three bespoke programs, one goal: finding your lifelong partner with
+      precision, privacy, and unparalleled expertise.
+    </p>
+  </div>
+</section>
+
+<!-- ── OVERVIEW ─────────────────────────────────────────── -->
+<section id="overview" class="max-w-5xl mx-auto py-20 px-4 space-y-12">
+  <header class="text-center space-y-4">
+    <h2 class="text-3xl md:text-4xl font-serif">Overview of Services</h2>
+    <p>
+      From personality mapping and lifestyle analysis to curated, confidential
+      introductions, every step is handled by a dedicated team of matchmakers,
+      researchers, and concierge staff.
+    </p>
+  </header>
+
+  <div class="grid md:grid-cols-3 gap-10 text-center">
+    <div class="flex flex-col items-center space-y-3">
+      <span class="text-5xl text-primary">01</span>
+      <h3 class="text-xl font-semibold">Discovery</h3>
+      <p>Deep-dive interview, values assessment, and
+         relationship goals alignment.</p>
+    </div>
+    <div class="flex flex-col items-center space-y-3">
+      <span class="text-5xl text-primary">02</span>
+      <h3 class="text-xl font-semibold">Research</h3>
+      <p>Executive-search methodology to identify
+         vetted, commitment-ready candidates.</p>
+    </div>
+    <div class="flex flex-col items-center space-y-3">
+      <span class="text-5xl text-primary">03</span>
+      <h3 class="text-xl font-semibold">Introductions</h3>
+      <p>Hand-curated matches, date coordination,
+         and post-date feedback loops.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROGRAMS ─────────────────────────────────────────── -->
+<section class="bg-neutral-100 py-20">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2 class="text-center text-3xl md:text-4xl font-serif mb-12">
+      Choose the Program That Fits Your Lifestyle
+    </h2>
+
+    <!-- 1 col → 2 cols; items auto-size evenly -->
+    <div class="grid gap-10 sm:grid-cols-1 md:grid-cols-2">
+      
+      <!-- Client Program -->
+      <article id="client"
+               class="border rounded-lg bg-white p-8 shadow-sm flex flex-col h-full">
+        <h3 class="text-2xl font-semibold mb-3">Client Program</h3>
+        <p class="flex-grow">
+          Premium, fee-based search with nationwide sourcing, up to 12 curated
+          introductions, and six months of personalized guidance.
+        </p>
+        <a href="/client-program"
+           class="btn btn-primary mt-6 self-start">Become A Client</a>
+      </article>
+
+      <!-- Candidate Program -->
+      <article id="candidate"
+               class="border rounded-lg bg-white p-8 shadow-sm flex flex-col h-full">
+        <h3 class="text-2xl font-semibold mb-3">
+          Candidate Program <span class="text-sm text-neutral-500">(Complimentary)</span>
+        </h3>
+        <p class="flex-grow">
+          Join our confidential database of relationship-minded singles at no
+          cost. Be considered for introductions to EliteDatingSearch clients.
+        </p>
+        <a href="/candidate-program"
+           class="btn btn-primary mt-6 self-start">Become A Candidate</a>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CALL-TO-ACTION ───────────────────────────────────── -->
+<section class="py-20 text-center">
+  <h2 class="text-3xl font-serif mb-6">
+    Ready to take the next step?
+  </h2>
+  <a href="/get-started" class="btn btn-primary">
+    Schedule a Consultation
+  </a>
+</section>
+
+{% endblock %}

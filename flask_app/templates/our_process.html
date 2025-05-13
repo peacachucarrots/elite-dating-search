@@ -1,0 +1,79 @@
+<!-- our_process.html – Elite Dating Search -->
+{% extends "base.html" %}
+
+{% block title %}Our Process – Elite Dating Search{% endblock %}
+
+{% block hero %}
+  <!-- HERO -->
+  <section class="relative h-[40vh] md:h-[50vh] w-full overflow-hidden">
+    <img src="{{ url_for('static', filename='img/our-process/hero_process.jpg') }}" alt="Couple and matchmaker reviewing profile" class="absolute inset-0 h-full w-full object-cover"/>
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative z-10 flex h-full items-center justify-center">
+      <h1 class="text-white text-4xl md:text-6xl font-semibold tracking-tight">Our&nbsp;Process</h1>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}
+  <!-- INTRO -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-6 max-w-4xl text-center">
+      <h2 class="text-3xl font-semibold mb-4">A Six‑Step Executive Search for the Heart</h2>
+      <p class="text-lg leading-relaxed mb-6">We borrowed the rigor of Fortune&nbsp;500 head‑hunting and fused it with elite matchmaking insight. The result? A proven framework that delivers intentional, lasting connections for high‑caliber singles.</p>
+      <a href="{{ url_for('main.matchmaking_services') }}"
+   class="inline-block rounded-full px-6 py-3
+          border-2 border-[#d4af37]
+          text-[#d4af37] font-semibold
+          tracking-wide transition
+          hover:bg-[#d4af37] hover:text-white
+          focus:outline-none focus:ring-4 focus:ring-[#d4af37]/50
+          shadow-sm hover:shadow-lg">
+  Schedule A Discovery Call
+</a>
+    </div>
+  </section>
+
+  <!-- STEPS -->
+  <section class="divide-y divide-gray-200">
+    {% set steps = [
+      ("Compass Consultation", "An in‑depth, 360° conversation to understand your history, relationship goals, non‑negotiables, and vision for partnership. This is where strategy begins."),
+      ("Ideal Candidate Profile", "We translate your vision into a detailed success benchmark—48 psychometric & lifestyle data‑points that guide every search touchpoint."),
+      ("Precision Search", "Leveraging private networks, proprietary databases, and discreet head‑hunting, our research team sources candidates who align with your benchmarks."),
+      ("Curated Introductions", "You receive a concise dossier for each vetted candidate— background, passions, photos, and our insight—so you can decide who feels right."),
+      ("Post‑Date Intel Loop", "After every introduction we collect feedback from both sides, refining search parameters and coaching to elevate future matches."),
+      ("Relationship Acceleration", "When chemistry sparks, we transition into exclusivity support—providing coaching and resources to nurture a thriving, long‑term relationship.")
+    ] %}
+
+    {% for title, blurb in steps %}
+      <div class="py-16 {% if loop.index is odd %}bg-gray-50{% else %}bg-white{% endif %}">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row items-center md:gap-12 {% if loop.index is even %}md:flex-row-reverse{% endif %}">
+          <div class="w-full md:w-6/12 mb-8 md:mb-0">
+            <span class="text-gold font-semibold text-sm tracking-widest">STEP {{ loop.index }}</span>
+            <h3 class="text-2xl font-semibold mt-3 mb-4">{{ title }}</h3>
+            <p class="text-lg leading-relaxed">{{ blurb }}</p>
+          </div>
+          <div class="w-full md:w-5/12">
+            <img src="{{ url_for('static', filename='img/our-process/step' + loop.index|string + '.jpg') }}" alt="Illustration for {{ title }}" class="rounded-lg shadow-lg object-cover w-full h-64 md:h-80"/>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 bg-gold text-center text-black">
+    <div class="container mx-auto px-6 max-w-3xl">
+      <h2 class="text-3xl font-semibold mb-4">Ready to Meet Your Last First Date?</h2>
+      <p class="text-lg mb-8">Your dedicated matchmaker is one conversation away. Let’s design the search that leads to&nbsp;love—for&nbsp;life.</p>
+      <a href="{{ url_for('main.matchmaking_services') }}"
+   class="inline-block rounded-full px-6 py-3
+          border-2 border-[#d4af37]
+          text-[#d4af37] font-semibold
+          tracking-wide transition
+          hover:bg-[#d4af37] hover:text-white
+          focus:outline-none focus:ring-4 focus:ring-[#d4af37]/50
+          shadow-sm hover:shadow-lg">
+  Start Your Search
+</a>
+  </section>
+{% endblock %}

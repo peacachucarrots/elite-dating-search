@@ -1,0 +1,109 @@
+{# flask_app/templates/get_started.html #}
+{% extends "base.html" %}
+
+{% block title %}Get Started – Elite Dating Search{% endblock %}
+{% block description %}
+Speak with a dedicated matchmaker and design a bespoke search for your last first date.
+{% endblock %}
+
+{# ───────────────────── HERO ───────────────────── #}
+{% block hero %}
+<section class="relative h-[45vh] md:h-[55vh] w-full overflow-hidden">
+  <img src="{{ url_for('static', filename='img/get-started/hero_get_started.jpg') }}"
+       alt="Matchmaker welcoming a new client"
+       class="absolute inset-0 h-full w-full object-cover" />
+  <div class="absolute inset-0 bg-black/60"></div>
+
+  <div class="relative z-10 flex h-full items-center justify-center">
+    <h1 class="text-white text-4xl md:text-6xl font-semibold tracking-tight">
+      Let’s Get Started
+    </h1>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+{# ───────────── INTRO COPY ───────────── #}
+<section class="py-16 bg-white">
+  <div class="container mx-auto px-6 max-w-3xl text-center">
+    <h2 class="text-3xl font-semibold mb-6">Your Last First Date Begins Here</h2>
+    <p class="text-lg leading-relaxed mb-8">
+      Schedule a complimentary 30-minute discovery call to explore our white-glove
+      executive-search approach and see if we’re the right partner for you.
+    </p>
+
+    <a href="{{ url_for('main.matchmaking_services') }}"
+       class="inline-block rounded-full px-7 py-3
+              border-2 border-[#d4af37] text-[#d4af37] font-semibold
+              tracking-wide transition
+              hover:bg-[#d4af37] hover:text-white
+              focus:outline-none focus:ring-4 focus:ring-[#d4af37]/50
+              shadow-sm hover:shadow-lg">
+      Schedule a Discovery Call
+    </a>
+  </div>
+</section>
+
+{# ─────── WHY ELITE DATING SEARCH (compact) ─────── #}
+<section id="why-us-mini" class="bg-[#d4af37] text-black py-16 lg:py-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <h2 class="text-center text-3xl sm:text-4xl font-semibold tracking-tight mb-12">
+      As the nation’s premier matchmaking company, Elite Dating Search leads the industry in achieving results for its clients.
+    </h2>
+
+    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      
+      <!-- Executive-search rigor -->
+      <div class="flex flex-col items-center text-center">
+        <svg class="w-12 h-12 text-black" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M5 13l4 4L19 7"/>
+        </svg>
+        <p class="mt-4 font-medium leading-snug">
+          Executive-search<br>methodology
+        </p>
+      </div>
+
+      <!-- Data-driven compatibility -->
+      <div class="flex flex-col items-center text-center">
+        <svg class="w-12 h-12 text-black" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M12 6v6l4 2"/>
+          <circle cx="12" cy="12" r="9"/>
+        </svg>
+        <p class="mt-4 font-medium leading-snug">
+          Neuroscience-backed<br>compatibility profiling
+        </p>
+      </div>
+
+      <!-- White-glove concierge -->
+      <div class="flex flex-col items-center text-center">
+        <svg class="w-12 h-12 text-black" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M12 8c1.657 0 3 1.343 3 3v7H9v-7c0-1.657 1.343-3 3-3z"/>
+          <path d="M5 11h14"/>
+        </svg>
+        <p class="mt-4 font-medium leading-snug">
+          White-glove concierge<br>and coaching
+        </p>
+      </div>
+
+      <!-- Discreet & private -->
+      <div class="flex flex-col items-center text-center">
+        <svg class="w-12 h-12 text-black" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/>
+          <path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/>
+        </svg>
+        <p class="mt-4 font-medium leading-snug">
+          100% discreet, private<br>introductions
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{# ───────────── Contact Information (elegant) ───────────── #}
+{% include 'partials/contact_form.html' %}
+{% endblock %}

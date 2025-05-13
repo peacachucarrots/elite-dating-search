@@ -1,0 +1,21 @@
+.logo-wrapper svg{
+  width:clamp(240px,80vw,900px);
+  display:block;
+}
+
+.logo-wrapper svg path{
+  stroke:currentColor;
+  stroke-width:2;
+  fill:transparent;
+  stroke-linecap:round;
+  /* will be replaced in script.js */
+  stroke-dasharray:1;
+  stroke-dashoffset:1;
+  animation:draw 3.5s ease forwards;
+}
+
+@keyframes draw{to{stroke-dashoffset:0}}
+
+@media (prefers-reduced-motion:reduce){
+  .logo-wrapper svg path{animation:none;stroke-dashoffset:0}
+}

@@ -1,0 +1,60 @@
+{#  templates/blog/executive-search-for-love.html  #}
+{% extends "base.html" %}
+
+{% block title %}Executive Search for Love | EliteDatingSearch{% endblock %}
+{% block description %}
+From C-suite recruiting to soulmate recruiting—how our firm applies head-hunter rigor to relationships.
+{% endblock %}
+
+{% block content %}
+<section class="relative bg-neutral-900">
+  <img src="{{ url_for('static', filename='img/blog/hero_exec.jpg') }}"
+       alt="Elegant boardroom overlooking city skyline"
+       class="absolute inset-0 w-full h-full object-cover opacity-40">
+  <div class="relative max-w-3xl mx-auto px-6 py-28 text-center text-white">
+    <h1 class="font-serif text-4xl md:text-5xl mb-4 leading-tight">
+      Executive Search—for&nbsp;Love
+    </h1>
+    <p class="text-lg opacity-90">
+      What happens when matchmaking meets head-hunting methodology
+    </p>
+  </div>
+</section>
+
+<article class="prose prose-neutral max-w-3xl mx-auto py-16 px-6">
+  <h2>Search brief → personal thesis</h2>
+  <p>
+    A board defines success criteria before filling the CEO seat; we do the same before
+    introducing you to a future partner. Core values, lifestyle trajectory, vision of
+    family—all codified, not assumed.
+  </p>
+
+  <h2>Sourcing passive talent</h2>
+  <p>
+    Your ideal co-founder in life is usually <em>not</em> scrolling dating apps. Our private
+    database and referral network surface “passive candidates” who mirror top-tier
+    executive pools: busy, selective, and invisible to mass channels.
+  </p>
+
+  <h2>Structured interviews, chemistry checks</h2>
+  <p>
+    Compatibility ≠ identical résumés. We vet for intellectual parity, emotional
+    resilience, and complementary attachment styles—then let curated chemistry dates test
+    the x-factor algorithms can’t quantify (yet).
+  </p>
+
+  <h2>Onboarding &amp; retention</h2>
+  <p>
+    Like any critical hire, post-placement support matters. We coach communication,
+    conflict frameworks, even in-law integrations, turning first-date spark into
+    compounding relational equity.
+  </p>
+
+  <hr>
+
+  <p class="text-center text-sm">
+    Curious whether our search model fits your love thesis?<br>
+    <a href="/get-started?origin=blog_exec" class="text-primary underline">Let’s discuss →</a>
+  </p>
+</article>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}The Chemistry Conundrum · Elite Dating Blog{% endblock %}
+
+{% block hero %}
+<section class="relative bg-cover bg-center py-24 text-white"
+         style="background-image:url('{{ url_for('static', filename='img/blog/hero_chemistry.jpg') }}')">
+  <div class="absolute inset-0 bg-black/50"></div>
+
+  <div class="relative max-w-3xl mx-auto px-6 text-center">
+    <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight">
+      The <span class="text-brand-gold">Chemistry</span> Conundrum
+    </h1>
+    <p class="mt-4 text-lg lg:text-xl font-light">
+      How to balance spark & substance when you’re dating at the top.
+    </p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<div class="prose lg:prose-lg mx-auto px-6 py-16">
+  <p class="lead">
+    “We just didn’t have chemistry.” — the most common post-date verdict. But what is
+    <em>chemistry</em>, really, and does it reliably predict long-term compatibility?
+  </p>
+
+  <h2>1 · Understand what chemistry is (and isn’t)</h2>
+  <p>
+    Neurologically, that lightning-bolt feeling is a dopamine &amp; norepinephrine cocktail.
+    Great for butterflies; terrible for sober judgement.&nbsp;…  
+  </p>
+
+  <h2>2 · The three layers of attraction</h2>
+  <ol>
+    <li><strong>Visual spark</strong> — face symmetry, body language, grooming.</li>
+    <li><strong>Intellectual resonance</strong> — shared humour, curiosity, values.</li>
+    <li><strong>Emotional safety</strong> — ability to be seen &amp; accepted.</li>
+  </ol>
+
+  <h2>3 · Re-calibrating your ‘chemistry radar’</h2>
+  <p>
+    Elite professionals often have a <em>hyper-selective</em> radar tuned to ‘wow’
+    moments. Try a “10 % rule”: if there’s even a 10 % intrigue, grant a second date…  
+  </p>
+
+  <blockquote>
+    True compatibility feels like <em>calm excitement</em>—not a roller-coaster.
+  </blockquote>
+
+  <h2>4 · Put the science to work</h2>
+  <ul>
+    <li>Schedule dates to be 90 minutes max—keeps dopamine spikes manageable.</li>
+    <li>Swap “What do you do?” for “What lights you up outside of work?”</li>
+    <li>End the evening with one genuine compliment plus a concrete next step.</li>
+  </ul>
+
+  <p>
+    Want expert guidance? Our matchmakers blend psychology with rigorous vetting
+    to help you find a partner with whom chemistry <em>grows</em>, not fades.
+  </p>
+</div>
+{% endblock %}

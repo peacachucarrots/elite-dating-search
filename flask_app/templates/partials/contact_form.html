@@ -1,0 +1,136 @@
+{# ─────────── ELITE CONTACT FORM (VISIBLE BY DEFAULT, CONTEXTUAL PLACEHOLDERS) ─────────── #}
+<section class="py-24 bg-gray-100">
+  <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8 sm:p-12">
+
+    <!-- Heading -->
+    <h2 class="text-center text-3xl sm:text-4xl font-semibold mb-14 relative inline-block">
+      Contact Information
+      <span class="absolute left-1/2 -bottom-3 -translate-x-1/2 h-[3px] w-28 bg-[#d4af37] rounded-full"></span>
+    </h2>
+
+    <form action="/apply" method="POST" class="space-y-10">
+
+      <!-- PERSONAL DETAILS -->
+      <div class="grid sm:grid-cols-2 gap-6">
+        {% for id,label in [('first_name','First Name*'),('last_name','Last Name*'),('email','Email*'),('phone','Phone*')] %}
+        <div>
+          <label class="form-label" for="{{ id }}">{{ label|safe }}</label>
+          <input id="{{ id }}" name="{{ id }}" type="text" required class="form-input" />
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- ADDRESS -->
+      <div class="grid sm:grid-cols-2 gap-6">
+        <div class="sm:col-span-2">
+          <label class="form-label" for="address">Street Address</label>
+          <input id="address" name="address" type="text" class="form-input" />
+        </div>
+        <div>
+          <label class="form-label" for="city">City*</label>
+          <input id="city" name="city" type="text" required class="form-input" />
+        </div>
+        <div>
+          <label class="form-label" for="state">State*</label>
+          <select id="state" name="state" required class="form-select elegant-select">
+            <option value="" disabled selected>State</option>
+            {% for st in ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"] %}
+            <option>{{ st }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="country">Country*</label>
+          <select id="country" name="country" required class="form-select elegant-select">
+            <option value="" disabled selected>Country</option>
+            <option>United States</option><option>Canada</option><option>United Kingdom</option><option>Australia</option><option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="zip">Zip / Postal Code*</label>
+          <input id="zip" name="zip" type="text" pattern="\d{5}" placeholder="5 digits required" required class="form-input" />
+        </div>
+      </div>
+
+      <!-- BIRTHDATE -->
+      <fieldset class="grid sm:grid-cols-3 gap-6">
+        <div>
+          <label class="form-label" for="birth_month">Birth Month*</label>
+          <select id="birth_month" name="birth_month" required class="form-select elegant-select">
+            <option value="" disabled selected>Month</option>
+            {% for m in ["January","February","March","April","May","June","July","August","September","October","November","December"] %}<option>{{ m }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="birth_day">Day*</label>
+          <select id="birth_day" name="birth_day" required class="form-select elegant-select">
+            <option value="" disabled selected>Day</option>
+            {% for d in range(1,32) %}<option>{{ d }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="birth_year">Year*</label>
+          <select id="birth_year" name="birth_year" required class="form-select elegant-select">
+            <option value="" disabled selected>Year</option>
+            {% for y in range(1940,2007) %}<option>{{ y }}</option>{% endfor %}
+          </select>
+        </div>
+      </fieldset>
+
+      <!-- ABOUT YOU -->
+      <h3 class="text-xl font-medium pt-6 border-t border-gray-200">About You</h3>
+      <div class="grid sm:grid-cols-2 gap-6 pt-4">
+        <div>
+          <label class="form-label" for="occupation">Occupation*</label>
+          <input id="occupation" name="occupation" type="text" required class="form-input" />
+        </div>
+        <div>
+          <label class="form-label" for="income">Annual Income*</label>
+          <select id="income" name="income" required class="form-select elegant-select">
+            <option value="" disabled selected>Income</option>
+            <option>Under $100,000</option><option>$100,000 – $149,999</option><option>$150,000 – $199,999</option><option>$200,000 – $299,999</option><option>$300,000 – $499,999</option><option>$500,000+</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="education">Education Level*</label>
+          <select id="education" name="education" required class="form-select elegant-select">
+            <option value="" disabled selected>Education</option>
+            <option>High School Diploma / GED</option><option>Some College</option><option>Bachelor's Degree</option><option>Master's Degree</option><option>Doctorate / Professional</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="marital">Marital Status</label>
+          <select id="marital" name="marital" class="form-select elegant-select">
+            <option value="" disabled selected>Status</option>
+            <option>Single</option><option>Divorced</option><option>Widowed</option><option>Separated</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="form-label" for="referral">How did you hear about us?</label>
+          <select id="referral" name="referral" class="form-select elegant-select">
+            <option value="" disabled selected>Source</option>
+            <option>Google Search</option><option>Social Media</option><option>Referral from Friend</option><option>Press / Publication</option><option>Event / Conference</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="text-sm text-gray-500">* – required</p>
+
+      <div class="pt-6 text-center"><button class="btn btn-primary" type="submit">Submit Application</button></div>
+
+      <div class="mt-12 text-center max-w-xl mx-auto text-gray-600">
+        <p>Not ready to invest in a client membership?<br>Our <strong>Candidate Program</strong> gives you the opportunity to match with our exceptional clients.</p>
+        <a href="/candidate-program" class="underline hover:text-[#d4af37] inline-block mt-4">Create your complimentary profile</a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .form-label{font-size:.875rem;font-weight:500;color:#374151;margin-bottom:.25rem;display:block}
+  .form-input,.form-select{width:100%;background:#ffffff;border:1px solid #9ca3af;border-radius:6px;padding:.625rem .75rem;font-size:.875rem;color:#374151;box-shadow:0 1px 2px rgb(0 0 0 /.05);transition:border-color .15s,box-shadow .15s}
+  .form-input::placeholder{color:#9ca3af}
+  .form-input:focus,.form-select:focus{border-color:#d4af37;box-shadow:0 0 0 2px #d4af3733;outline:0}
+  /* Custom arrow */
+  .elegant-select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='%23374151' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.6rem center;background-size:1rem 1rem;padding-right:2.5rem}
+</style>

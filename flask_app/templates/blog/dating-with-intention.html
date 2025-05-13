@@ -1,0 +1,64 @@
+{#  templates/blog/dating-with-intention.html  #}
+{% extends "base.html" %}
+
+{% block title %}Dating With Intention | EliteDatingSearch{% endblock %}
+{% block description %}
+A high-achiever’s roadmap for replacing endless swipes with strategic, value-aligned dating.
+{% endblock %}
+
+{% block content %}
+<section class="relative bg-neutral-900">
+  <img src="{{ url_for('static', filename='img/blog/hero_dating.jpg') }}"
+       alt="Couple on a rooftop terrace at night"
+       class="absolute inset-0 w-full h-full object-cover opacity-40">
+  <div class="relative max-w-3xl mx-auto px-6 py-28 text-center text-white">
+    <h1 class="font-serif text-4xl md:text-5xl mb-4 leading-tight">
+      Dating&nbsp;With&nbsp;Intention
+    </h1>
+    <p class="text-lg opacity-90">
+      A high-achiever’s guide to deliberate, data-driven romance
+    </p>
+  </div>
+</section>
+
+<article class="prose prose-neutral max-w-3xl mx-auto py-16 px-6">
+  <h2>1. Audit your personal brand</h2>
+  <p>
+    The way investors scour a pitch deck, potential partners scan the “signals” you emit
+    online and IRL. Tighten up social profiles, clarify lifestyle photos, and let values—not
+    humble-brags—do the talking.
+  </p>
+
+  <h2>2. Replace volume-dating with precision-targeting</h2>
+  <p>
+    Treat your love life like a well-funded search: define non-negotiables, identify
+    high-density channels (think professional organizations, alumni networks, niche
+    events) and measure ROI in <em>quality × compatibility</em>, not match counts.
+  </p>
+
+  <h2>3. Run a “culture-fit” interview</h2>
+  <p>
+    Great relationships are cultural mergers. Swap the usual small talk for purpose-driven
+    prompts—“What’s a risk you’re proud of?” or “How do you recharge after a 70-hour
+    week?”—and watch surface chemistry deepen into mission alignment.
+  </p>
+
+  <blockquote>
+    Sustainable chemistry = shared vision + reciprocal respect. One without the other is a
+    short-term hire.
+  </blockquote>
+
+  <h2>4. Appoint a board of advisors</h2>
+  <p>
+    From a discreet matchmaking firm (hi 👋) to a therapist or executive coach, curate
+    experts who keep your dating thesis honest and your blind spots exposed.
+  </p>
+
+  <hr>
+
+  <p class="text-center text-sm">
+    Feeling stuck? Our matchmakers specialize in high-stakes searches.<br>
+    <a href="/matchmaking-services" class="text-primary underline">Schedule a consult →</a>
+  </p>
+</article>
+{% endblock %}

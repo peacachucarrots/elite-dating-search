@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- ─── Core meta ─────────────────────────────────────────── -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  {# ---------- Title & description (one block each) ---------- #}
+  <title>{% block title %}EliteDatingSearch{% endblock %}</title>
+
+  {% set default_description = (
+      "EliteDatingSearch offers confidential, executive-level matchmaking "
+      "for commitment-minded singles."
+  ) %}
+  <meta name="description"
+        content="{% block description %}{{ default_description }}{% endblock %}">
+
+  {# ---------- Open-Graph tags -------------------------------- #}
+  <meta property="og:type"        content="website">
+  <meta property="og:title"
+        content="{% block og_title %}{{ self.title()|striptags }}{% endblock %}">
+  <meta property="og:description"
+        content="{% block og_desc %}{{ self.description()|striptags }}{% endblock %}">
+  <meta property="og:image"
+        content="{{ url_for('static', filename='img/og-default.jpg') }}">
+  <meta property="og:url"         content="{{ request.url }}">
+
+  {# ---------- Favicons --------------------------------------- #}
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="{{ url_for('static', filename='img/favicon-32x32.png') }}">
+
+  {# ---------- CSS -------------------------------------------- #}
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+  <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/css/glide.core.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/css/glide.theme.min.css"
+/>
+
+  {# ---------- Extra head assets (only here) ------------------ #}
+  {% block extra_head %}{% endblock %}
+  </head>
+
+<body class="flex flex-col min-h-screen text-neutral-900 bg-white">
+
+  {% include "partials/navbar.html" %}
+
+  {% block hero %}{% endblock %}
+
+  <main id="main-content" class="flex-grow">
+    {% block content %}{% endblock %}
+  </main>
+  {% block live_chat %}
+  	{% include 'partials/_live_chat.html' %}
+  {% endblock %}
+  {% include "partials/footer.html" %}
+
+  <!-- Alpine (optional) + global JS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  <script defer src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script defer src="{{ url_for('static', filename='js/_live_chat.js') }}"></script>
+
+  {# ---------- Extra JS (only here) --------------------------- #}
+  {% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const path = document.querySelector('#hero-signature path');
+      const length = path.getTotalLength();
+      // prepare for draw
+      path.style.strokeDasharray = length;
+      path.style.strokeDashoffset = length;
+
+      anime({
+        targets: path,
+        strokeDashoffset: [length, 0],
+        duration: 2600,
+        easing: 'easeOutQuad',
+        delay: 400
+      });
+    });
+  </script>
+{% endblock %}
+{% block scripts %}{% endblock %}
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

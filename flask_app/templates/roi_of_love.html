@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}ROI of Love – Elite Dating Search{% endblock %}
+
+{% block content %}
+<!-- ───────────── Hero ───────────── -->
+<section class="relative bg-cover bg-center text-white"
+         style="background-image:url('{{ url_for('static', filename='img/hero_roi.jpg') }}')">
+  <div class="absolute inset-0 bg-black/60"></div>
+  <div class="relative container mx-auto px-6 py-24 flex justify-center">
+    <h1 class="text-4xl md:text-6xl font-serif font-light tracking-wide">
+      ROI&nbsp;of&nbsp;Love
+    </h1>
+  </div>
+</section>
+
+<!-- ───────────── Value Stats ───────────── -->
+<section class="container mx-auto px-6 py-16 space-y-12">
+  <h2 class="text-3xl font-semibold mb-6 text-center">
+    The smartest investment you’ll ever make
+  </h2>
+
+  <div class="grid md:grid-cols-3 gap-8">
+    <!-- Lifetime cost -->
+    <div class="p-6 bg-white shadow rounded-lg text-center">
+      <h3 class="text-5xl font-bold text-rose-600">$250k</h3>
+      <p class="mt-2 text-gray-700">
+        Average lifetime cost of <br>
+        staying single in major U.S. metros<sup>*</sup>
+      </p>
+    </div>
+
+    <!-- Median time -->
+    <div class="p-6 bg-white shadow rounded-lg text-center">
+      <h3 class="text-5xl font-bold text-rose-600">9&nbsp;mos.</h3>
+      <p class="mt-2 text-gray-700">
+        Median time our clients take to enter<br>
+        an exclusive relationship
+      </p>
+    </div>
+    
+    <!-- Well-being -->
+    <div class="p-6 bg-white shadow rounded-lg text-center">
+      <h3 class="text-5xl font-bold text-rose-600">92%</h3>
+      <p class="mt-2 text-gray-700">
+        Clients who report improved overall<br>
+        wellbeing within 6&nbsp;months
+      </p>
+    </div>
+  </div>
+
+  <p class="text-sm text-gray-500 text-center">
+    *Source: Bureau of Labor Statistics &amp; proprietary analysis.
+  </p>
+</section>
+{% endblock %}

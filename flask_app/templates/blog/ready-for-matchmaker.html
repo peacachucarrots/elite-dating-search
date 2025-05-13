@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Are You Ready for a Matchmaker? · Elite Dating Blog{% endblock %}
+
+{% block hero %}
+<section class="relative bg-cover bg-center py-24 text-white"
+         style="background-image:url('{{ url_for('static', filename='img/blog/hero_ready.jpg') }}') }}">
+  <div class="absolute inset-0 bg-black/50"></div>
+
+  <div class="relative max-w-3xl mx-auto px-6 text-center">
+    <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight">
+      Ready for a <span class="text-brand-gold">Matchmaker</span>?
+    </h1>
+    <p class="mt-4 text-lg lg:text-xl font-light">
+      Five signals you’ve outgrown the swipe &amp; need a curated search.
+    </p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<div class="prose lg:prose-lg mx-auto px-6 py-16">
+  <p class="lead">
+    Algorithms treat you as data. Our team treats you as <em>legacy</em>. Before you invest,
+    make sure you’re in the right season to leverage bespoke matchmaking.
+  </p>
+
+  <h2>1 · You have <em>time scarcity</em>, not date scarcity</h2>
+  <p>
+    Your calendar resembles a Tetris board. Outsourcing the search buys back
+    hundreds of hours a year.  
+  </p>
+
+  <h2>2 · Quality now outranks quantity</h2>
+  <p>
+    Endless first dates felt thrilling at 28. At 38, you’d rather meet one
+    vetted partner than fifty maybes.  
+  </p>
+
+  <h2>3 · You can articulate your non-negotiables</h2>
+  <p>
+    Matchmakers aren’t magicians; clarity fuels the magic.&nbsp;…  
+  </p>
+
+  <h2>4 · You want accountability</h2>
+  <p>
+    Personalized coaching, feedback loops, post-date debriefs—think of us as
+    your board of advisors for love.  
+  </p>
+
+  <h2>5 · You value privacy (and discretion)</h2>
+  <p>
+    Swiping leaves a digital footprint. Our searches are confidential by design.  
+  </p>
+
+  <hr>
+
+  <p>
+    If these points resonate, schedule a complimentary consultation. We’ll audit
+    your dating strategy and outline a tailored engagement.
+  </p>
+</div>
+{% endblock %}
