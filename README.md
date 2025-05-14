@@ -31,3 +31,5 @@ bash
 python 3.12+
 git
 # optional: Docker 24+ for container workflow
+
+> **TODO:** Before launch, switch Flask-Mail creds to no-reply@elitedatingsearch.com through SendGrid/Postmark/SES and publish SPF + DKIM records.

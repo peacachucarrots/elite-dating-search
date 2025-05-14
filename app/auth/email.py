@@ -62,7 +62,7 @@ def _send_email(subject: str,
 # --------------------------------------------------------------------------- #
 # Public helpers                                                              #
 # --------------------------------------------------------------------------- #
-def send_confirmation(user: User) -> None:
+def send_confirmation_email(user: User) -> None:
     """Send a ‘confirm your address’ link to *user*."""
     token = _generate_token(user.email, purpose="verify")
     confirm_url = url_for("auth.confirm_email", token=token, _external=True)

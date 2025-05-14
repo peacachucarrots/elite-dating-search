@@ -11,7 +11,7 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from app import db
 from app.models.user import User
 from .forms import RegisterForm, LoginForm, RequestResetForm, ResetForm
-from .email import send_confirmation, send_password_reset
+from .email import send_confirmation_email, send_password_reset
 from . import bp
 
 # --------------------------------------------------------------------------- #
@@ -39,10 +39,10 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        # send verification link
-        token = get_ts().dumps(user.email, salt="email-confirm")
-        send_confirmation_email(user)                    # ✔
+        # ── e-mail verification ───────────────────────────────
+        send_confirmation_email(user)  # generates its own token
         flash("Check your inbox to confirm your e-mail.", "info")
+
         return redirect(url_for("auth.login"))
 
     return render_template("auth/register.html", form=form)
