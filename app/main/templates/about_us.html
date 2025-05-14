@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}About Us – Elite Dating Search{% endblock %}
+
+{% block content %}
+<!-- ────────────── HERO ────────────── -->
+<section class="relative bg-cover bg-center"
+         style="background-image:url('{{ url_for('main.static', filename='img/hero_about_us.jpg') }}')">
+  <div class="absolute inset-0 bg-black/40"></div>
+  <div class="relative max-w-5xl mx-auto px-6 py-24 text-center text-white">
+    <h1 class="text-4xl sm:text-5xl font-bold tracking-wide">About Elite Dating Search</h1>
+    <p class="mt-4 text-xl max-w-2xl mx-auto">
+      Helping remarkable people create equally remarkable relationships.
+    </p>
+  </div>
+</section>
+
+<!-- ────────────── OUR MISSION ────────────── -->
+<section class="bg-white py-16">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h2 class="text-3xl font-semibold mb-4">Our Mission</h2>
+    <p class="text-lg leading-relaxed">
+      To empower exceptional people to build exceptional relationships.
+      We believe that <em>love found with intention</em> amplifies every other success—
+      career, community, and personal wellbeing.
+    </p>
+  </div>
+</section>
+
+<!-- ────────────── OUR APPROACH ────────────── -->
+<section class="bg-gray-50 py-16">
+  <div class="max-w-5xl mx-auto px-6">
+    <h2 class="text-3xl font-semibold text-center mb-10">Our Approach</h2>
+    <div class="grid gap-10 md:grid-cols-3">
+      <div class="p-6 bg-white shadow rounded-2xl">
+        <h3 class="text-xl font-semibold mb-2">Executive-Search Methodology</h3>
+        <p>We head-hunt for hearts with the same precision Fortune 500 firms
+           use to recruit leadership.</p>
+      </div>
+      <div class="p-6 bg-white shadow rounded-2xl">
+        <h3 class="text-xl font-semibold mb-2">Data-Driven Compatibility</h3>
+        <p>48-point psychometric &amp; lifestyle alignment model refined over
+           10,000+ successful matches.</p>
+      </div>
+      <div class="p-6 bg-white shadow rounded-2xl">
+        <h3 class="text-xl font-semibold mb-2">White-Glove Experience</h3>
+        <p>Personal concierge, date coaching, and image advisory ensure you
+           show up as your best self.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────── LEADERSHIP ────────────── -->
+<section class="bg-white py-16">
+  <div class="max-w-5xl mx-auto px-6">
+    <h2 class="text-3xl font-semibold text-center mb-10">Leadership</h2>
+
+    <div class="md:flex md:items-center md:gap-10">
+      <img src="{{ url_for('main.static', filename='img/team/dave_homyak.jpg') }}"
+           alt="Dave Homyak, CEO of Elite Dating Search"
+           class="w-40 h-40 object-cover rounded-full mx-auto md:mx-0 shadow-lg">
+    
+      <div class="mt-6 md:mt-0">
+        <h3 class="text-2xl font-semibold">Dave Homyak &mdash; Chief Executive Officer</h3>
+        <p class="mt-4 leading-relaxed">
+          After building a successful career and navigating divorce, Dave realized
+          that even the most accomplished professionals often need support to find
+          a partner who matches their ambition <em>and</em> values. He transformed that
+          insight into Elite Dating Search’s executive-search model, bringing
+          boardroom rigor and human empathy to modern matchmaking.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

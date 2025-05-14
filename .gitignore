@@ -1,0 +1,25 @@
+# .gitignore  – keep the nasty stuff out of GitHub
+# ------------------------------------------------
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+
+# Virtual-envs
+.venv/
+env/
+venv/
+
+# Environment / secrets
+.env         # where you'll keep SECRET_KEY, DB_URL, mail creds, etc.
+
+# Databases & migrations
+*.sqlite3
+instance/
+migrations/**/versions/*.pyc
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

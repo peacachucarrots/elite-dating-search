@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Log in | Elite Dating Search{% endblock %}
+
+{% block content %}
+<section class="max-w-md mx-auto py-12">
+  <h1 class="text-2xl font-semibold mb-6 text-center">Welcome back</h1>
+
+  <form method="post" novalidate class="space-y-6">
+    {{ form.hidden_tag() }}
+
+    <!-- ── E-mail ─────────────────────────────────────────────── -->
+    <div>
+      {{ form.email.label(class="block text-sm font-medium mb-1") }}
+      {{ form.email(class="w-full border rounded px-3 py-2",
+                    placeholder="you@example.com") }}
+      {% if form.email.errors %}
+        <p class="text-sm text-red-600 mt-1">{{ form.email.errors[0] }}</p>
+      {% endif %}
+    </div>
+    
+    <!-- ── Password ───────────────────────────────────────────── -->
+    <div>
+      <div class="flex justify-between items-center">
+        {{ form.password.label(class="block text-sm font-medium mb-1") }}
+    
+        <!-- “Forgot password?” link – optional -->
+        <a href="{{ url_for('auth.reset_request') }}" class="text-sm text-rose-600 hover:underline">
+          Forgot?
+        </a>
+      </div>
+      {{ form.password(class="w-full border rounded px-3 py-2",
+                       placeholder="••••••••") }}
+      {% if form.password.errors %}
+        <p class="text-sm text-red-600 mt-1">{{ form.password.errors[0] }}</p>
+      {% endif %}
+    </div>
+    
+    <!-- ── Remember-me checkbox ───────────────────────────────── -->
+    <div class="flex items-center">
+      {{ form.remember(class="h-4 w-4 text-rose-600 border-gray-300 rounded") }}
+      {{ form.remember.label(class="ml-2 text-sm") }}
+    </div>
+    
+    <!-- ── Submit ─────────────────────────────────────────────── -->
+    <button type="submit"
+            class="w-full btn btn-primary text-center">
+      Log in
+    </button>
+    
+    <!-- ── Switch to sign-up ──────────────────────────────────── -->
+    <p class="text-center text-sm mt-4">
+      New here?
+      <a href="{{ url_for('auth.register') }}"
+         class="text-rose-600 font-medium hover:underline">
+        Create an account
+      </a>
+    </p>
+  </form>
+</section>
+{% endblock %}

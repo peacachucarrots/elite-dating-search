@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Create an account | Elite Dating Search{% endblock %}
+
+{% block content %}
+<section class="max-w-md mx-auto py-12">
+  <h1 class="text-2xl font-semibold mb-6 text-center">Sign Up</h1>
+
+  <form method="post" novalidate class="space-y-6">
+    {{ form.hidden_tag() }}
+
+    <div>
+      {{ form.email.label(class="block text-sm font-medium mb-1") }}
+      {{ form.email(class="w-full border rounded px-3 py-2", placeholder="you@example.com") }}
+      {% if form.email.errors %}
+        <p class="text-sm text-red-600 mt-1">{{ form.email.errors[0] }}</p>
+      {% endif %}
+    </div>
+    
+    <div>
+      {{ form.password.label(class="block text-sm font-medium mb-1") }}
+      {{ form.password(class="w-full border rounded px-3 py-2", placeholder="••••••••") }}
+      {% if form.password.errors %}
+        <p class="text-sm text-red-600 mt-1">{{ form.password.errors[0] }}</p>
+      {% endif %}
+    </div>
+    
+    <div>
+      {{ form.confirm.label(class="block text-sm font-medium mb-1") }}
+      {{ form.confirm(class="w-full border rounded px-3 py-2", placeholder="repeat password") }}
+      {% if form.confirm.errors %}
+        <p class="text-sm text-red-600 mt-1">{{ form.confirm.errors[0] }}</p>
+      {% endif %}
+    </div>
+    
+    <button type="submit"
+            class="w-full btn btn-primary text-center">
+      Create account
+    </button>
+    
+    <p class="text-center text-sm mt-4">
+      Already have an account?
+      <a href="{{ url_for('auth.login') }}" class="text-rose-600 font-medium hover:underline">Log in</a>
+    </p>
+  </form>
+</section>
+{% endblock %}
