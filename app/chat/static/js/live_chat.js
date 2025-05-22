@@ -30,6 +30,24 @@ import { renderLine as baseRenderLine } from "/static/js/chat_common.js";
   socket.on("disconnect", () =>
     renderLine({ author: "system", body: "Chat disconnected…", ts: Date.now() }, messagesPane)
   );
+  socket.on("chat_closed", () => {
+  form.style.display = "none";         // hide input row
+  ratingBox.classList.remove("hidden"); // show 1-5 stars (or buttons)
+});
+
+/* rating buttons */
+document.querySelectorAll(".rate-btn").forEach(btn => {
+  btn.onclick = () => {
+    const score = +btn.dataset.score;
+    socket.emit("satisfaction", { score });
+    ratingBox.innerHTML = "<p>Thanks for your feedback!</p>";
+
+    const newBtn = document.createElement("button");
+    newBtn.textContent = "Start new chat";
+    newBtn.onclick = () => window.location.reload();
+    ratingBox.appendChild(newBtn);
+  };
+});
 
   // outgoing
   form.addEventListener("submit", e => {

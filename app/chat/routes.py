@@ -306,15 +306,24 @@ def leave_visitor(data):
     PAIR.pop(rep_sid, None)
     leave_room(visitor_sid)
 
-    # ── Tell the visitor ───────────────────────────────────────────────────────
+    # --- mark session closed --------------------------------------
+    chat_id = SID_TO_SESSION.get(visitor_sid)
+    if chat_id:
+        chat = ChatSession.query.get(chat_id)
+        if chat and chat.closed_at is None:
+            chat.closed_at = datetime.utcnow()
+            db.session.commit()
+
+    # --- notify visitor -------------------------------------------
     rep_name = SID_TO_NAME.get(rep_sid, "Representative")
-    emit("system",
-         {"body": f"{rep_name} has left the chat.",
-          "author": "system",
-          "ts": datetime.utcnow().isoformat(timespec="seconds")},
+    emit("system", {"body": f"{rep_name} has left the chat.",
+                    "author": "system",
+                    "ts": datetime.utcnow().isoformat(timespec="seconds")},
          room=visitor_sid)
 
-    # ── If the visitor tab is still open, return them to the idle list ─────────
+    emit("chat_closed", {"chat_id": chat_id}, room=visitor_sid)
+
+    # move visitor back to lobby if still online
     if visitor_sid in ALIVE:
         VISITORS.add(visitor_sid)
         emit("visitor_online",
@@ -322,21 +331,7 @@ def leave_visitor(data):
               "username": SID_TO_NAME.get(visitor_sid)},
              room="reps")
 
-    chat_id = SID_TO_SESSION.get(visitor_sid)
-    if chat_id:
-        still_live = any(
-            sid != visitor_sid and
-            SID_TO_SESSION.get(sid) == chat_id and
-            sid in ALIVE
-            for sid in SID_TO_SESSION.keys()
-        )
-        if not still_live:
-            chat = ChatSession.query.get(chat_id)
-            if chat and chat.closed_at is None:
-                chat.closed_at = datetime.utcnow()
-                db.session.commit()
-
-    print("<<< rep left", visitor_sid)
+    print("<<< rep left & closed chat", visitor_sid)
 
 @socketio.on("history_request")
 def history_request(data):
@@ -366,6 +361,13 @@ def handle_visitor(text: str) -> None:
     """Handle a line typed by the visitor."""
     chat_id = SID_TO_SESSION[request.sid]
     user_id = SID_TO_USER[request.sid]
+    chat = ChatSession.query.get(chat_id)
+    if chat and chat.closed_at:
+        emit("system", {"body": "This chat is closed. Start a new chat to continue.",
+                        "author": "system",
+                        "ts": datetime.utcnow().isoformat(timespec="seconds")},
+             room=request.sid)
+        return
 
     db.session.add(Message(chat_id=chat_id,
                            author="visitor",
@@ -382,7 +384,7 @@ def handle_visitor(text: str) -> None:
     rep_sid = next((r for r, v in PAIR.items() if v == request.sid), None)
 
     if rep_sid:
-        emit("visitor_msg", packet, room=request.sid)
+        emit("visitor_msg", packet, room=request.sid, include_self=False)
         return
 
     if request.sid in VISITORS:

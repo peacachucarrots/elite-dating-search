@@ -42,3 +42,5 @@
   align-self: flex-end;         /* bottom-align with bubble */
   margin-left: .4rem;
 }
+
+#pastTranscript .bubble { opacity: .85; }

@@ -37,9 +37,14 @@
 </div>
 
     <!-- Past chats panel -->
-    <aside class="w-64 p-3 space-y-2" id="historyPane">
+    <aside class="w-64 flex flex-col p-3 space-y-2 border-l" id="historyPane">
       <h2 class="font-bold mb-1">Past chats</h2>
-      <ul id="historyList" class="divide-y border text-sm"></ul>
+      <ul id="historyList" class="divide-y border text-sm flex-shrink-0"></ul>
+
+      <div id="pastTranscript"
+           class="flex-1 overflow-y-auto space-y-2 mt-2 border-t pt-2 text-sm hidden">
+        <p class="text-center text-slate-500">Select a chat</p>
+      </div>
     </aside>
 
   </div>
