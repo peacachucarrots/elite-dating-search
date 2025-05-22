@@ -27,9 +27,18 @@ class User(UserMixin, db.Model):
     pw_hash     = db.Column(db.String(255), nullable=False)
     is_active   = db.Column(db.Boolean, default=True)
     is_verified = db.Column(db.Boolean, default=False)
+    display_name = db.Column(db.String(80))
 
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
     last_login  = db.Column(db.DateTime)
+
+    sessions = db.relationship("ChatSession", back_populates="user")
+
+    messages = db.relationship(
+        "Message",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
 
     # ── Flask-Login hook ───────────────────────────────────────────────────
     def get_id(self) -> str:  # type: ignore[override]

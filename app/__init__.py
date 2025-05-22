@@ -13,11 +13,30 @@ from app.models import db
 from .settings import Dev, Prod
 from .extensions import socketio, db, login_manager, migrate, mail
 
+from importlib import import_module
+from typing import Union
 
-def create_app():
+DEFAULT_SETTINGS = "app.settings.Dev"
+
+def _load_config(app: Flask, cfg):
+    """Handle str -> dotted path import or class/object directly."""
+    if cfg is None:
+        cfg = DEFAULT_SETTINGS
+
+    if isinstance(cfg, str):
+        module_path, _, class_name = cfg.rpartition(".")
+        module = import_module(module_path)
+        cfg_obj = getattr(module, class_name)
+    else:
+        cfg_obj = cfg                               # already a class / instance
+
+    app.config.from_object(cfg_obj)
+
+
+def create_app(config_object: Union[str, type, None] = None) -> Flask:
     """Create and configure a Flask application instance."""
-    app = Flask(__name__)
-    app.config.from_object("app.settings.Dev")
+    app = Flask(__name__, static_url_path="/static")
+    _load_config(app, config_object)
 
     # ── Init extensions ─────────────────────────────────────────────
     socketio.init_app(app, cors_allowed_origins="*")

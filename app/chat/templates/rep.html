@@ -2,28 +2,52 @@
 {% block title %}Rep Dashboard{% endblock %}
 
 {% block content %}
-<h2>Active Visitors</h2>
-<ul id="visitorList" class="space-y-2"></ul>
+<div class="h-screen flex">
 
-<h2 class="mt-4">New Chats</h2>
-<ul id="newChatList" class="space-y-2"></ul>
+  <!-- ── Left column ───────────────────────────  -->
+  <div class="w-64 border-r p-3 space-y-4">
 
-<h2 id="chatHeading" class="mt-6">Chat</h2>
-<div id="chatWindow" class="border h-72 overflow-y-auto p-2"></div>
+    <h2 class="font-bold mb-1">Active visitors</h2>
+    <ul id="visitorList" class="divide-y border"></ul>
+    
+    <h2 class="font-bold mb-1">New chats</h2>
+    <ul id="newChatList" class="divide-y border"></ul>
 
-<form id="repForm" class="flex mt-2">
-  <input id="repInput" class="flex-1 border px-2 py-1" placeholder="Type…" />
-</form>
+  </div>
 
-<button id="disconnectBtn"
-			class="mt-4 px-3 py-1 border rounded bg-red-600 text-white">
-			Disconnect
-</button>
+    <!-- ── Chat + history area ─────────────────────────── -->
+  <div class="flex-1 flex min-h-0">
+
+    <!-- Chat window -->
+    <div class="flex-1 flex flex-col p-3 min-h-0 overflow-hidden" id="chatWindow">
+  <!-- scrolling message pane -->
+  <div id="messages" class="flex-1 overflow-y-auto space-y-2 mb-3"></div>
+
+  <!-- input form -->
+  <form id="chatForm" class="flex gap-2 flex-shrink-0">
+    <input id="msgInput"
+           class="flex-1 border px-2 py-1 rounded"
+           placeholder="Type…" autocomplete="off" />
+    <button id="disconnectBtn" type="button"
+            class="px-4 py-1 bg-red-600 text-white rounded">
+      End&nbsp;chat
+    </button>
+    <button class="px-4 py-1 bg-blue-600 text-white rounded">Send</button>
+  </form>
+</div>
+
+    <!-- Past chats panel -->
+    <aside class="w-64 p-3 space-y-2" id="historyPane">
+      <h2 class="font-bold mb-1">Past chats</h2>
+      <ul id="historyList" class="divide-y border text-sm"></ul>
+    </aside>
+
+  </div>
+</div>
 {% endblock %}
 
 {% block live_chat %}{% endblock %}
 
 {% block scripts %}
-<script defer src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-<script defer src="{{ url_for('chat.static', filename='js/rep_dashboard.js') }}"></script>
+<script type="module" src="{{ url_for('chat.static', filename='js/rep_dashboard.js') }}"></script>
 {% endblock %} 

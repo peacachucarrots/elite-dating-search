@@ -4,10 +4,11 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile-dev  # swap to Dockerfile for prod
+      dockerfile: Dockerfile-dev        # swap to Dockerfile for production
+    command: python run.py              # run the SocketIO server
     ports:
-      - "8080:8000"
+      - "8080:8080"                     # hostPort:containerPort
     volumes:
-      - .:/code
+      - .:/code                         # live-reload on file changes
     environment:
-      - FLASK_DEBUG=1
+      - FLASK_DEBUG=1                   # auto-reload inside run.py

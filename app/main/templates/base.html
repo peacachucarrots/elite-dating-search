@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html class="h-full" lang="en">
 <head>
   <!-- ─── Core meta ─────────────────────────────────────────── -->
   <meta charset="utf-8">
@@ -33,7 +33,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet"
         href="{{ url_for('main.static', filename='css/site.css') }}">
-
+	<link rel="stylesheet"
+      href="{{ url_for('chat.static', filename='css/main.css') }}">
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/css/glide.core.min.css">
   <link rel="stylesheet"
@@ -43,7 +44,7 @@
   {% block extra_head %}{% endblock %}
 </head>
 
-<body class="flex flex-col min-h-screen text-neutral-900 bg-white">
+<body class="h-full flex flex-col flex1 min-h-0 text-neutral-900 bg-white">
 
   {% include "partials/navbar.html" %}
 
@@ -55,7 +56,24 @@
 
   {# ----- live-chat widget (hide on /rep by overriding block) -- #}
   {% block live_chat %}
-    {% include "partials/live_chat.html" %}
+  	{% if current_user.is_authenticated %}
+    	{% include "partials/live_chat.html" %}
+    {% else %}
+    	<a  href="{{ url_for('auth.login', next=request.full_path) }}"
+        style="
+          position: fixed;
+          right: 1rem; bottom: 1rem;
+          background: #2563eb;        /* Tailwind 'blue-600' */
+          color: white;
+          padding: .5rem 1rem;
+          border-radius: .5rem;
+          font-size: .875rem;
+          box-shadow: 0 2px 6px rgba(0,0,0,.2);
+          text-decoration: none;
+        ">
+      Log&nbsp;in&nbsp;to&nbsp;chat
+    </a>
+   {% endif %}
   {% endblock %}
 
   {% include "partials/footer.html" %}
@@ -66,7 +84,10 @@
 
   <!-- Socket.IO + visitor widget -->
   <script defer src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <script defer src="{{ url_for('chat.static', filename='js/live_chat.js') }}"></script>
+  <script defer type="module"
+  			src="{{ url_for('static', filename='js/chat_common.js') }}"></script>
+  <script defer type="module"
+  					src="{{ url_for('chat.static', filename='js/live_chat.js') }}"></script>
 
   {# ---------- Extra JS --------------------------------------- #}
   {% block extra_js %}

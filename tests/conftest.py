@@ -1,40 +1,48 @@
 # tests/conftest.py
 import pytest
 from app import create_app
-from app.extensions import socketio as _socketio
+from app.extensions import db as _db, socketio as _socketio
 
 
-@pytest.fixture(scope="session")
-def app():
-    """Return a Flask app configured for tests."""
-    _app = create_app("app.settings.Dev")
-    # override config here if needed, e.g. in-mem DB URI
-    _app.config["TESTING"] = True
-    return _app
-
-
+# ──────────────────────────────────────────────────────────────
+# 1️⃣  Build one application per *test function* so we always get
+#     a brand-new in-memory database.
+# ──────────────────────────────────────────────────────────────
 @pytest.fixture(scope="function")
-def socketio_client(app):
-    """
-    Give each test its *own* Socket.IO test client,
-    automatically connected to the `app` context.
-    """
+def app():
+    app = create_app("app.settings.Test")          # -> sqlite:///:memory:
+    app.config.update(
+        TESTING=True,
+        SQLALCHEMY_DATABASE_URI="sqlite:///:memory:",
+        SQLALCHEMY_ENGINE_OPTIONS={"future": True},
+    )
+
+    with app.app_context():
+        _db.create_all()           # ← create the tables
+
+    yield app                      # test runs here
+
+    # clean-up: drop everything and remove session
+    with app.app_context():
+        _db.session.remove()
+        _db.drop_all()
+
+
+# ──────────────────────────────────────────────────────────────
+# 2️⃣  Give every test its own Socket.IO clients that depend on
+#     the *app* fixture (tables exist by then).
+# ──────────────────────────────────────────────────────────────
+@pytest.fixture
+def socketio_client(app):          #  ← depends on *app*
     client = _socketio.test_client(app)
     yield client
     client.disconnect()
 
 
-# convenience fixture: pair of visitor + rep clients
-@pytest.fixture(scope="function")
+@pytest.fixture
 def visitor_and_rep(app):
-    visitor = _socketio.test_client(app)          # tab 1
-    rep     = _socketio.test_client(app)          # tab 2 (will call iam_rep)
-
-    # mark second socket as rep
-    rep.emit("iam_rep")
-    rep.get_received()      # clear handshake packets
-
+    visitor = _socketio.test_client(app)
+    rep     = _socketio.test_client(app)
+    rep.emit("iam_rep"); rep.get_received()
     yield visitor, rep
-
-    visitor.disconnect()
-    rep.disconnect()
+    visitor.disconnect(); rep.disconnect()

@@ -1,56 +1,52 @@
-//  static/js/_live_chat.js
-(() => {
-  /* ---------- DOM hooks ---------- */
-  const chatBox  = document.getElementById("chatbox");
-  if (!chatBox) return;
+/* static/js/live_chat.js */
+import { io }      from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
+import { renderLine as baseRenderLine } from "/static/js/chat_common.js";
 
-  const messages = chatBox.querySelector("#messages");
-  const form     = chatBox.querySelector("#chatForm");
-  const input    = chatBox.querySelector("#msgInput");
+(() => {
+  // ────────── DOM hooks ──────────
+  const chatBox = document.getElementById("chatbox");
+  if (!chatBox) return;                         // page doesn’t include the widget
+
+  const messagesPane = document.getElementById("messages");
+  const form     = document.getElementById("chatForm");
+  const input    = document.getElementById("msgInput");
   const toggle   = chatBox.querySelector(".toggle");
 
-  /* ---------- constants ---------- */
-  const OPEN_KEY    = "chatboxOpen";          // 'true' | 'false'
-  const LOG_KEY     = "chatboxLog";           // JSON array of {who,text}
-  const MAX_STORED  = 200;                    // rotate oldest beyond this
+  // ────────── local-storage keys & limits ──────────
+  const OPEN_KEY   = "chatboxOpen";             // "true" | "false"
+  const LOG_KEY    = "chatboxLog";              // JSON array of { who, body, ts }
+  const MAX_STORED = 200;                       // rotate beyond this length
 
-  /* ---------- restore message log ---------- */
-  const saved = JSON.parse(localStorage.getItem(LOG_KEY) || "[]");
-  saved.forEach(({ who, text }) => append(who, text, false));   // false=no save
+  // ────────── Socket.IO setup ──────────
+  const socket = io({
+  path : "/socket.io",
+  query: { role: "visitor" }
+});
 
-  /* ---------- Socket.IO ---------- */
-  const socket = io({ transports: ["websocket", "polling"] });
+  // incoming
+  socket.on("visitor_msg", data => renderLine(data, messagesPane));
+  socket.on("rep_msg",     data => renderLine(data, messagesPane));
+  socket.on("system",      txt  => renderLine(txt,  messagesPane));
+  socket.on("disconnect", () =>
+    renderLine({ author: "system", body: "Chat disconnected…", ts: Date.now() }, messagesPane)
+  );
 
-  socket.on("rep_msg", (m) => append("rep", m));
-  socket.on("system",  (m) => append("sys", m));
-  socket.on("disconnect", () => append("sys", "Chat Disconnected…"));
-
-  /* ---------- send flow ---------- */
-  form.addEventListener("submit", (e) => {
+  // outgoing
+  form.addEventListener("submit", e => {
     e.preventDefault();
-    const text = input.value.trim();
-    if (!text) return;
-    socket.emit("visitor_msg", text);
-    append("me", text);
+    const txt = input.value.trim();
+    if (!txt) return;
+
+    socket.emit("visitor_msg", txt);                            // send to server
+    renderLine({ author: "visitor", body: txt, ts: Date.now() }, messagesPane); // echo locally
     input.value = "";
   });
 
-  /* ---------- append helper (and persist) ---------- */
-  function append(who, text, persist = true) {
-    const div = document.createElement("div");
-    div.className = `msg ${who}`;
-    div.textContent = text;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
+  function renderLine(line, target) {
+  baseRenderLine(line, target);
+}
 
-    if (persist) {
-      saved.push({ who, text });
-      if (saved.length > MAX_STORED) saved.shift();             // trim
-      localStorage.setItem(LOG_KEY, JSON.stringify(saved));
-    }
-  }
-
-  /* ---------- open/close persister ---------- */
+  // ────────── open / collapse state ──────────
   let isOpen = localStorage.getItem(OPEN_KEY) === "true";
   if (isOpen) chatBox.classList.remove("collapsed");
   toggle.textContent = isOpen ? "▼" : "▲";

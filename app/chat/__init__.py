@@ -5,7 +5,7 @@ bp = Blueprint(
     "chat",
     __name__,
     template_folder="templates",   # where rep.html lives
-    static_folder="static",        # where js/ lives
+    static_folder="static"         # where js/ lives
 )
 
 # ↓ keep this import at the end to avoid circular imports

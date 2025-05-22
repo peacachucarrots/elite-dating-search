@@ -31,16 +31,12 @@ class Base:
     SOCKETIO_MESSAGE_QUEUE     = os.environ.get("REDIS_URL")  # e.g. redis://localhost:6379/0
 
     # ── Mail (Flask-Mail or Flask-SMTP) ────────────────────────────────────
-    DEBUG = True
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get("GMAIL_USER")
-    MAIL_PASSWORD = os.environ.get("GMAIL_APP_PWD")
-    MAIL_DEFAULT_SENDER = (  # must match an allowed address
-        "Elite Dating Search",
-        os.environ.get("GMAIL_USER")
-    )
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    MAIL_DEFAULT_SENDER = ("Elite Dating Search", "noah.homy@gmail.com")
 
     # ── 2FA / TOTP ─────────────────────────────────────────────────────────
     SECURITY_2FA_SECRET = os.environ.get("TOTP_SECRET", "totp-seed-dev")

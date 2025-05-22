@@ -347,63 +347,65 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
 {% endblock %}
 
 {% block extra_scripts %}
-{{ super() }}
-<!-- GlideJS -->
-<script src="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/glide.min.js"></script>
+  {{ super() }}
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  /* ─── HERO “signature” loader ─── */
-  const html   = document.documentElement;
-  const loader = document.getElementById('loader');
-  const paths  = document.querySelectorAll('#signature-loader path');
+  <!-- ── third-party libs ─────────────────────────────────────────────── -->
+  <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/glide.min.js"></script>
 
-  html.classList.add('overflow-hidden');
+  <!-- ── page-specific behaviour (kept as classic script) ─────────────── -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      /* ─── HERO “signature” loader ─── */
+      const html   = document.documentElement;
+      const loader = document.getElementById('loader');
+      const paths  = document.querySelectorAll('#signature-loader path');
 
-  paths.forEach((p, i) => {
-    const len = p.getTotalLength();
-    p.style.strokeDasharray  = len;
-    p.style.strokeDashoffset = len;
-    p.style.animation = `draw 3s ease forwards ${i * 0.05}s`;
-  });
-
-  paths[paths.length - 1].addEventListener('animationend', () => {
-    loader.classList.add('opacity-0');
-    setTimeout(() => loader.remove(), 700);
-    html.classList.remove('overflow-hidden');
-  });
-
-  /* ─── BLOG thumbnail carousel ─── */
-  const selector = '.glide.blog-thumbs';
-  if (document.querySelector(selector)) {
-    new Glide(selector, {
-      type: 'carousel',
-      perView: 3,
-      gap: 24,
-      autoplay: 4500,
-      hoverpause: true,
-      breakpoints: {
-        1024: { perView: 2 },
-        640:  { perView: 1 }
+      html.classList.add('overflow-hidden');
+    
+      paths.forEach((p, i) => {
+        const len = p.getTotalLength();
+        p.style.strokeDasharray  = len;
+        p.style.strokeDashoffset = len;
+        p.style.animation = `draw 3s ease forwards ${i * 0.05}s`;
+      });
+    
+      paths[paths.length - 1].addEventListener('animationend', () => {
+        loader.classList.add('opacity-0');
+        setTimeout(() => loader.remove(), 700);
+        html.classList.remove('overflow-hidden');
+      });
+    
+      /* ─── BLOG thumbnail carousel ─── */
+      const selector = '.glide.blog-thumbs';
+      if (document.querySelector(selector)) {
+        new Glide(selector, {
+          type: 'carousel',
+          perView: 3,
+          gap: 24,
+          autoplay: 4500,
+          hoverpause: true,
+          breakpoints: {
+            1024: { perView: 2 },
+            640:  { perView: 1 }
+          }
+        }).mount();
       }
-    }).mount();
-  }
+    
+      /* ─── Testimonial slider ─── */
+      const tGlide = document.querySelector('[data-testid="testimonial-glide"]');
+      if (tGlide) {
+        new Glide(tGlide, {
+          type:      'carousel',
+          perView:   1,
+          gap:       0,
+          autoplay:  6000,
+          hoverpause:true
+        }).mount();
+      }
+    });
+  </script>
 
-  /* ─── Testimonial slider ─── */
-  const tGlide = document.querySelector('[data-testid="testimonial-glide"]');
-  if (tGlide) {
-    new Glide(tGlide, {
-      type:      'carousel',
-      perView:   1,
-      gap:       0,
-      autoplay:  6000,
-      hoverpause:true
-    }).mount();
-  }
-});
-</script>
-
-<style>
-@keyframes draw { to { stroke-dashoffset: 0; } }
-</style>
+  <style>
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+  </style>
 {% endblock %}
