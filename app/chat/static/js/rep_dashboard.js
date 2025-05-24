@@ -71,6 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
     socket.emit("leave_visitor", { sid: activeVisitor });
     activeVisitor = null;
     messagesPane.innerHTML = "";
+    hideTranscript();
+    historyList.innerHTML = "";
   });
 
   /* row click (delegate) */

@@ -1,7 +1,7 @@
 # app/models/chat.py
 import secrets
 from datetime import datetime
-from app.extensions import db
+from ..extensions import db
 
 def _rand_id():
     return secrets.token_urlsafe(12)

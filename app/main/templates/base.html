@@ -12,6 +12,7 @@
       "EliteDatingSearch offers confidential, executive-level matchmaking "
       "for commitment-minded singles."
   ) %}
+
   <meta name="description"
         content="{% block description %}{{ default_description }}{% endblock %}">
 
@@ -45,8 +46,9 @@
 </head>
 
 <body class="h-full flex flex-col flex1 min-h-0 text-neutral-900 bg-white">
-
+{% block navbar %}
   {% include "partials/navbar.html" %}
+{% endblock %}
 
   {% block hero %}{% endblock %}
 
@@ -75,8 +77,9 @@
     </a>
    {% endif %}
   {% endblock %}
-
+{% block footer %}
   {% include "partials/footer.html" %}
+{% endblock %}
 
   <!-- Alpine (optional) + global JS -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

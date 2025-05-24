@@ -7,7 +7,8 @@ from argon2 import PasswordHasher, exceptions as argon_exc
 from flask_login import UserMixin
 from sqlalchemy.orm import validates
 
-from app.extensions import db    # ← the SQLAlchemy() instance created in extensions.py
+from .role import user_roles
+from ..extensions import db
 
 # ── password hasher (Argon2id) ───────────────────────────────────────────────
 ph = PasswordHasher(
@@ -22,16 +23,17 @@ ph = PasswordHasher(
 class User(UserMixin, db.Model):
     __tablename__ = "users"
 
-    id          = db.Column(db.Integer, primary_key=True)
-    email       = db.Column(db.String(255), unique=True, nullable=False, index=True)
-    pw_hash     = db.Column(db.String(255), nullable=False)
-    is_active   = db.Column(db.Boolean, default=True)
-    is_verified = db.Column(db.Boolean, default=False)
+    id           = db.Column(db.Integer, primary_key=True)
+    email        = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    pw_hash      = db.Column(db.String(255), nullable=False)
+    is_active    = db.Column(db.Boolean, default=True)
+    is_verified  = db.Column(db.Boolean, default=False)
     display_name = db.Column(db.String(80))
 
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
     last_login  = db.Column(db.DateTime)
 
+    roles = db.relationship("Role", secondary=user_roles, lazy="joined")
     sessions = db.relationship("ChatSession", back_populates="user")
 
     messages = db.relationship(
@@ -43,6 +45,19 @@ class User(UserMixin, db.Model):
     # ── Flask-Login hook ───────────────────────────────────────────────────
     def get_id(self) -> str:  # type: ignore[override]
         return str(self.id)
+
+    # ── Role Helper functions ───────────────────────────────────────────────────
+    def has_role(self, name: str) -> bool:
+        return any(r.name == name for r in self.roles)
+
+    def max_role_level(self) -> int:
+        return max((r.level for r in self.roles), default=0)
+
+    def is_rep(user):
+        return user.max_role_level() >= 20
+
+    def is_admin(user):
+        return user.max_role_level() >= 30
 
     # ── Password helpers (Argon-2) ─────────────────────────────────────────
     # called from auth.routes.register()

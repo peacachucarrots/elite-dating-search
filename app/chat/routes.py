@@ -7,12 +7,13 @@ All in-memory state lives here (ALIVE, VISITORS, etc.). Swap for a DB later.
 from collections import defaultdict
 from datetime import datetime
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, abort
 from flask_socketio import emit, join_room, leave_room
-from flask_login import current_user, logout_user
+from flask_login import current_user, logout_user, login_required
 
 from sqlalchemy import func
 
+from app.auth.permissions import require_role
 from app.extensions import socketio, db
 from app.models.chat import ChatSession, Message
 from . import bp
@@ -42,8 +43,9 @@ def _create_session_for(user_id: int) -> ChatSession:
 # Blueprint
 # ---------------------------------------------------------------------------
 @bp.route("/rep")
+@login_required
+@require_role("rep")
 def rep_dashboard():
-    """Representative dashboard (lists visitors + chat panel)."""
     return render_template("rep.html")
 
 # ---------------------------------------------------------------------------
@@ -115,6 +117,9 @@ def handle_connect():
             print("+++ Visitor connected", display_name)
             return
         case "rep":
+            if not current_user.has_role("rep"):
+                emit("system", "You are not authorized as a representative.")
+                return
             REPS.add(request.sid)
             join_room("reps")
             print("+++ REP connected", display_name)

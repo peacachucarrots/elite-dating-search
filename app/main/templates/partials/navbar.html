@@ -60,16 +60,30 @@
     
     {# ───── CTA / AUTH LINKS (desktop) ───── #}
     {% if current_user.is_authenticated %}
-      <div class="hidden md:flex items-center space-x-6">
-        <span class="text-sm font-semibold text-gray-700">{{ current_user.email }}</span>
-        <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">Log&nbsp;out</a>
-      </div>
-    {% else %}
-      <div class="hidden md:flex items-center space-x-4">
-        <a href="{{ url_for('auth.login') }}"    class="nav-link">Log in</a>
-        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Sign&nbsp;up</a>
-      </div>
+  <div class="hidden md:flex items-center space-x-6">
+    <span class="text-sm font-semibold text-gray-700">
+      {{ current_user.email }}
+    </span>
+
+    {# link visible only for reps (and admins who hold the role) #}
+    {% if current_user.has_role("rep") %}
+      <a href="{{ url_for('chat.rep_dashboard') }}" class="px-3 py-2">
+        Rep Dashboard
+      </a>
     {% endif %}
+    
+    <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">
+      Log&nbsp;out
+    </a>
+  </div>
+{% else %}
+  <div class="hidden md:flex items-center space-x-4">
+    <a href="{{ url_for('auth.login') }}"    class="nav-link">Log in</a>
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+      Sign&nbsp;up
+    </a>
+  </div>
+{% endif %}
     
     <!-- Mobile hamburger -->
     <button id="nav-toggle"
