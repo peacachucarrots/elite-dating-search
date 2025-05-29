@@ -1,0 +1,37 @@
+{# app/program/templates/client_checkout.html #}
+{% extends "base.html" %}
+{% block title %}Complete your payment{% endblock %}
+
+{% block content %}
+<section class="py-24 text-center max-w-2xl mx-auto">
+  <h1 class="text-3xl font-semibold mb-4">
+    Secure payment (US&nbsp;$7,500)
+  </h1>
+
+  <p class="mb-8">
+    Click “Continue” – you’ll be taken to our encrypted checkout page.
+    All major cards accepted.
+  </p>
+
+  <button id="payBtn" class="btn btn-primary px-10 py-3 text-lg">
+    Continue&nbsp;→
+  </button>
+
+  <p class="text-sm text-slate-500 mt-8">
+    Questions? <a href="mailto:support@elitedatingsearch.com"
+                  class="underline">Contact us</a>.
+  </p>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://js.stripe.com/v3"></script>
+<script>
+  // <<stripe_publishable_key>> is injected from the route
+  const stripe = Stripe("{{ stripe_pk }}");
+  document.getElementById("payBtn").onclick = () => {
+    stripe.redirectToCheckout({ sessionId: "{{ stripe_session_id }}" });
+  };
+</script>
+{% endblock %}

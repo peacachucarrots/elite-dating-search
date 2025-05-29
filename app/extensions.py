@@ -4,6 +4,7 @@ Import these wherever you need them, then call
 `socketio.init_app(app)` inside create_app().
 """
 
+import stripe
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
@@ -26,6 +27,8 @@ login_manager.login_view = "auth.login"         # redirect for @login_required
 login_manager.session_protection = "strong"
 migrate = Migrate()
 mail = Mail()
+
+stripe.api_key = None
 
 # ----------------------------------------------------------------------
 # Ready for future extensions — just uncomment / install when needed.

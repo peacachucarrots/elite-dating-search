@@ -50,6 +50,12 @@ class User(UserMixin, db.Model):
         cascade="all, delete-orphan"
     )
 
+    applications = db.relationship(
+        "ProgramApplication",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
     # ── Flask-Login hook ───────────────────────────────────────────────────
     def get_id(self) -> str:  # type: ignore[override]
         return str(self.id)

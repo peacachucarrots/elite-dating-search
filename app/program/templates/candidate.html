@@ -1,0 +1,43 @@
+{# program/templates/candidate.html #}
+{% extends "base.html" %}
+{% block title %}Complimentary Candidate Program{% endblock %}
+
+{% block content %}
+<!-- ── Hero ─────────────────────────────────────────────── -->
+<section class="bg-brand-dark text-white py-20">
+  <div class="max-w-4xl mx-auto text-center px-4">
+    <h1 class="text-4xl font-serif mb-4">
+      Find&nbsp;the&nbsp;love&nbsp;of&nbsp;your&nbsp;life
+    </h1>
+    <p class="text-xl mb-8">
+      Join our <strong>complimentary Candidate&nbsp;Program.</strong>
+    </p>
+    <a href="#apply" class="btn btn-primary">Apply&nbsp;now</a>
+  </div>
+</section>
+
+<!-- ── Benefits (example) ───────────────────────────────── -->
+<section class="max-w-4xl mx-auto py-16 px-4">
+  <h2 class="text-3xl font-semibold mb-6 text-center">Why apply?</h2>
+  <ul class="space-y-4">
+    <li class="flex items-start">
+      <span class="text-brand-gold mr-3">✓</span>
+      Personal introductions to verified clients
+    </li>
+    <li class="flex items-start">
+      <span class="text-brand-gold mr-3">✓</span>
+      Discreet, professional matchmaking team
+    </li>
+    <li class="flex items-start">
+      <span class="text-brand-gold mr-3">✓</span>
+      Completely free to join and be matched
+    </li>
+  </ul>
+</section>
+
+<!-- ── Application form ─────────────────────────────────── -->
+<section id="apply" class="max-w-4xl mx-auto py-16 px-4">
+  <h2 class="text-3xl font-semibold mb-6 text-center">Application</h2>
+  {% include "partials/application_form.html" %}
+</section>
+{% endblock %}

@@ -24,10 +24,10 @@
           <li><a href="{{ url_for('main.matchmaking_services') }}"
                  class="block px-5 py-3 text-sm text-gray-700 hover:bg-[#f8f5ec] hover:text-[#d4af37] transition-colors">
                  Overview of Services</a></li>
-          <li><a href="{{ url_for('main.client_program') }}"
+          <li><a href="{{ url_for('program.client') }}"
                  class="block px-5 py-3 text-sm text-gray-700 hover:bg-[#f8f5ec] hover:text-[#d4af37] transition-colors">
                  Client Program</a></li>
-          <li><a href="{{ url_for('main.candidate_program') }}"
+          <li><a href="{{ url_for('program.candidate') }}"
                  class="block px-5 py-3 text-sm text-gray-700 hover:bg-[#f8f5ec] hover:text-[#d4af37] transition-colors">
                  Candidate Program (Complimentary)</a></li>
         </ul>
@@ -102,8 +102,8 @@
               origin-top scale-y-0 transition-transform">
     <ul class="flex flex-col text-base font-medium divide-y divide-gray-100">
       <li><a href="{{ url_for('main.matchmaking_services') }}" class="mobile-link">Overview of Services</a></li>
-      <li><a href="{{ url_for('main.client_program') }}"       class="mobile-link">Client Program</a></li>
-      <li><a href="{{ url_for('main.candidate_program') }}"    class="mobile-link">Candidate Program (Complimentary)</a></li>
+      <li><a href="{{ url_for('program.client') }}"       class="mobile-link">Client Program</a></li>
+      <li><a href="{{ url_for('program.candidate') }}"    class="mobile-link">Candidate Program (Complimentary)</a></li>
       <li><a href="{{ url_for('main.our_process') }}"          class="mobile-link">Our Process</a></li>
       <li><a href="{{ url_for('main.roi_of_love') }}"          class="mobile-link">ROI of Love</a></li>
       <li><a href="{{ url_for('main.testimonials') }}"         class="mobile-link">Testimonials</a></li>

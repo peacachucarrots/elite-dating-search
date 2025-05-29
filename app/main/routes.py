@@ -50,15 +50,3 @@ def about_us():
 @bp.route("/get-started")
 def get_started():
     return render_template("get_started.html")
-
-@bp.route("/save-candidate")
-def save_candidate():
-    return render_template("save_candidate.html")
-
-@bp.route("/candidate-program")
-def candidate_program():
-    return render_template("candidate_program.html")
-
-@bp.route("/client-program")
-def client_program():
-    return render_template("client_program.html")

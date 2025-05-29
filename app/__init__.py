@@ -4,6 +4,7 @@ Application factory + blueprint registration.
 Call create_app() from run.py, tests, or a WSGI entrypoint.
 """
 
+import stripe
 from datetime import datetime
 import calendar
 from flask import Flask
@@ -45,6 +46,8 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     migrate.init_app(app, db)
     login_manager.init_app(app)
 
+    stripe.api_key = app.config["STRIPE_SECRET_KEY"]
+
     from app.models.user import User
 
     @login_manager.user_loader
@@ -56,11 +59,13 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     from .chat import bp as chat_bp
     from .blog import bp as blog_bp
     from .auth import bp as auth_bp
+    from .program import bp as program_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(chat_bp, url_prefix="/chat")
     app.register_blueprint(blog_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(program_bp, url_prefix="/program")
 
     # ── Global context + filters ───────────────────────────────────
     @app.context_processor

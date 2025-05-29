@@ -4,10 +4,6 @@
 import { renderLine } from "/static/js/chat_common.js";
 import { io }         from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
 
-/* 🔔 new-chat ping --------------------------------------------------- */
-const newChatPing = new Audio("/chat/static/audio/new_chat.mp3");
-newChatPing.volume = 0.5;
-
 /* ── Socket.IO ------------------------------------------------------ */
 const socket = io({ path: "/socket.io", query: { role: "rep" } });
 socket.on("connect", () => socket.emit("iam_rep"));
@@ -29,6 +25,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const form   = document.getElementById("chatForm");
   const inp    = document.getElementById("msgInput");
   const disc   = document.getElementById("disconnectBtn");
+  
+  const banner   = document.getElementById("soundBanner");
+  const enableBt = document.getElementById("enableAudioBtn");
+  const ping     = new Audio("/chat/static/audio/new_chat.mp3");
+  
+  function unlockAudio() {
+    ping.play()
+        .then(() => {
+          ping.pause();
+          banner?.remove();
+        })
+        .catch(() => {});
+  }
+  
+  enableBt?.addEventListener("click", unlockAudio);
 
   lists = {
     active : document.getElementById("visitorList"),

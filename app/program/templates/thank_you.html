@@ -1,0 +1,14 @@
+{# app/program/templates/thank_you.html #}
+{% extends "base.html" %}
+{% block title %}Thank you!{% endblock %}
+
+{% block content %}
+<section class="py-24 text-center max-w-2xl mx-auto">
+  <h1 class="text-3xl font-semibold mb-4">{{ headline }}</h1>
+  <p class="mb-6">{{ blurb }}</p>
+
+  <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+    Back to home
+  </a>
+</section>
+{% endblock %}

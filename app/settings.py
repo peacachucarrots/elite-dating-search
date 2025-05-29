@@ -20,6 +20,8 @@ class Base:
     """Settings shared by all environments."""
     # ── Core ────────────────────────────────────────────────────────────────
     SECRET_KEY                 = os.environ.get("SECRET_KEY", "dev-change-me")
+    STRIPE_SECRET_KEY          = os.environ.get("STRIPE_SECRET_KEY")
+    STRIPE_PUBLISHABLE_KEY     = os.environ.get("STRIPE_PUBLISHABLE_KEY")
     SESSION_COOKIE_HTTPONLY    = True
     SESSION_COOKIE_SAMESITE    = "Lax"
     SEND_FILE_MAX_AGE_DEFAULT  = 60 * 60          # 1 hour (static-file cache bust)

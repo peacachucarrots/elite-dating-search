@@ -1,0 +1,29 @@
+{# program/partials/application_form.html #}
+<form method="post" class="space-y-4">
+  {{ form.hidden_tag() }}
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <input class="border p-2 bg-slate-100" value="{{ current_user.profile.first_name }}" disabled>
+    <input class="border p-2 bg-slate-100" value="{{ current_user.profile.last_name }}"  disabled>
+    <input class="border p-2 bg-slate-100" value="{{ current_user.email }}"             disabled>
+    <input class="border p-2 bg-slate-100" value="{{ current_user.phone }}"             disabled>
+  </div>
+
+  {{ form.street.label }} {{ form.street(class="w-full border p-2") }}
+  {{ form.city.label }} {{ form.city(class="w-full border p-2") }}
+  {{ form.state.label }} {{ form.state(class="w-full border p-2") }}
+  {{ form.zip.label }} {{ form.zip(class="w-full border p-2") }}
+  {{ form.country.label }} {{ form.country(class="w-full border p-2") }}
+
+  <div class="grid md:grid-cols-2 gap-4">
+    {{ form.occupation.label }} {{ form.occupation(class="border p-2") }}
+    {{ form.income_bracket.label }} {{ form.income_bracket(class="border p-2") }}
+    {{ form.education.label }} {{ form.education(class="border p-2") }}
+    {{ form.marital_status.label }} {{ form.marital_status(class="border p-2") }}
+    {{ form.ref_src.label }} {{ form.ref_src(class="border p-2") }}
+  </div>
+
+  {{ form.intro.label }} {{ form.intro(class="w-full border p-2 h-32") }}
+
+  {{ form.submit(class="btn btn-primary mt-4") }}
+</form>

@@ -1,0 +1,86 @@
+{# program/templates/client.html #}
+{% extends "base.html" %}
+{% block title %}Private Client Program{% endblock %}
+
+{% block content %}
+<!-- ── Hero ─────────────────────────────────────────────── -->
+<section class="bg-brand-dark text-white py-20">
+  <div class="max-w-4xl mx-auto text-center px-4">
+    <h1 class="text-4xl font-serif mb-4">
+      World-class matchmaking, <br class="hidden md:inline">tailored for you
+    </h1>
+    <p class="text-xl mb-8">
+      Become an <strong>Elite&nbsp;Dating&nbsp;Search Private&nbsp;Client</strong>
+      and work 1-on-1 with our head matchmaker.
+    </p>
+    <a href="#apply" class="btn btn-primary">Schedule Consultation</a>
+  </div>
+</section>
+
+<!-- ── What’s included / benefits ───────────────────────── -->
+<section class="max-w-5xl mx-auto py-16 px-4">
+  <h2 class="text-3xl font-semibold mb-6 text-center">What you receive</h2>
+  <div class="grid md:grid-cols-2 gap-8">
+    <div class="space-y-4">
+      <h3 class="text-xl font-semibold flex items-center">
+        <span class="text-brand-gold mr-2">✓</span> Dedicated Matchmaker
+      </h3>
+      <p>Monthly strategy calls, date feedback, and continuous profile curation.</p>
+    </div>
+
+    <div class="space-y-4">
+      <h3 class="text-xl font-semibold flex items-center">
+        <span class="text-brand-gold mr-2">✓</span> Proactive &amp; Confidential Search
+      </h3>
+      <p>We discreetly scout within our network and beyond based on your criteria.</p>
+    </div>
+
+    <div class="space-y-4">
+      <h3 class="text-xl font-semibold flex items-center">
+        <span class="text-brand-gold mr-2">✓</span> Verified Date Prospects
+      </h3>
+      <p>All introductions are background-checked and interviewed by our team.</p>
+    </div>
+
+    <div class="space-y-4">
+      <h3 class="text-xl font-semibold flex items-center">
+        <span class="text-brand-gold mr-2">✓</span> Personal Image Consulting
+      </h3>
+      <p>Styling, photography, and mindset coaching to present your best self.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Process timeline (example) ───────────────────────── -->
+<section class="bg-slate-50 py-16">
+  <div class="max-w-5xl mx-auto px-4">
+    <h2 class="text-3xl font-semibold mb-10 text-center">Our Proven Process</h2>
+    <ol class="grid md:grid-cols-4 gap-6 text-center text-slate-700">
+      <li>
+        <div class="text-brand-gold text-4xl font-bold mb-2">1</div>
+        Consultation
+      </li>
+      <li>
+        <div class="text-brand-gold text-4xl font-bold mb-2">2</div>
+        Search &amp; Vetting
+      </li>
+      <li>
+        <div class="text-brand-gold text-4xl font-bold mb-2">3</div>
+        Introductions
+      </li>
+      <li>
+        <div class="text-brand-gold text-4xl font-bold mb-2">4</div>
+        Ongoing Support
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ── Application form ─────────────────────────────────── -->
+<section id="apply" class="max-w-4xl mx-auto py-16 px-4">
+  <h2 class="text-3xl font-semibold mb-6 text-center">
+    Book Your Initial Consultation
+  </h2>
+  {% include "partials/application_form.html" %}
+</section>
+{% endblock %}
