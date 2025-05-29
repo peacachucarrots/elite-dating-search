@@ -73,6 +73,28 @@ def confirm_email(token):
 
     return redirect(url_for("auth.login"))
 
+@bp.route("/resend-email", endpoint="resend_email_token", methods=["GET"])
+def resend_email_token():
+    """
+    Re-send the “confirm your e-mail” message for an un-verified account.
+
+    We expect ?email=<adress> in the query-string (login() adds it).
+    """
+    email = request.args.get("email", "").strip().lower()
+    user  = User.query.filter_by(email=email).first_or_404()
+
+    if user.is_verified:
+        flash("That address is already confirmed – just log in ✨", "info")
+        return redirect(url_for("auth.login"))
+
+    # create and send a fresh confirmation link
+    token       = generate_token(user.id, purpose="verify")
+    confirm_url = url_for("auth.confirm_email", token=token, _external=True)
+    send_confirmation_email(user, confirm_url)
+
+    flash("We’ve sent a new confirmation link – check your inbox.", "success")
+    return redirect(url_for("auth.login"))
+
 
 # --------------------------------------------------------------------------- #
 # Login / logout                                                              #
@@ -88,7 +110,7 @@ def login():
 
         if not user.is_verified:
             flash("Confirm your e-mail first.", "warning")
-            return redirect(url_for("auth.resend_email_token"))
+            return redirect(url_for("auth.resend_email_token", email=user.email))
 
         code = f"{randbelow(1_000_000):06d}"  # zero-padded 6-digits
         user.phone_otp = code

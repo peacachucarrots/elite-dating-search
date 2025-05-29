@@ -37,10 +37,7 @@ def _send_email(subject: str, recipient: str,
 # ------------------------------------------------------------------ #
 # public helpers                                                     #
 # ------------------------------------------------------------------ #
-def send_confirmation_email(user: User) -> None:
-    token = generate_token(user.id, purpose="email-confirm")
-    confirm_url = url_for("auth.confirm_email", token=token, _external=True)
-
+def send_confirmation_email(user: User, confirm_url: str) -> None:
     _send_email(
         subject    ="Confirm your e-mail • Elite Dating Search",
         recipient  = user.email,
