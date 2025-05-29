@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <body style="font-family: Arial, sans-serif; line-height:1.4;">
+    <p>Hi {{ user.profile.first_name or user.email }},</p>
+
+    <p>Thanks for creating an account with
+       <strong>Elite&nbsp;Dating&nbsp;Search</strong>.  
+       Please confirm your e-mail address by clicking the button below:</p>
+    
+    <p>
+      <a href="{{ confirm_url }}" style="
+           display:inline-block;
+           padding:10px 18px;
+           background:#d62828;
+           color:#fff;
+           text-decoration:none;
+           border-radius:4px;">
+        Confirm e-mail
+      </a>
+    </p>
+    
+    <p>If the button doesn’t work, copy and paste this link into your browser:</p>
+    <p><small>{{ confirm_url }}</small></p>
+    
+    <p>See you soon,<br>Elite Dating Search&nbsp;Team</p>
+  </body>
+</html>

@@ -7,36 +7,77 @@
   <h1 class="text-2xl font-semibold mb-6 text-center">Sign Up</h1>
 
   <form method="post" novalidate class="space-y-6">
-    {{ form.hidden_tag() }}
+{{ form.hidden_tag() }}
 
-    <div>
-      {{ form.email.label(class="block text-sm font-medium mb-1") }}
-      {{ form.email(class="w-full border rounded px-3 py-2", placeholder="you@example.com") }}
-      {% if form.email.errors %}
-        <p class="text-sm text-red-600 mt-1">{{ form.email.errors[0] }}</p>
-      {% endif %}
-    </div>
-    
-    <div>
-      {{ form.password.label(class="block text-sm font-medium mb-1") }}
-      {{ form.password(class="w-full border rounded px-3 py-2", placeholder="••••••••") }}
-      {% if form.password.errors %}
-        <p class="text-sm text-red-600 mt-1">{{ form.password.errors[0] }}</p>
-      {% endif %}
-    </div>
-    
-    <div>
-      {{ form.confirm.label(class="block text-sm font-medium mb-1") }}
-      {{ form.confirm(class="w-full border rounded px-3 py-2", placeholder="repeat password") }}
-      {% if form.confirm.errors %}
-        <p class="text-sm text-red-600 mt-1">{{ form.confirm.errors[0] }}</p>
-      {% endif %}
-    </div>
-    
-    <button type="submit"
-            class="w-full btn btn-primary text-center">
-      Create account
-    </button>
+{# ----------  Profile fields  ---------- #}
+<div>
+  {{ form.first_name.label(class="block text-sm font-medium mb-1") }}
+  {{ form.first_name(class="w-full border rounded px-3 py-2") }}
+  {% if form.first_name.errors %}
+    <p class="text-sm text-red-600">{{ form.first_name.errors[0] }}</p>
+  {% endif %}
+</div>
+
+<div>
+  {{ form.last_name.label(class="block text-sm font-medium mb-1") }}
+  {{ form.last_name(class="w-full border rounded px-3 py-2") }}
+  {% if form.last_name.errors %}
+    <p class="text-sm text-red-600">{{ form.last_name.errors[0] }}</p>
+  {% endif %}
+</div>
+
+<div>
+  {{ form.phone.label(class="block text-sm font-medium mb-1") }}
+  {{ form.phone(class="w-full border rounded px-3 py-2", placeholder="+1 555-123-4567") }}
+  {% if form.phone.errors %}
+    <p class="text-sm text-red-600">{{ form.phone.errors[0] }}</p>
+  {% endif %}
+</div>
+
+<div>
+  {{ form.dob.label(class="block text-sm font-medium mb-1") }}
+  {{ form.dob(class="w-full border rounded px-3 py-2", type="date") }}
+  {% if form.dob.errors %}
+    <p class="text-sm text-red-600">{{ form.dob.errors[0] }}</p>
+  {% endif %}
+</div>
+
+<div>
+  {{ form.gender.label(class="block text-sm font-medium mb-1") }}
+  {{ form.gender(class="w-full border rounded px-3 py-2") }}
+  {% if form.gender.errors %}
+    <p class="text-sm text-red-600">{{ form.gender.errors[0] }}</p>
+  {% endif %}
+</div>
+
+{# ----------  User (login) fields  ---------- #}
+<div>
+  {{ form.email.label(class="block text-sm font-medium mb-1") }}
+  {{ form.email(class="w-full border rounded px-3 py-2", placeholder="you@example.com") }}
+  {% if form.email.errors %}
+    <p class="text-sm text-red-600">{{ form.email.errors[0] }}</p>
+  {% endif %}
+</div>
+
+<div>
+  {{ form.password.label(class="block text-sm font-medium mb-1") }}
+  {{ form.password(class="w-full border rounded px-3 py-2") }}
+  {% if form.password.errors %}
+    <p class="text-sm text-red-600">{{ form.password.errors[0] }}</p>
+  {% endif %}
+</div>
+
+<div>
+  {{ form.confirm.label(class="block text-sm font-medium mb-1") }}
+  {{ form.confirm(class="w-full border rounded px-3 py-2") }}
+  {% if form.confirm.errors %}
+    <p class="text-sm text-red-600">{{ form.confirm.errors[0] }}</p>
+  {% endif %}
+</div>
+
+<button type="submit" class="w-full btn btn-primary">
+  {{ form.submit.label.text }}
+</button>
     
     <p class="text-center text-sm mt-4">
       Already have an account?

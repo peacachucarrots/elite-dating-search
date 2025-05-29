@@ -1,77 +1,134 @@
-/* static/js/live_chat.js */
-import { io }      from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
-import { renderLine as baseRenderLine } from "/static/js/chat_common.js";
+/* ----------------------------------------------------------------------
+   live_chat.js  (loaded from every page that includes the widget)
+---------------------------------------------------------------------- */
+import { io }            from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
+import { renderLine }    from "/static/js/chat_common.js";
 
 (() => {
-  // ────────── DOM hooks ──────────
   const chatBox = document.getElementById("chatbox");
-  if (!chatBox) return;                         // page doesn’t include the widget
+  if (!chatBox) return;                 // page doesn’t include widget
 
   const messagesPane = document.getElementById("messages");
-  const form     = document.getElementById("chatForm");
-  const input    = document.getElementById("msgInput");
-  const toggle   = chatBox.querySelector(".toggle");
+  const form   = document.getElementById("chatForm");
+  const input  = document.getElementById("msgInput");
+  const ratingBox  = document.getElementById("ratingBox");
+  const toggle = chatBox.querySelector(".toggle");
+  const starBtns = document.querySelectorAll("#ratingBox .rate-btn");
 
-  // ────────── local-storage keys & limits ──────────
-  const OPEN_KEY   = "chatboxOpen";             // "true" | "false"
-  const LOG_KEY    = "chatboxLog";              // JSON array of { who, body, ts }
-  const MAX_STORED = 200;                       // rotate beyond this length
+  /* open / collapse ------------------------------------------------ */
+  const OPEN_KEY = "chatboxOpen";
+  let isOpen = localStorage.getItem(OPEN_KEY) === "true";
+  if (isOpen) chatBox.classList.remove("collapsed");
+  toggle.textContent = isOpen ? "▼" : "▲";
+  toggle.onclick = () => {
+    isOpen = !chatBox.classList.toggle("collapsed");
+    toggle.textContent = isOpen ? "▼" : "▲";
+    localStorage.setItem(OPEN_KEY, isOpen);
+  };
 
-  // ────────── Socket.IO setup ──────────
-  const socket = io({
-  path : "/socket.io",
-  query: { role: "visitor" }
-});
+  /* Socket.IO ------------------------------------------------------ */
+  const socket = io({ path:"/socket.io", query:{ role:"visitor" } });
 
-  // incoming
-  socket.on("visitor_msg", data => renderLine(data, messagesPane));
-  socket.on("rep_msg",     data => renderLine(data, messagesPane));
-  socket.on("system",      txt  => renderLine(txt,  messagesPane));
+  /* quick-reply menu ----------------------------------------------- */
+  let quickBox = null, currentOptions=[];
+  function buildMenu(opts){
+    currentOptions = opts;
+    if (quickBox) quickBox.remove();
+    quickBox = document.createElement("div");
+    opts.forEach(opt => {
+      const btn = Object.assign(document.createElement("button"), {
+        textContent: opt.label,
+        className: "mr-2 mb-2 px-3 py-1 rounded bg-slate-200 hover:bg-slate-300"
+      });
+      btn.onclick = () => {
+        socket.emit("visitor_msg", `__faq__:${opt.id}`);
+        quickBox.remove();
+        if (opt.id === "human") currentOptions = [];     // stop redraws
+      };
+      quickBox.appendChild(btn);
+    });
+    messagesPane.appendChild(quickBox);
+    messagesPane.scrollTop = messagesPane.scrollHeight;
+  }
+
+  /* incoming ------------------------------------------------------- */
+  socket.on("quick_options", ({ options }) => buildMenu(options));
+
+  socket.on("visitor_msg", d => {
+    renderLine(d, messagesPane);
+    if (d.author === "assistant" && currentOptions.length)
+      buildMenu(currentOptions);
+  });
+  socket.on("rep_msg",  d => renderLine(d, messagesPane));
+  socket.on("system",   d => renderLine(d, messagesPane));
   socket.on("disconnect", () =>
-    renderLine({ author: "system", body: "Chat disconnected…", ts: Date.now() }, messagesPane)
+    renderLine({ author:"system", body:"Chat disconnected…", ts:Date.now() }, messagesPane)
   );
   socket.on("chat_closed", () => {
-  form.style.display = "none";         // hide input row
-  ratingBox.classList.remove("hidden"); // show 1-5 stars (or buttons)
+  form.style.display = "none";      // hide input
+  ratingBox.classList.remove("hidden");   // show ★-rating
 });
 
-/* rating buttons */
-document.querySelectorAll(".rate-btn").forEach(btn => {
+  /* typing bubbles from rep --------------------------------------- */
+  let repDot=null;
+  socket.on("rep_typing", ({ is_typing }) => {
+    if (is_typing) {
+      if (!repDot){
+        repDot = document.createElement("div");
+        repDot.className = "msg rep";
+        repDot.innerHTML = '<p class="bubble">…</p>';
+        messagesPane.appendChild(repDot);
+      }
+    } else if (repDot){
+      repDot.remove(); repDot=null;
+    }
+  });
+
+  /* outgoing visitor line ----------------------------------------- */
+  form.onsubmit = e => {
+    e.preventDefault();
+    const txt=input.value.trim();
+    if(!txt) return;
+    socket.emit("visitor_msg", txt);
+    renderLine({author:"visitor",body:txt,ts:Date.now()}, messagesPane);
+    input.value="";
+  };
+  
+  document.querySelectorAll(".rate-btn").forEach(btn => {
   btn.onclick = () => {
-    const score = +btn.dataset.score;
-    socket.emit("satisfaction", { score });
+    const score = +btn.dataset.score;           // 1-5
+    socket.emit("satisfaction", { score });     // send to server
+
     ratingBox.innerHTML = "<p>Thanks for your feedback!</p>";
 
     const newBtn = document.createElement("button");
     newBtn.textContent = "Start new chat";
+    newBtn.className = "mt-2 px-3 py-1 rounded bg-blue-600 text-white";
     newBtn.onclick = () => window.location.reload();
     ratingBox.appendChild(newBtn);
   };
 });
 
-  // outgoing
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-    const txt = input.value.trim();
-    if (!txt) return;
+starBtns.forEach(btn => {
+  const setFill = idx => {
+    starBtns.forEach((b, i) => {
+      b.style.color = i < idx ? "var(--brand-gold)" : "#cbd5e1";
+    });
+  };
 
-    socket.emit("visitor_msg", txt);                            // send to server
-    renderLine({ author: "visitor", body: txt, ts: Date.now() }, messagesPane); // echo locally
-    input.value = "";
-  });
+  btn.addEventListener("mouseenter", () => setFill(+btn.dataset.score));
+  btn.addEventListener("mouseleave", () => setFill(0));
 
-  function renderLine(line, target) {
-  baseRenderLine(line, target);
-}
+  btn.addEventListener("click", () => setFill(+btn.dataset.score));
+});
 
-  // ────────── open / collapse state ──────────
-  let isOpen = localStorage.getItem(OPEN_KEY) === "true";
-  if (isOpen) chatBox.classList.remove("collapsed");
-  toggle.textContent = isOpen ? "▼" : "▲";
-
-  toggle.addEventListener("click", () => {
-    isOpen = !chatBox.classList.toggle("collapsed");
-    toggle.textContent = isOpen ? "▼" : "▲";
-    localStorage.setItem(OPEN_KEY, isOpen);
-  });
+  /* visitor typing signal ----------------------------------------- */
+  const TYPING_MS=3000;
+  let typingTimer;
+  input.oninput = () => {
+    socket.emit("typing",{is_typing:true});
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() =>
+      socket.emit("typing",{is_typing:false}), TYPING_MS);
+  };
 })();

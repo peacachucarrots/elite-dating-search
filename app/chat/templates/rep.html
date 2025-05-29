@@ -1,7 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Rep Dashboard{% endblock %}
 
-{% block navbar %}{% endblock %}
+{% block navbar %}
+<div id="soundBanner"
+     class="w-full bg-yellow-100 border-b border-yellow-300 text-sm px-3 py-2
+            flex items-center space-x-2">
+  <span>🔔 Click to enable notification sound</span>
+  <button class="ml-auto px-2 py-0.5 bg-yellow-300 rounded text-xs">
+    Enable
+  </button>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+  {{ super() }}
+  <link rel="stylesheet"
+        href="{{ url_for('chat.static', filename='css/rep_dashboard.css') }}">
+{% endblock %}
 
 {% block content %}
 <div class="h-screen flex">
@@ -9,11 +24,16 @@
   <!-- ── Left column ───────────────────────────  -->
   <div class="w-64 border-r p-3 space-y-4">
 
-    <h2 class="font-bold mb-1">Active visitors</h2>
-    <ul id="visitorList" class="divide-y border"></ul>
-    
-    <h2 class="font-bold mb-1">New chats</h2>
-    <ul id="newChatList" class="divide-y border"></ul>
+  	<a href="{{ url_for('main.index') }}"
+  		class="inline-block mb-3 text-sm px-3 py-1 items-center bg-slate-200 rounded hover:bg-slate-300">
+  		‹ Home
+  		</a>
+  	
+  	<h2 class="font-bold mb-1">Active visitors</h2>
+  	<ul id="visitorList" class="divide-y border"></ul>
+  	
+  	<h2 class="font-bold mb-1">New chats</h2>
+  	<ul id="newChatList" class="divide-y border"></ul>
 
   </div>
 

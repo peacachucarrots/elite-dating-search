@@ -1,62 +1,69 @@
 # app/auth/routes.py
-from datetime import datetime
+from datetime import datetime, timedelta
+from secrets import randbelow
 
 from flask import (
     Blueprint, render_template, redirect, url_for,
-    flash, request, current_app
+    flash, request, current_app, session
 )
 from flask_login import login_user, logout_user, login_required, current_user
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 from app import db
 from app.models.user import User
-from .forms import RegisterForm, LoginForm, RequestResetForm, ResetForm
+from app.models.role import Role
+from app.models.profile import Profile
+from app.utils.email_tokens import generate_token, verify_token
+from app.utils.sms import send_sms
+from .forms import RegisterForm, LoginForm, RequestResetForm, ResetForm, OtpForm
 from .email import send_confirmation_email, send_password_reset
 from . import bp
 
-# --------------------------------------------------------------------------- #
-# helpers                                                                     #
-# --------------------------------------------------------------------------- #
-def get_ts() -> URLSafeTimedSerializer:
-    """Return a per-request serializer bound to the current app’s secret key."""
-    return URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
-
+OTP_LIFETIME = timedelta(minutes=5)
 
 # --------------------------------------------------------------------------- #
 # Register & confirm e-mail                                                   #
 # --------------------------------------------------------------------------- #
 @bp.route("/register", methods=["GET", "POST"])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for("main.index"))
-
     form = RegisterForm()
     if form.validate_on_submit():
         user = User(
             email=form.email.data.lower().strip(),
             pw_hash=User.hash_password(form.password.data),
+            phone=form.phone.data
         )
+
+        user.roles.append(Role.query.filter_by(name="visitor").one())
+
+        # profile
+        prof = Profile(
+            first_name=form.first_name.data.strip(),
+            last_name=form.last_name.data.strip(),
+            dob=form.dob.data,
+            gender=form.gender.data
+        )
+        user.profile = prof
+
         db.session.add(user)
         db.session.commit()
 
         # ── e-mail verification ───────────────────────────────
-        send_confirmation_email(user)  # generates its own token
+        send_confirmation_email(user)
         flash("Check your inbox to confirm your e-mail.", "info")
 
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("main.index"))
 
     return render_template("auth/register.html", form=form)
 
 
 @bp.route("/confirm/<token>")
 def confirm_email(token):
-    try:
-        email = get_ts().loads(token, salt="email-confirm", max_age=86_400)  # 24 h
-    except (SignatureExpired, BadSignature):
+    uid = verify_token(token, purpose="email-confirm", max_age=86_400)
+    if not uid:
         flash("Confirmation link is invalid or has expired.", "danger")
         return redirect(url_for("auth.login"))
 
-    user = User.query.filter_by(email=email).first_or_404()
+    user = User.query.get_or_404(uid)
     if not user.is_verified:
         user.is_verified = True
         db.session.commit()
@@ -77,14 +84,47 @@ def login():
         user = User.query.filter_by(email=form.email.data.lower()).first()
         if not user or not user.check_password(form.password.data):
             flash("Invalid credentials.", "danger")
-            return redirect(url_for("auth.login"))
+            return render_template("auth/login.html", form=form)
 
-        login_user(user, remember=form.remember.data)
-        user.last_login = datetime.utcnow()
+        if not user.is_verified:
+            flash("Confirm your e-mail first.", "warning")
+            return redirect(url_for("auth.resend_email_token"))
+
+        code = f"{randbelow(1_000_000):06d}"  # zero-padded 6-digits
+        user.phone_otp = code
+        user.phone_otp_sent = datetime.utcnow()
         db.session.commit()
-        return redirect(request.args.get("next") or url_for("main.index"))
+
+        send_sms(user.phone, f"Your EliteDatingSearch code is: {code}")
+
+        session["pending_uid"] = user.id
+        return redirect(url_for("auth.verify_phone"))
 
     return render_template("auth/login.html", form=form)
+
+@bp.route("/verify-phone", methods=["GET", "POST"])
+def verify_phone():
+    if "pending_uid" not in session:
+        return redirect(url_for("auth.login"))
+
+    user = User.query.get(session["pending_uid"])
+    form = OtpForm()
+    if form.validate_on_submit():
+        if (user.phone_otp == form.code.data
+                and datetime.utcnow() - user.phone_otp_sent < OTP_LIFETIME):
+            user.phone_otp = None
+            user.phone_otp_sent = None
+            user.is_phone_verified = True
+            db.session.commit()
+
+            login_user(user)
+            session.pop("pending_uid", None)
+            flash("Logged in successfully", "success")
+            return redirect(url_for("main.index"))
+
+        flash("Invalid or expired code.", "danger")
+
+    return render_template("auth/phone_otp.html", form=form, phone=user.phone)
 
 
 @bp.route("/logout")
@@ -106,10 +146,8 @@ def reset_request():
     form = RequestResetForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data.lower()).first()
-        if user and user.is_verified:            # send only to verified users
-            token = get_ts().dumps(user.email, salt="pw-reset")
-            send_reset_email(user)               # ✔ helper will embed the token
-        # Always show the same message — don’t leak which e-mails exist
+        if user and user.is_verified:
+            send_password_reset(user)
         flash(
             "If that e-mail is registered, a reset link is on its way.",
             "info"
@@ -124,13 +162,12 @@ def reset_request():
 # --------------------------------------------------------------------------- #
 @bp.route("/reset/<token>", methods=["GET", "POST"])
 def reset_password(token):
-    try:
-        email = get_ts().loads(token, salt="pw-reset", max_age=3_600)  # 1 h
-    except (SignatureExpired, BadSignature):
+    uid = verify_token(token, purpose="pw-reset", max_age=3_600)
+    if not uid:
         flash("Your reset link is invalid or has expired.", "danger")
         return redirect(url_for("auth.reset_request"))
 
-    user = User.query.filter_by(email=email).first_or_404()
+    user = User.query.get_or_404(uid)
     form = ResetForm()
     if form.validate_on_submit():
         user.pw_hash = User.hash_password(form.password.data)

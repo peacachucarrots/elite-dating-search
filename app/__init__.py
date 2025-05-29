@@ -57,9 +57,9 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     from .blog import bp as blog_bp
     from .auth import bp as auth_bp
 
-    app.register_blueprint(main_bp)               # /
-    app.register_blueprint(chat_bp, url_prefix="/chat")   # /chat/…
-    app.register_blueprint(blog_bp)               # /blog/<slug>
+    app.register_blueprint(main_bp)
+    app.register_blueprint(chat_bp, url_prefix="/chat")
+    app.register_blueprint(blog_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
 
     # ── Global context + filters ───────────────────────────────────

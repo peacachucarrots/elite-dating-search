@@ -1,17 +1,31 @@
-<div id="chatbox" 
-	  class="fixed bottom-4 right-4 bg-white shadow-lg rounded collapsed">
-  <header><span>Live Chat</span>
-  <button class="toggle">▲</button></header>
-  <div id="messages"></div>
-  <div id="ratingBox" class="hidden text-center mt-2">
-  <p class="mb-1">Rate your chat:</p>
-  <div class="flex justify-center gap-1">
-    {% for n in range(1,6) %}
-    <button class="rate-btn px-2 py-1 border rounded" data-score="{{n}}">{{n}}</button>
+<link rel="stylesheet"
+      href="{{ url_for('chat.static', filename='css/live_chat.css') }}">
+
+<div id="chatbox"
+     class="fixed bottom-4 right-4 w-80 bg-white shadow-lg rounded overflow-hidden collapsed">
+
+  <!-- header -->
+  <header class="flex items-center justify-between bg-slate-100 px-3 py-2">
+    <span class="font-semibold text-sm">Live&nbsp;Chat</span>
+    <button class="toggle font-mono">▲</button>
+  </header>
+
+  <!-- scrolling messages -->
+  <div id="messages" class="h-64 overflow-y-auto p-3 space-y-2"></div>
+
+  <!-- satisfaction box (hidden until chat_closed) -->
+  <div id="ratingBox" class="hidden p-3 text-center border-t">
+    <p class="mb-2 text-sm text-slate-600">How was your chat?</p>
+    {% for n in range(1, 6) %}
+      <button class="rate-btn text-xl px-1 highlight" data-score="{{ n }}">★</button>
     {% endfor %}
   </div>
-</div>
-  <form id="chatForm">
-    <input id="msgInput" autocomplete="off" placeholder="Type here…" />
+
+  <!-- input row -->
+  <form id="chatForm" class="flex border-t">
+    <input id="msgInput"
+           class="flex-1 px-3 py-2 text-sm focus:outline-none"
+           autocomplete="off"
+           placeholder="Type here…" />
   </form>
 </div>

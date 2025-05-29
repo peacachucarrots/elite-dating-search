@@ -1,0 +1,8 @@
+/* Flip alignment & colors inside the widget only */
+#chatbox .msg.visitor { justify-content:flex-end !important; }
+#chatbox .msg.rep     { justify-content:flex-start !important; }
+
+#chatbox .msg.visitor .bubble { background:#2563eb; color:#fff;      }
+#chatbox .msg.rep     .bubble { background:#f1f5f9; color:#111827;   }
+
+#chatbox .msg.assistant .bubble { background:#e0f2fe; color:#075985; }

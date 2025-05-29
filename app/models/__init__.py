@@ -3,6 +3,8 @@ from app.extensions import db
 
 # import model modules so they register with SQLAlchemy metadata
 from .user import User   # noqa: F401
+from .profile import Profile
+from .role import Role
 from .chat import ChatSession, Message # noqa: F401
 # from .post import Post   # noqa: F401
 # from .payment import Payment  # noqa: F401

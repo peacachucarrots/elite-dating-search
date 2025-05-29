@@ -7,6 +7,7 @@ from argon2 import PasswordHasher, exceptions as argon_exc
 from flask_login import UserMixin
 from sqlalchemy.orm import validates
 
+from .profile import Profile
 from .role import user_roles
 from ..extensions import db
 
@@ -23,15 +24,22 @@ ph = PasswordHasher(
 class User(UserMixin, db.Model):
     __tablename__ = "users"
 
-    id           = db.Column(db.Integer, primary_key=True)
-    email        = db.Column(db.String(255), unique=True, nullable=False, index=True)
-    pw_hash      = db.Column(db.String(255), nullable=False)
-    is_active    = db.Column(db.Boolean, default=True)
-    is_verified  = db.Column(db.Boolean, default=False)
-    display_name = db.Column(db.String(80))
+    id          = db.Column(db.Integer, primary_key=True)
+    email       = db.Column(db.String(255), unique=False, index=True, nullable=False)
+    pw_hash     = db.Column(db.String(255), nullable=False)
+
+    phone             = db.Column(db.String(20), unique=False)
+    phone_otp         = db.Column(db.String(6))
+    phone_otp_sent    = db.Column(db.DateTime)
+    is_phone_verified = db.Column(db.Boolean, default=False)
+
+    is_active   = db.Column(db.Boolean, default=True)
+    is_verified = db.Column(db.Boolean, default=False)
 
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
     last_login  = db.Column(db.DateTime)
+
+    profile = db.relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
     roles = db.relationship("Role", secondary=user_roles, lazy="joined")
     sessions = db.relationship("ChatSession", back_populates="user")

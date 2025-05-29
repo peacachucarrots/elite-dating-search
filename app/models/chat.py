@@ -10,14 +10,14 @@ class ChatSession(db.Model):
     __tablename__ = "chat_sessions"
 
     id          = db.Column(db.String(32), primary_key=True, default=_rand_id)
-
+    user_id     = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     seq         = db.Column(db.Integer, nullable=False)
     opened_at   = db.Column(db.DateTime, default=datetime.utcnow)
     closed_at   = db.Column(db.DateTime, nullable=True)
+    assigned_at = db.Column(db.DateTime)
+    rating      = db.Column(db.Integer)
 
-    user_id     = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user        = db.relationship("User", back_populates="sessions")
-
     messages    = db.relationship(
                     "Message",
                     back_populates="chat",

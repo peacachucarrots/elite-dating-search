@@ -14,8 +14,10 @@ from flask_login import current_user, logout_user, login_required
 from sqlalchemy import func
 
 from app.auth.permissions import require_role
+from app.chat.faq import FAQ
 from app.extensions import socketio, db
 from app.models.chat import ChatSession, Message
+from app.models.user import User
 from . import bp
 
 # ---------------------------------------------------------------------------
@@ -39,6 +41,15 @@ def _create_session_for(user_id: int) -> ChatSession:
     db.session.commit()
     return chat
 
+def _display_name(user: User) -> str:
+    """
+    First-name + last-name if both exist,
+    otherwise the part before “@” in the e-mail.
+    """
+    if user.profile and user.profile.first_name and user.profile.last_name:
+        return f"{user.profile.first_name} {user.profile.last_name}"
+    return user.email.split("@")[0]
+
 # ---------------------------------------------------------------------------
 # Blueprint
 # ---------------------------------------------------------------------------
@@ -54,16 +65,16 @@ def rep_dashboard():
 ALIVE: set[str]          = set()          # sockets currently connected
 VISITORS: set[str]       = set()          # idle visitors
 NEW_CHATS: set[str]      = set()          # visitors who sent 1st msg
-REPS: set[str]           = set()
+REPS: set[str]           = set()          # active representatives
 PAIR: dict[str, str]     = {}             # rep_sid ➜ visitor_sid
 SID_TO_USER              = {}             # visitor_sid ➜ user.id
 SID_TO_NAME              = {}             # visitor_sid ➜ display_name
 SID_TO_SESSION           = {}             # visitor_sid ➜ chat.id
+WAITING_DESC: set[str]   = set()          # chose 'human' but no response yet
 
 # ---------------------------------------------------------------------------
 # Socket.IO lifecycle
 # ---------------------------------------------------------------------------
-# app/chat/routes.py
 @socketio.on("connect")
 def handle_connect():
     if not current_user.is_authenticated:
@@ -79,7 +90,7 @@ def handle_connect():
     ALIVE.add(request.sid)
 
     user_id      = current_user.id
-    display_name = current_user.display_name or current_user.email.split("@")[0]
+    display_name = _display_name(current_user)
 
     SID_TO_USER[request.sid] = user_id
     SID_TO_NAME[request.sid] = display_name
@@ -98,6 +109,19 @@ def handle_connect():
 
             VISITORS.add(request.sid)
             join_room(request.sid)
+
+            emit("visitor_msg",
+                 {"body": "Hi! What can I help you with today?",
+                  "author": "assistant",
+                  "ts": datetime.utcnow().isoformat(timespec="seconds")},
+                 room=request.sid)
+
+            emit("quick_options",
+                 {"options": [
+                     {"id": key, "label": item["label"]}
+                     for key, item in FAQ.items()
+                 ]},
+                 room=request.sid)
 
             history = (Message.query
                        .filter_by(chat_id=chat.id)
@@ -130,8 +154,6 @@ def handle_connect():
             join_room(request.sid)
             emit("visitor_online", {"sid": request.sid}, room="reps")
             print("+++ Unknown Role connected", request.sid)
-
-from datetime import datetime
 
 @socketio.on("disconnect")
 def handle_disconnect():
@@ -258,19 +280,6 @@ def join_visitor(data):
     PAIR[rep_sid] = visitor_sid
     join_room(visitor_sid)
 
-    rep_name = SID_TO_NAME.get(rep_sid, "Representative")
-    emit("system",
-         {"body": f"{rep_name} has joined the chat.",
-                "author": "system",
-                "ts": datetime.utcnow().isoformat(timespec="seconds")},
-            room=visitor_sid)
-
-    emit("system",
-         {"body": f"You joined {SID_TO_NAME.get(visitor_sid, visitor_sid[:8])}",
-                "author": "system",
-                "ts": datetime.utcnow().isoformat(timespec="seconds")},
-            room=rep_sid)
-
     # ── 1 · replay db history ────────────────────────────────────────────
     history = (Message.query
                .filter_by(chat_id=chat_id)
@@ -283,6 +292,20 @@ def join_visitor(data):
               "author": m.author,
               "ts": m.ts.isoformat()},
              room=rep_sid)
+
+    rep_name = SID_TO_NAME.get(rep_sid, "Representative")
+    emit("system",
+         {"body": f"Representative {rep_name} has joined the chat.",
+          "author": "system",
+          "ts": datetime.utcnow().isoformat(timespec="seconds")},
+         room=visitor_sid,
+         include_self=False)
+
+    emit("system",
+         {"body": f"You joined {SID_TO_NAME.get(visitor_sid, visitor_sid[:8])}",
+          "author": "system",
+          "ts": datetime.utcnow().isoformat(timespec="seconds")},
+         room=rep_sid)
 
     VISITORS.discard(visitor_sid)
     NEW_CHATS.discard(visitor_sid)
@@ -320,8 +343,7 @@ def leave_visitor(data):
             db.session.commit()
 
     # --- notify visitor -------------------------------------------
-    rep_name = SID_TO_NAME.get(rep_sid, "Representative")
-    emit("system", {"body": f"{rep_name} has left the chat.",
+    emit("system", {"body": "This chat session has been closed by a representative. If you'd like to chat with us again, please open a new chat.",
                     "author": "system",
                     "ts": datetime.utcnow().isoformat(timespec="seconds")},
          room=visitor_sid)
@@ -337,6 +359,22 @@ def leave_visitor(data):
              room="reps")
 
     print("<<< rep left & closed chat", visitor_sid)
+
+@socketio.on("satisfaction")
+def save_rating(data):
+    """
+    Visitor clicked a 1-5 star rating after chat end.
+    `data = { "score": 1-5 }`
+    """
+    score   = int(data.get("score", 0))
+    chat_id = SID_TO_SESSION.get(request.sid)
+    if not chat_id or not (1 <= score <= 5):
+        return
+
+    chat = ChatSession.query.get(chat_id)
+    if chat and chat.rating is None:
+        chat.rating = score
+        db.session.commit()
 
 @socketio.on("history_request")
 def history_request(data):
@@ -364,47 +402,118 @@ def history_request(data):
 @socketio.on("visitor_msg")
 def handle_visitor(text: str) -> None:
     """Handle a line typed by the visitor."""
-    chat_id = SID_TO_SESSION[request.sid]
-    user_id = SID_TO_USER[request.sid]
-    chat = ChatSession.query.get(chat_id)
-    if chat and chat.closed_at:
-        emit("system", {"body": "This chat is closed. Start a new chat to continue.",
-                        "author": "system",
-                        "ts": datetime.utcnow().isoformat(timespec="seconds")},
-             room=request.sid)
+    sid          = request.sid
+    chat_id      = SID_TO_SESSION.get(sid)
+    user_id      = SID_TO_USER.get(sid)
+    visitor_name = SID_TO_NAME.get(sid, "Visitor")
+    now          = datetime.utcnow()
+    now_iso      = now.isoformat(timespec="seconds")
+
+    # ───────────────────────────────────────────────────────────────
+    # 0)  Are we currently waiting for this visitor's description?
+    # ───────────────────────────────────────────────────────────────
+    if sid in WAITING_DESC:
+        WAITING_DESC.remove(sid)
+
+        # store the visitor's description
+        db.session.add(Message(chat_id=chat_id,
+                               author="visitor",
+                               body=text,
+                               ts=now,
+                               user_id=user_id))
+
+        # thank-you + notify reps
+        thanks = ("One of our representatives will be with you shortly.\n"
+                  "Thank you for your patience.")
+        emit("visitor_msg",
+             {"body": thanks, "author": "assistant", "ts": now_iso},
+             room=sid)
+        db.session.add(Message(chat_id=chat_id,
+                               author="assistant",
+                               body=thanks,
+                               ts=now,
+                               user_id=user_id))
+
+        NEW_CHATS.add(sid)
+        emit("new_chat",
+             {"sid": sid, "username": visitor_name},
+             room="reps")
+        db.session.commit()
         return
 
+    # ───────────────────────────────────────────────────────────────
+    # 1) Quick-reply branch
+    # ───────────────────────────────────────────────────────────────
+    if text.startswith("__faq__:"):
+        faq_id = text.split(":", 1)[1]
+        label = FAQ[faq_id]['label']
+
+        vis_pkt = {"body": label, "author": "visitor", "ts": now_iso}
+
+        emit("visitor_msg", vis_pkt, room=sid)
+
+        rep_sid = next((r for r, v in PAIR.items() if v == sid), None)
+        if rep_sid:
+            emit("visitor_msg", vis_pkt, room=rep_sid, include_self=False)
+
+        db.session.add(Message(chat_id=chat_id,
+                               author="visitor",
+                               body=label,
+                               ts=now,
+                               user_id=user_id))
+
+        # ── special: connect-to-rep ───────────────────────────────────
+        if faq_id == "human":
+            prompt = ("Before they join, could you briefly describe your "
+                      "question or what you need help with?")
+            emit("visitor_msg",
+                 {"body": prompt, "author": "assistant", "ts": now_iso},
+                 room=sid)
+            db.session.add(Message(chat_id=chat_id, author="assistant",
+                                   body=prompt, ts=now, user_id=user_id))
+            db.session.commit()
+            WAITING_DESC.add(sid)
+            return
+
+        # normal FAQ answer
+        answer = FAQ[faq_id]["answer"]
+        emit("visitor_msg",
+             {"body": answer, "author": "assistant", "ts": now_iso},
+             room=sid)
+        db.session.add(Message(chat_id=chat_id, author="assistant",
+                               body=answer, ts=now, user_id=user_id))
+        db.session.commit()
+        return
+
+    # ───────────────────────────────────────────────────────────────
+    # 2) Standard free-text flow
+    # ───────────────────────────────────────────────────────────────
     db.session.add(Message(chat_id=chat_id,
                            author="visitor",
                            body=text,
-                           ts=datetime.utcnow(),
-                           user_id=user_id
-                           ))
+                           ts=now,
+                           user_id=user_id))
     db.session.commit()
 
-    packet = {"body": text,
-              "author": "visitor",
-              "ts": datetime.utcnow().isoformat(timespec="seconds")}
-
-    rep_sid = next((r for r, v in PAIR.items() if v == request.sid), None)
-
+    rep_sid = next((r for r, v in PAIR.items() if v == sid), None)
     if rep_sid:
-        emit("visitor_msg", packet, room=request.sid, include_self=False)
+        emit("visitor_msg",
+             {"body": text, "author": "visitor", "ts": now_iso},
+             room=rep_sid, include_self=False)
         return
 
-    if request.sid in VISITORS:
-        NEW_CHATS.add(request.sid)
-        emit("visitor_offline", {"sid": request.sid}, room="reps")
-        emit("new_chat",        {"sid": request.sid, "username": SID_TO_NAME[request.sid]}, room="reps")
+    if sid in VISITORS:
+        VISITORS.remove(sid)
+        NEW_CHATS.add(sid)
+        emit("visitor_offline", {"sid": sid}, room="reps")
+        emit("new_chat",
+             {"sid": sid, "username": visitor_name},
+             room="reps")
 
 @socketio.on("rep_msg")
 def handle_rep(text: str) -> None:
     """Handle a line typed by the representative."""
     visitor_sid = PAIR.get(request.sid)
-    if not visitor_sid:
-        emit("system", "Select a visitor first.", room=request.sid)
-        return
-
     chat_id = SID_TO_SESSION.get(visitor_sid)
     if chat_id is None:
         emit("system", "Chat session not found.", room=request.sid)
@@ -422,3 +531,21 @@ def handle_rep(text: str) -> None:
           "author": "rep",
           "ts": datetime.utcnow().isoformat(timespec="seconds")},
          room=visitor_sid, include_self=False)
+
+TYPING_EXPIRY = 3
+@socketio.on("typing")
+def visitor_typing(data):
+    rep_sid = next((r for r, v in PAIR.items() if v == request.sid), None)
+    if rep_sid:
+        emit("typing",
+             {"sid": request.sid, "is_typing": data["is_typing"]},
+             room=rep_sid, include_self=False)
+
+# rep → visitor
+@socketio.on("rep_typing")
+def rep_typing(data):
+    visitor_sid = PAIR.get(request.sid)
+    if visitor_sid:
+        emit("rep_typing",
+             {"is_typing": data["is_typing"]},
+             room=visitor_sid, include_self=False)

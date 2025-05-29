@@ -1,0 +1,13 @@
+Hi {{ user.profile.first_name or user.email }},
+
+We received a request to reset the password for your Elite Dating Search account.
+
+Please open the link below within the next 60 minutes to choose a new password:
+
+{{ reset_url }}
+
+If you didn’t request this, you can safely ignore this e-mail and your password
+will remain unchanged.
+
+Stay safe,
+Elite Dating Search Team

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Verify code{% endblock %}
+{% block content %}
+<section class="max-w-sm mx-auto py-12">
+  <h1 class="text-xl font-semibold mb-6 text-center">Enter the code we sent to {{ phone }}</h1>
+  <form method="post" novalidate class="space-y-4">
+    {{ form.hidden_tag() }}
+    {{ form.code(class="w-full border rounded px-3 py-2 text-center text-lg") }}
+    {% if form.code.errors %}
+      <p class="text-sm text-red-600">{{ form.code.errors[0] }}</p>
+    {% endif %}
+    <button class="w-full btn btn-primary">{{ form.submit.label.text }}</button>
+  </form>
+</section>
+{% endblock %}

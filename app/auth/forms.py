@@ -5,11 +5,11 @@ WTForms-powered HTML forms for the authentication blueprint.
 """
 
 from flask_wtf          import FlaskForm
-from wtforms            import StringField, PasswordField, BooleanField, SubmitField
+from wtforms            import StringField, PasswordField, DateField, BooleanField, SelectField, SubmitField
 from wtforms.validators import (DataRequired, Email, EqualTo, Length,
                                  ValidationError)
 
-from app.models import User         # the SQLAlchemy User model you’ll create
+from app.models import User
 
 
 # --------------------------------------------------------------------------- #
@@ -30,10 +30,22 @@ class RegisterForm(FlaskForm):
                            validators=[DataRequired(), Email(), Length(max=255)])
     password = PasswordField("Password",
                              validators=[DataRequired(),
-                                         Length(min=8, message="≥ 8 characters please.")])
+                                         Length(min=8, message="Password must be at least 8 characters.")])
     confirm  = PasswordField("Confirm password",
                              validators=[DataRequired(),
                                          EqualTo("password", message="Passwords must match.")])
+    first_name = StringField("First name", validators=[DataRequired()])
+    last_name = StringField("Last name", validators=[DataRequired()])
+    phone = StringField("Mobile phone",
+                        validators=[DataRequired(), Length(min=8, max=20)])
+    dob = DateField("Date of birth (YYYY-MM-DD)",
+                    validators=[DataRequired()], format="%Y-%m-%d")
+    gender = SelectField(
+        "Gender",
+        choices=[("male", "Male"), ("female", "Female"),
+                 ("nonbinary", "Non-binary"), ("other", "Other")],
+        validators=[DataRequired()]
+    )
     submit   = SubmitField("Create account")
 
     # custom validator -------------------------------------------------------
@@ -49,6 +61,10 @@ class LoginForm(FlaskForm):
     password   = PasswordField("Password", validators=[DataRequired()])
     remember   = BooleanField("Remember me")
     submit     = SubmitField("Log in")
+
+class OtpForm(FlaskForm):
+    code = StringField("6-digit code", validators=[DataRequired(), Length(6, 6)])
+    submit = SubmitField("Verify")
 
 
 class RequestResetForm(FlaskForm):

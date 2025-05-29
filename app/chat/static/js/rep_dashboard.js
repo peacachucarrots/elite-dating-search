@@ -1,88 +1,126 @@
 /* ----------------------------------------------------------------------
-   rep_dashboard.js  (ES-module)
+   rep_dashboard.js   (loaded from <script type="module"> in rep.html)
 ---------------------------------------------------------------------- */
 import { renderLine } from "/static/js/chat_common.js";
 import { io }         from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
 
-/* -------------------- socket setup ---------------------------------- */
+/* 🔔 new-chat ping --------------------------------------------------- */
+const newChatPing = new Audio("/chat/static/audio/new_chat.mp3");
+newChatPing.volume = 0.5;
+
+/* ── Socket.IO ------------------------------------------------------ */
 const socket = io({ path: "/socket.io", query: { role: "rep" } });
 socket.on("connect", () => socket.emit("iam_rep"));
 
-/* -------------------- globals --------------------------------------- */
-let messagesPane   = null;   // <div id="messages">
-let pastPane       = null;   // <div id="pastTranscript">
-let historyList    = null;   // <ul id="historyList">
-let lists          = {};     // { active:<ul>, new:<ul> }
-let activeVisitor  = null;   // SID of visitor currently in chat
+/* ── globals tied to DOM ------------------------------------------- */
+let messagesPane, pastPane, historyList;
+let lists   = {};             // { active:<ul>, new:<ul> }
+let activeVisitor = null;     // SID of visitor currently in live chat
+const typingDots  = new Map();   // { visitor_sid ➜ <div…> }
+const TYPING_MS = 3000;
+let typingTimer;
 
-/* ==================== DOM ready ===================================== */
+/* ── DOM ready ------------------------------------------------------ */
 document.addEventListener("DOMContentLoaded", () => {
-  /* grab all elements once */
-  messagesPane  = document.getElementById("messages");
-  pastPane      = document.getElementById("pastTranscript");
-  historyList   = document.getElementById("historyList");
-  const form    = document.getElementById("chatForm");
-  const inp     = document.getElementById("msgInput");
-  const discBtn = document.getElementById("disconnectBtn");
+  /* grab elements once */
+  messagesPane = document.getElementById("messages");
+  pastPane     = document.getElementById("pastTranscript");
+  historyList  = document.getElementById("historyList");
+  const form   = document.getElementById("chatForm");
+  const inp    = document.getElementById("msgInput");
+  const disc   = document.getElementById("disconnectBtn");
 
-  /* left-pane lists */
   lists = {
     active : document.getElementById("visitorList"),
     new    : document.getElementById("newChatList")
   };
 
-  /* ------------- socket listeners (DOM safe) ----------------------- */
-  socket.on("visitor_msg", data => renderLine(data, messagesPane));
-  socket.on("system",      data => renderLine(data, messagesPane));
+  /* -------------------------------------------------------------- */
+  /* socket listeners                                               */
+  /* -------------------------------------------------------------- */
+  socket.on("visitor_msg", d => renderLine(d, messagesPane));
+  socket.on("rep_msg",     d => renderLine(d, messagesPane));
+  socket.on("system",      d => renderLine(d, messagesPane));
 
   socket.on("visitor_online",  ({ sid, username }) => placeIn("active", sid, username));
-  socket.on("visitor_offline", ({ sid }) => drop(sid));
-  socket.on("new_chat",        ({ sid, username }) => placeIn("new",    sid, username));
+  socket.on("visitor_offline", ({ sid })           => drop(sid));
+
+  socket.on("new_chat", ({ sid, username }) => {
+    placeIn("new", sid, username);
+    newChatPing.currentTime = 0;
+    newChatPing.play().catch(()=>{});
+  });
   socket.on("new_chat_remove", ({ sid }) => drop(sid));
 
+  /* typing from visitor */
+  socket.on("typing", ({ sid, is_typing }) => {
+    if (sid !== activeVisitor) return;
+    if (is_typing) {
+      if (!typingDots.has(sid)) {
+        const d = document.createElement("div");
+        d.className = "msg visitor";
+        d.innerHTML = '<p class="bubble">…</p>';
+        messagesPane.appendChild(d);
+        typingDots.set(sid, d);
+      }
+    } else {
+      const d = typingDots.get(sid);
+      if (d) d.remove();
+      typingDots.delete(sid);
+    }
+  });
+
+  /* past-chat side-panel */
   socket.on("session_list", list => {
     historyList.innerHTML = "";
     list.forEach(addHistoryRow);
   });
-
   socket.on("history_result", list => {
     pastPane.innerHTML = "";
-    list.forEach(line => renderLine(line, pastPane, "rep"));
+    list.forEach(l => renderLine(l, pastPane, "rep"));
   });
+  socket.on("live_chat_ready", hideTranscript);
 
-  socket.on("live_chat_ready", () => {
-    hideTranscript();
-  });
-
-  /* ------------- form submit & buttons ----------------------------- */
-  form.addEventListener("submit", e => {
+  /* -------------------------------------------------------------- */
+  /* form / input handlers                                          */
+  /* -------------------------------------------------------------- */
+  form.onsubmit = e => {
     e.preventDefault();
-    if (!activeVisitor) return;
-    const text = inp.value.trim();
-    if (!text) return;
-
-    socket.emit("rep_msg", text);                         // to server
-    renderLine({ body:text, author:"rep", ts:Date.now() }, messagesPane);
+    if (!activeVisitor) {
+      renderLine({ body:"Select a visitor first.", author:"system", ts:Date.now() }, messagesPane);
+      return;
+    }
+    const txt = inp.value.trim();
+    if (!txt) return;
+    socket.emit("rep_msg", txt);
+    renderLine({ body:txt, author:"rep", ts:Date.now() }, messagesPane);
     inp.value = "";
-  });
+  };
 
-  discBtn.addEventListener("click", () => {
+  inp.oninput = () => {
+    socket.emit("rep_typing", { is_typing:true });
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() =>
+      socket.emit("rep_typing", { is_typing:false }), TYPING_MS);
+  };
+
+  disc.onclick = () => {
     if (!activeVisitor) return;
     socket.emit("leave_visitor", { sid: activeVisitor });
     activeVisitor = null;
     messagesPane.innerHTML = "";
     hideTranscript();
     historyList.innerHTML = "";
-  });
+  };
 
-  /* row click (delegate) */
+  /* list row click (delegated) */
   document.addEventListener("click", e => {
     const li = e.target.closest("li[data-sid]");
     if (li) joinVisitor(li.dataset.sid);
   });
 });
 
-/* ==================== helper functions ============================== */
+/* ---------------- helper funcs ------------------------------------ */
 function row(sid, username){
   const li = document.createElement("li");
   li.dataset.sid = sid;
@@ -92,49 +130,43 @@ function row(sid, username){
   li.onclick = () => joinVisitor(sid);
   return li;
 }
-
-function placeIn(listKey, sid, username){
+function placeIn(key, sid, username){
   document.querySelectorAll(`li[data-sid="${sid}"]`).forEach(el => el.remove());
-  lists[listKey].appendChild(row(sid, username));
+  lists[key].appendChild(row(sid, username));
 }
-
 function drop(sid){
   document.querySelectorAll(`li[data-sid="${sid}"]`).forEach(el => el.remove());
 }
 
-/* ----- transcript helpers ------------------------------------------ */
+/* transcript panel */
 function showTranscript(){
   pastPane.classList.remove("hidden");
   pastPane.innerHTML = "";
 }
 function hideTranscript(){
   pastPane.classList.add("hidden");
-  pastPane.innerHTML =
-    '<p class="text-center text-slate-500">Select a chat ↑</p>';
+  pastPane.innerHTML = '<p class="text-center text-slate-500">Select a chat ↑</p>';
 }
-
 function addHistoryRow({ chat_id, label, opened }){
   const li = document.createElement("li");
   li.dataset.chat = chat_id;
   li.className = "px-2 py-1 cursor-pointer hover:bg-gray-100";
-  li.textContent = `Chat ${label} • ${opened.slice(0,10)}`; // YYYY-MM-DD
+  li.textContent = `Chat ${label} • ${opened.slice(0,10)}`;
   li.onclick = () => viewOldChat(chat_id);
   historyList.appendChild(li);
 }
-
-function viewOldChat(chat_id){
+function viewOldChat(id){
   document.querySelectorAll("#historyList li").forEach(li =>
-    li.classList.toggle("bg-blue-50", li.dataset.chat == chat_id));
-
+    li.classList.toggle("bg-blue-50", li.dataset.chat == id));
   showTranscript();
-  socket.emit("history_request", { chat_id });
+  socket.emit("history_request", { chat_id: id });
 }
 
-/* ----- join live visitor chat -------------------------------------- */
+/* join live visitor */
 export function joinVisitor(sid){
   if (activeVisitor === sid) return;
-  activeVisitor  = sid;
+  activeVisitor = sid;
   messagesPane.innerHTML = "";
-  drop(sid);
+  drop(sid);                           // remove from lists
   socket.emit("join_visitor", { sid });
 }
