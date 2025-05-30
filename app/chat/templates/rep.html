@@ -35,6 +35,9 @@
   	
   	<h2 class="font-bold mb-1">New chats</h2>
   	<ul id="newChatList" class="divide-y border"></ul>
+  	
+  	<h2 class="font-bold mb-1">After-hours chats</h2>
+  	<ul id="afterHoursList" class="divide-y border"></ul>
 
   </div>
 
@@ -51,6 +54,11 @@
     <input id="msgInput"
            class="flex-1 border px-2 py-1 rounded"
            placeholder="Type…" autocomplete="off" />
+    <button id="markEmailBtn"
+        type="button"
+        class="px-4 py-1 bg-green-600 text-white rounded hidden">
+  Replied&nbsp;via&nbsp;e-mail
+		</button>
     <button id="disconnectBtn" type="button"
             class="px-4 py-1 bg-red-600 text-white rounded">
       End&nbsp;chat

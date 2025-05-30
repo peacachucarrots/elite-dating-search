@@ -3,28 +3,26 @@ FAQ = {
     "pricing": {
         "label": "Pricing",
         "answer": (
-            "Our membership starts at $4,500 for the Candidate program or "
-            "$9,000 for the Client program.  Both include personalized "
-            "matchmaking and coaching.  Ask us for a detailed quote!"
+            "Our membership starts at $7,500 for the Client program or "
+            "if you're not ready for that kind of commitment, we offer "
+            "a complimentary Candidate program.  Both include personalized "
+            "matchmaking and coaching.  Ask us for a detailed quote if "
+            "interested in the candidate program!"
         ),
     },
     "consult": {
         "label": "Book a consult",
         "answer": (
-            "You can schedule a free, 20-minute discovery call here: "
-            "<https://calendly.com/elite-dating-consult>."
+            "Please chat with a representative to talk about scheduling a "
+            "consultation with us!"
         ),
     },
     "difference": {
         "label": "Client vs Candidate",
         "answer": (
-            "• **Client** — full-service search, our team scouts matches for you.\n"
-            "• **Candidate** — be visible to Clients, no scout team.\n"
-            "Both receive coaching and profile advice."
+            "• Client — full-service search, our team scouts matches for you. "
+            "Receive coaching and profile advice.\n"
+            "• Candidate — be visible to other candidates, no scout team.\n"
         ),
-    },
-    "human": {
-        "label": "Connect me to a representative",
-        "answer": None,   # special; triggers escalation
-    },
+    }
 }

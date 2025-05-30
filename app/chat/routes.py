@@ -11,10 +11,12 @@ from flask import Blueprint, render_template, request, abort
 from flask_socketio import emit, join_room, leave_room
 from flask_login import current_user, logout_user, login_required
 
-from sqlalchemy import func
+from sqlalchemy import func, desc
 
 from app.auth.permissions import require_role
 from app.chat.faq import FAQ
+from app.chat.off_hours import overnight_chats
+from app.chat.utils import reps_are_online, is_off_hours
 from app.extensions import socketio, db
 from app.models.chat import ChatSession, Message
 from app.models.user import User
@@ -116,12 +118,23 @@ def handle_connect():
                   "ts": datetime.utcnow().isoformat(timespec="seconds")},
                  room=request.sid)
 
-            emit("quick_options",
-                 {"options": [
-                     {"id": key, "label": item["label"]}
-                     for key, item in FAQ.items()
-                 ]},
-                 room=request.sid)
+            options = [{"id": key, "label": value["label"]}
+                       for key, value in FAQ.items()]
+
+            if reps_are_online():
+                options.append({"id": "human", "label": "Connect me to a representative"})
+            else:
+                emit("rep_msg",
+                     {"body": ("Our representatives are available 9 a.m.–6 p.m. ET, "
+                               "Monday–Friday. Feel free to leave a message "
+                               "and we’ll reach out via email typically within "
+                               "the next business day."),
+                      "author": "assistant",
+                      "ts": datetime.utcnow().isoformat(timespec="seconds")},
+                     room=request.sid)
+
+            emit("quick_options", {"options": options}, room=request.sid)
+
 
             history = (Message.query
                        .filter_by(chat_id=chat.id)
@@ -243,44 +256,82 @@ def mark_rep():
              {"sid": v, "username": SID_TO_NAME.get(v)},
              room=request.sid)
 
-@socketio.on("join_visitor")
-def join_visitor(data):
-    """Rep dashboard requests to handle a specific visitor SID."""
-    visitor_sid = data["sid"]
-    rep_sid     = request.sid
+    for chat_id, username, email, preview in overnight_chats():
+        emit("after_hours_chat",
+             {"chat_id": chat_id,
+              "username": username,
+              "email": email,
+              "preview": preview},
+             room=request.sid)
 
-    user_id = SID_TO_USER.get(visitor_sid)
-    chat_id = SID_TO_SESSION[visitor_sid]
-
-    sessions = (ChatSession.query
-                .filter(ChatSession.user_id == user_id,
-                        ChatSession.id != chat_id,
-                        ChatSession.closed_at.isnot(None))
-                .order_by(ChatSession.opened_at.desc())
-                .all())
-
-    emit("session_list", [
-        {
-            "chat_id": s.id,
-            "label": f"{s.seq:04d}",
-            "opened": s.opened_at.isoformat(timespec="seconds"),
-            "closed": s.closed_at.isoformat(timespec="seconds")
-        }
-        for s in sessions
-    ], room=rep_sid)
-
-    if visitor_sid not in VISITORS and visitor_sid not in NEW_CHATS:
+@socketio.on("mark_replied")
+def mark_replied(data):
+    """Rep clicked the 'Replied via e-mail' button."""
+    chat_id = data["chat_id"]
+    sess = ChatSession.query.get(chat_id)
+    if not sess:
         emit("system",
-             {"body": "Visitor is no longer online.",
+             {"body": "Chat not found.",
               "author": "system",
               "ts": datetime.utcnow().isoformat(timespec="seconds")},
-             room=rep_sid)
+             room=request.sid)
         return
 
-    PAIR[rep_sid] = visitor_sid
-    join_room(visitor_sid)
+    sess.replied_via_email = True
+    sess.closed_at = sess.closed_at or datetime.utcnow()
+    db.session.commit()
 
-    # ── 1 · replay db history ────────────────────────────────────────────
+    # tell just this rep to hide the chat row
+    emit("prev_chat_remove", {"chat_id": chat_id}, room=request.sid)
+
+@socketio.on("join_visitor")
+def join_visitor(data):
+    """
+    Rep dashboard requests to handle a visitor *or* an after-hours chat.
+    Payload:
+        { sid: "<visitor SID>" }      – live visitor currently online
+      or
+        { chat_id: "<chat id>" }      – offline session from “After-hours”
+    """
+    rep_sid = request.sid
+
+    # ── 0 · Identify the chat & user context ────────────────────────────
+    visitor_sid = data.get("sid")
+    if visitor_sid:                                   # live branch
+        chat_id   = SID_TO_SESSION.get(visitor_sid)
+        user_id   = SID_TO_USER.get(visitor_sid)
+        live      = True
+    else:                                             # after-hours branch
+        chat_id   = data["chat_id"]
+        session   = ChatSession.query.get(chat_id)
+        if not session:
+            emit("system",
+                 {"body": "Chat not found.",
+                  "author": "system",
+                  "ts": datetime.utcnow().isoformat(timespec="seconds")},
+                 room=rep_sid)
+            return
+        user_id   = session.user_id
+        visitor_sid = None
+        live      = False
+
+    # ── 1 · Previous (closed) sessions list  ────────────────────────────
+    prev_sessions = (ChatSession.query
+                     .filter(ChatSession.user_id == user_id,
+                             ChatSession.id != chat_id,
+                             ChatSession.closed_at.isnot(None))
+                     .order_by(desc(ChatSession.opened_at))
+                     .all())
+
+    emit("session_list", [
+        {"chat_id": s.id,
+         "label":   f"{s.seq:04d}",
+         "opened":  s.opened_at.isoformat(timespec="seconds"),
+         "closed":  s.closed_at.isoformat(timespec="seconds")}
+        for s in prev_sessions
+    ], room=rep_sid)
+
+    # ── 2 · Replay entire transcript  ───────────────────────────────────
     history = (Message.query
                .filter_by(chat_id=chat_id)
                .order_by(Message.ts)
@@ -288,32 +339,43 @@ def join_visitor(data):
 
     for m in history:
         emit("visitor_msg",
-             {"body": m.body,
+             {"body":   m.body,
               "author": m.author,
-              "ts": m.ts.isoformat()},
+              "ts":     m.ts.isoformat(timespec="seconds")},
              room=rep_sid)
 
-    rep_name = SID_TO_NAME.get(rep_sid, "Representative")
-    emit("system",
-         {"body": f"Representative {rep_name} has joined the chat.",
-          "author": "system",
-          "ts": datetime.utcnow().isoformat(timespec="seconds")},
-         room=visitor_sid,
-         include_self=False)
+    # ── 3 · Live-visitor housekeeping  ─────────────────────────────────
+    if live and visitor_sid:
+        # pair sockets
+        PAIR[rep_sid] = visitor_sid
+        join_room(visitor_sid)
 
-    emit("system",
-         {"body": f"You joined {SID_TO_NAME.get(visitor_sid, visitor_sid[:8])}",
-          "author": "system",
-          "ts": datetime.utcnow().isoformat(timespec="seconds")},
-         room=rep_sid)
+        rep_name = SID_TO_NAME.get(rep_sid, "Representative")
+        # notify visitor (but not the rep who’s sending)
+        emit("system",
+             {"body": f"Representative {rep_name} has joined the chat.",
+              "author": "system",
+              "ts": datetime.utcnow().isoformat(timespec="seconds")},
+             room=visitor_sid, include_self=False)
 
-    VISITORS.discard(visitor_sid)
-    NEW_CHATS.discard(visitor_sid)
-    emit("new_chat_remove", {"sid": visitor_sid}, room="reps")
+        # notify rep
+        emit("system",
+             {"body": f"You joined {SID_TO_NAME.get(visitor_sid, visitor_sid[:8])}",
+              "author": "system",
+              "ts": datetime.utcnow().isoformat(timespec="seconds")},
+             room=rep_sid)
 
+        # move visitor from VISITORS → paired
+        VISITORS.discard(visitor_sid)
+        NEW_CHATS.discard(visitor_sid)
+        emit("new_chat_remove", {"sid": visitor_sid}, room="reps")
+
+    # ── 4 · Ready flag for front-end UI  ────────────────────────────────
     emit("live_chat_ready", room=rep_sid)
 
-    print(f"### rep {rep_sid[:8]} paired with visitor {visitor_sid[:8]}")
+    # ── 5 · log for debugging  ─────────────────────────────────────────-
+    print(f"### rep {rep_sid[:8]} joined chat {chat_id} "
+          f"({'live' if live else 'after-hours'})")
 
 @socketio.on("leave_visitor")
 def leave_visitor(data):
@@ -408,36 +470,30 @@ def handle_visitor(text: str) -> None:
     visitor_name = SID_TO_NAME.get(sid, "Visitor")
     now          = datetime.utcnow()
     now_iso      = now.isoformat(timespec="seconds")
+    off_hours    = is_off_hours()                  # ★ NEW
 
     # ───────────────────────────────────────────────────────────────
-    # 0)  Are we currently waiting for this visitor's description?
+    # 0) Waiting for description branch
     # ───────────────────────────────────────────────────────────────
     if sid in WAITING_DESC:
         WAITING_DESC.remove(sid)
+        db.session.add(Message(chat_id=chat_id, author="visitor",
+                               body=text, ts=now, user_id=user_id))
 
-        # store the visitor's description
-        db.session.add(Message(chat_id=chat_id,
-                               author="visitor",
-                               body=text,
-                               ts=now,
-                               user_id=user_id))
-
-        # thank-you + notify reps
         thanks = ("One of our representatives will be with you shortly.\n"
                   "Thank you for your patience.")
         emit("visitor_msg",
              {"body": thanks, "author": "assistant", "ts": now_iso},
              room=sid)
-        db.session.add(Message(chat_id=chat_id,
-                               author="assistant",
-                               body=thanks,
-                               ts=now,
-                               user_id=user_id))
+        db.session.add(Message(chat_id=chat_id, author="assistant",
+                               body=thanks, ts=now, user_id=user_id))
 
-        NEW_CHATS.add(sid)
-        emit("new_chat",
-             {"sid": sid, "username": visitor_name},
-             room="reps")
+        # Only wake reps if we’re inside office hours
+        if not off_hours:
+            NEW_CHATS.add(sid)
+            emit("new_chat", {"sid": sid, "username": visitor_name},
+                 room="reps")
+
         db.session.commit()
         return
 
@@ -446,24 +502,34 @@ def handle_visitor(text: str) -> None:
     # ───────────────────────────────────────────────────────────────
     if text.startswith("__faq__:"):
         faq_id = text.split(":", 1)[1]
-        label = FAQ[faq_id]['label']
+        label  = FAQ[faq_id]["label"]
 
-        vis_pkt = {"body": label, "author": "visitor", "ts": now_iso}
-
-        emit("visitor_msg", vis_pkt, room=sid)
-
+        emit("visitor_msg",
+             {"body": label, "author": "visitor", "ts": now_iso},
+             room=sid)
         rep_sid = next((r for r, v in PAIR.items() if v == sid), None)
         if rep_sid:
-            emit("visitor_msg", vis_pkt, room=rep_sid, include_self=False)
+            emit("visitor_msg",
+                 {"body": label, "author": "visitor", "ts": now_iso},
+                 room=rep_sid, include_self=False)
 
-        db.session.add(Message(chat_id=chat_id,
-                               author="visitor",
-                               body=label,
-                               ts=now,
-                               user_id=user_id))
+        db.session.add(Message(chat_id=chat_id, author="visitor",
+                               body=label, ts=now, user_id=user_id))
 
-        # ── special: connect-to-rep ───────────────────────────────────
+        # ── special: connect-to-rep ────────────────────────────────
         if faq_id == "human":
+            if off_hours:                         # ★ CHANGED (simpler test)
+                closed_msg = ("Live chat is closed right now, but we’ll "
+                              "e-mail you back 😊")
+                emit("visitor_msg",
+                     {"body": closed_msg, "author": "assistant", "ts": now_iso},
+                     room=sid)
+                db.session.add(Message(chat_id=chat_id, author="assistant",
+                                       body=closed_msg, ts=now,
+                                       user_id=user_id))
+                db.session.commit()
+                return
+
             prompt = ("Before they join, could you briefly describe your "
                       "question or what you need help with?")
             emit("visitor_msg",
@@ -488,13 +554,11 @@ def handle_visitor(text: str) -> None:
     # ───────────────────────────────────────────────────────────────
     # 2) Standard free-text flow
     # ───────────────────────────────────────────────────────────────
-    db.session.add(Message(chat_id=chat_id,
-                           author="visitor",
-                           body=text,
-                           ts=now,
-                           user_id=user_id))
+    db.session.add(Message(chat_id=chat_id, author="visitor",
+                           body=text, ts=now, user_id=user_id))
     db.session.commit()
 
+    # If a rep is already paired, forward immediately (even after hours)
     rep_sid = next((r for r, v in PAIR.items() if v == sid), None)
     if rep_sid:
         emit("visitor_msg",
@@ -502,6 +566,12 @@ def handle_visitor(text: str) -> None:
              room=rep_sid, include_self=False)
         return
 
+    # Outside office hours we STOP here — the overnight query will pick
+    # this chat up tomorrow.  During office hours we escalate as before.
+    if off_hours:
+        return
+
+    # Escalate to NEW_CHATS because it’s office hours and no rep yet
     if sid in VISITORS:
         VISITORS.remove(sid)
         NEW_CHATS.add(sid)

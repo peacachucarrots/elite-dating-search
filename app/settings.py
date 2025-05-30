@@ -9,6 +9,14 @@ Usage
 
 from pathlib import Path
 import os
+from datetime import time
+from zoneinfo import ZoneInfo
+
+EASTERN = ZoneInfo("America/New_York")
+
+# reps available **between** these times, inclusive
+OFFICE_OPEN  = time(9, 0)   # 09:00
+OFFICE_CLOSE = time(18, 0)  # 18:00
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

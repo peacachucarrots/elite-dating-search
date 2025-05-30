@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------
-   rep_dashboard.js   (loaded from <script type="module"> in rep.html)
+   rep_dashboard.js   (loaded via <script type="module"> in rep.html)
 ---------------------------------------------------------------------- */
 import { renderLine } from "/static/js/chat_common.js";
 import { io }         from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
@@ -9,12 +9,12 @@ const socket = io({ path: "/socket.io", query: { role: "rep" } });
 socket.on("connect", () => socket.emit("iam_rep"));
 
 /* ── globals tied to DOM ------------------------------------------- */
-let messagesPane, pastPane, historyList;
-let lists   = {};             // { active:<ul>, new:<ul> }
-let activeVisitor = null;     // SID of visitor currently in live chat
-const typingDots  = new Map();   // { visitor_sid ➜ <div…> }
-const TYPING_MS = 3000;
-let typingTimer;
+let messagesPane, pastPane, historyList, markBtn;
+let lists   = {};               // { live:<ul>, new:<ul>, prev:<ul> }
+let liveSID = null;             // visitor socket *if* current chat is live
+const typingDots  = new Map();  // { visitor_sid ➜ <div…> }
+const TYPING_MS   = 3000;
+let typingState = false;
 
 /* ── DOM ready ------------------------------------------------------ */
 document.addEventListener("DOMContentLoaded", () => {
@@ -25,63 +25,69 @@ document.addEventListener("DOMContentLoaded", () => {
   const form   = document.getElementById("chatForm");
   const inp    = document.getElementById("msgInput");
   const disc   = document.getElementById("disconnectBtn");
-  
+  markBtn = document.getElementById("markEmailBtn");
+
+  /* optional audio ping */
   const banner   = document.getElementById("soundBanner");
   const enableBt = document.getElementById("enableAudioBtn");
   const ping     = new Audio("/chat/static/audio/new_chat.mp3");
-  
-  function unlockAudio() {
-    ping.play()
-        .then(() => {
-          ping.pause();
-          banner?.remove();
-        })
-        .catch(() => {});
-  }
-  
-  enableBt?.addEventListener("click", unlockAudio);
+  enableBt?.addEventListener("click", () =>
+    ping.play().then(()=>{ ping.pause(); banner?.remove(); }).catch(()=>{}));
 
   lists = {
-    active : document.getElementById("visitorList"),
-    new    : document.getElementById("newChatList")
+    live : document.getElementById("visitorList"),
+    new  : document.getElementById("newChatList"),
+    prev : document.getElementById("afterHoursList"),
   };
 
   /* -------------------------------------------------------------- */
   /* socket listeners                                               */
   /* -------------------------------------------------------------- */
-  socket.on("visitor_msg", d => renderLine(d, messagesPane));
+  socket.on("visitor_msg", d => {
+  removeTypingBubble(d.sid);
+  renderLine(d, messagesPane);
+});
   socket.on("rep_msg",     d => renderLine(d, messagesPane));
   socket.on("system",      d => renderLine(d, messagesPane));
 
-  socket.on("visitor_online",  ({ sid, username }) => placeIn("active", sid, username));
-  socket.on("visitor_offline", ({ sid })           => drop(sid));
+  /* ---- visitor presence ---------------------------------------- */
+  socket.on("visitor_online",  ({ sid, username }) =>
+    addRow("live", sid, username));
+  socket.on("visitor_offline", ({ sid }) => dropRow(sid));
 
+  /* ---- new chat inside office hours ---------------------------- */
   socket.on("new_chat", ({ sid, username }) => {
-    placeIn("new", sid, username);
-    ping.currentTime = 0;
-    ping.play().catch(()=>{});
+    addRow("new", sid, username);
+    ping.currentTime = 0; ping.play().catch(()=>{});
   });
-  socket.on("new_chat_remove", ({ sid }) => drop(sid));
+  socket.on("new_chat_remove", ({ sid }) => dropRow(sid));
+  socket.on("prev_chat_remove", ({ chat_id }) =>
+  document.querySelectorAll(`li[data-id="${chat_id}"]`).forEach(el => el.remove()));
 
-  /* typing from visitor */
-  socket.on("typing", ({ sid, is_typing }) => {
-    if (sid !== activeVisitor) return;
+  /* ---- previous-day chats -------------------------------------- */
+  socket.on("after_hours_chat",
+  ({ chat_id, username, email, preview }) =>
+      addRow("prev", chat_id, username, preview, "prev", email));
+
+  /* ---- typing indicator from visitor --------------------------- */
+  socket.on("typing", ({ sid, is_typing }) => {        
+    if (sid !== liveSID) return;
     if (is_typing) {
       if (!typingDots.has(sid)) {
-        const d = document.createElement("div");
-        d.className = "msg visitor";
-        d.innerHTML = '<p class="bubble">…</p>';
-        messagesPane.appendChild(d);
-        typingDots.set(sid, d);
+        const dot = document.createElement("div");
+        dot.className = "msg visitor";
+        dot.innerHTML = '<p class="bubble">…</p>';
+        messagesPane.appendChild(dot);
+        typingDots.set(sid, dot);
+        messagesPane.scrollTop = messagesPane.scrollHeight;
       }
     } else {
-      const d = typingDots.get(sid);
-      if (d) d.remove();
+      typingDots.get(sid)?.remove();
       typingDots.delete(sid);
     }
   });
 
-  /* past-chat side-panel */
+  /* ---- historical side-panel ----------------------------------- */
   socket.on("session_list", list => {
     historyList.innerHTML = "";
     list.forEach(addHistoryRow);
@@ -97,56 +103,102 @@ document.addEventListener("DOMContentLoaded", () => {
   /* -------------------------------------------------------------- */
   form.onsubmit = e => {
     e.preventDefault();
-    if (!activeVisitor) {
-      renderLine({ body:"Select a visitor first.", author:"system", ts:Date.now() }, messagesPane);
+    if (!liveSID) {
+      renderLine({ body:"Select a live visitor first.",
+                   author:"system", ts:Date.now() }, messagesPane);
       return;
     }
     const txt = inp.value.trim();
     if (!txt) return;
     socket.emit("rep_msg", txt);
     renderLine({ body:txt, author:"rep", ts:Date.now() }, messagesPane);
+    socket.emit("rep_typing", { is_typing: false });
+    typingState = false;
+    removeTypingBubble(liveSID);
     inp.value = "";
   };
 
   inp.oninput = () => {
-    socket.emit("rep_typing", { is_typing:true });
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() =>
-      socket.emit("rep_typing", { is_typing:false }), TYPING_MS);
-  };
+  if (!liveSID) return;
+  const hasText = inp.value.trim().length > 0;
+
+  if (hasText && !typingState) {
+    socket.emit("rep_typing", { is_typing: true });
+    typingState = true;
+  } else if (!hasText && typingState) {
+    socket.emit("rep_typing", { is_typing: false });
+    typingState = false;
+  }
+};
 
   disc.onclick = () => {
-    if (!activeVisitor) return;
-    socket.emit("leave_visitor", { sid: activeVisitor });
-    activeVisitor = null;
+    if (!liveSID) return;
+    socket.emit("leave_visitor", { sid: liveSID });
+    liveSID = null;
     messagesPane.innerHTML = "";
     hideTranscript();
     historyList.innerHTML = "";
   };
+  
+  markBtn.onclick = () => {
+  const chatId = markBtn.dataset.chatId;
+  if (!chatId) return;
 
-  /* list row click (delegated) */
+  socket.emit("mark_replied", { chat_id: chatId });
+  messagesPane.innerHTML =
+    '<p class="text-sm text-slate-500">Marked as replied via e-mail.</p>';
+  markBtn.classList.add("hidden");
+};
+
+  /* ---- list row click (event delegation) ----------------------- */
   document.addEventListener("click", e => {
-    const li = e.target.closest("li[data-sid]");
-    if (li) joinVisitor(li.dataset.sid);
+    const li = e.target.closest("li[data-id]");
+    if (li) openChat(li);
   });
 });
 
 /* ---------------- helper funcs ------------------------------------ */
-function row(sid, username){
+
+/* create or update a <li> row */
+function addRow(listKey, id, username, preview = "", type = "live", email = "") {
+  document.querySelectorAll(`li[data-id="${id}"]`).forEach(el => el.remove());
+
   const li = document.createElement("li");
-  li.dataset.sid = sid;
-  li.className   = "px-2 py-1 cursor-pointer hover:bg-gray-100";
-  li.textContent = username ? `${username} (${sid.slice(0,8)})`
-                            : sid.slice(0,8);
-  li.onclick = () => joinVisitor(sid);
-  return li;
+  li.dataset.id    = id;
+  li.dataset.type  = type;
+  li.dataset.email = email;
+  li.className     = "px-2 py-1 cursor-pointer hover:bg-gray-100";
+
+  li.innerHTML =
+    `<strong>${username ?? "(anon)"}</strong>
+     ${email ? `<span class="block text-xs text-slate-400">${email}</span>` : ""}
+     ${preview ? `<span class="block text-xs text-slate-500 truncate">${preview}</span>` : ""}`;
+
+  lists[listKey].appendChild(li);
 }
-function placeIn(key, sid, username){
-  document.querySelectorAll(`li[data-sid="${sid}"]`).forEach(el => el.remove());
-  lists[key].appendChild(row(sid, username));
+
+/* drop row by id */
+function dropRow(id){
+  document.querySelectorAll(`li[data-id="${id}"]`).forEach(el => el.remove());
 }
-function drop(sid){
-  document.querySelectorAll(`li[data-sid="${sid}"]`).forEach(el => el.remove());
+
+/* open either a live chat or an after-hours transcript */
+function openChat(li) {
+  const isPrev = li.dataset.type === "prev";
+  const payload = isPrev
+                    ? { chat_id: li.dataset.id }
+                    : { sid:     li.dataset.id };
+
+  liveSID = isPrev ? null : li.dataset.id;
+  messagesPane.innerHTML = "";
+  hideTranscript();
+  historyList.innerHTML = "";
+  setLiveUI(!isPrev);
+
+  socket.emit("join_visitor", payload);
+
+  // store current chat_id on the button for later
+  markBtn.dataset.chatId = li.dataset.id;
 }
 
 /* transcript panel */
@@ -156,8 +208,21 @@ function showTranscript(){
 }
 function hideTranscript(){
   pastPane.classList.add("hidden");
-  pastPane.innerHTML = '<p class="text-center text-slate-500">Select a chat ↑</p>';
+  pastPane.innerHTML =
+    '<p class="text-center text-slate-500">Select a chat ↑</p>';
 }
+
+function removeTypingBubble(sid) {
+  typingDots.get(sid)?.remove();
+  typingDots.delete(sid);
+}
+
+function setLiveUI(isLive) {
+  document.getElementById("chatForm").classList.toggle("hidden", !isLive);
+  markBtn.classList.toggle("hidden",  isLive);
+}
+
+/* add a previous session row */
 function addHistoryRow({ chat_id, label, opened }){
   const li = document.createElement("li");
   li.dataset.chat = chat_id;
@@ -167,17 +232,8 @@ function addHistoryRow({ chat_id, label, opened }){
   historyList.appendChild(li);
 }
 function viewOldChat(id){
-  document.querySelectorAll("#historyList li").forEach(li =>
+  historyList.querySelectorAll("li").forEach(li =>
     li.classList.toggle("bg-blue-50", li.dataset.chat == id));
   showTranscript();
   socket.emit("history_request", { chat_id: id });
-}
-
-/* join live visitor */
-export function joinVisitor(sid){
-  if (activeVisitor === sid) return;
-  activeVisitor = sid;
-  messagesPane.innerHTML = "";
-  drop(sid);                           // remove from lists
-  socket.emit("join_visitor", { sid });
 }

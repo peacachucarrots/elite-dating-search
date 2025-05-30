@@ -59,7 +59,10 @@ import { renderLine }    from "/static/js/chat_common.js";
     if (d.author === "assistant" && currentOptions.length)
       buildMenu(currentOptions);
   });
-  socket.on("rep_msg",  d => renderLine(d, messagesPane));
+ socket.on("rep_msg", d => {
+  if (repDot) { repDot.remove(); repDot = null; }
+  renderLine(d, messagesPane);
+});
   socket.on("system",   d => renderLine(d, messagesPane));
   socket.on("disconnect", () =>
     renderLine({ author:"system", body:"Chat disconnected…", ts:Date.now() }, messagesPane)
@@ -78,9 +81,11 @@ import { renderLine }    from "/static/js/chat_common.js";
         repDot.className = "msg rep";
         repDot.innerHTML = '<p class="bubble">…</p>';
         messagesPane.appendChild(repDot);
+        messagesPane.scrollTop = messagesPane.scrollHeight;
       }
     } else if (repDot){
-      repDot.remove(); repDot=null;
+      repDot.remove();
+      repDot=null;
     }
   });
 
@@ -91,16 +96,18 @@ import { renderLine }    from "/static/js/chat_common.js";
     if(!txt) return;
     socket.emit("visitor_msg", txt);
     renderLine({author:"visitor",body:txt,ts:Date.now()}, messagesPane);
+    socket.emit("typing", { is_typing: false });  // tell visitor
+		typingState = false;
     input.value="";
   };
-  
+
   document.querySelectorAll(".rate-btn").forEach(btn => {
   btn.onclick = () => {
     const score = +btn.dataset.score;           // 1-5
     socket.emit("satisfaction", { score });     // send to server
 
     ratingBox.innerHTML = "<p>Thanks for your feedback!</p>";
-
+    
     const newBtn = document.createElement("button");
     newBtn.textContent = "Start new chat";
     newBtn.className = "mt-2 px-3 py-1 rounded bg-blue-600 text-white";
@@ -122,13 +129,16 @@ starBtns.forEach(btn => {
   btn.addEventListener("click", () => setFill(+btn.dataset.score));
 });
 
-  /* visitor typing signal ----------------------------------------- */
-  const TYPING_MS=3000;
-  let typingTimer;
-  input.oninput = () => {
-    socket.emit("typing",{is_typing:true});
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() =>
-      socket.emit("typing",{is_typing:false}), TYPING_MS);
-  };
+let typingState = false;
+input.oninput = () => {
+  const hasText = input.value.trim().length > 0;
+
+  if (hasText && !typingState) {                 // started typing
+    socket.emit("typing", { is_typing: true });
+    typingState = true;
+  } else if (!hasText && typingState) {          // cleared box
+    socket.emit("typing", { is_typing: false });
+    typingState = false;
+  }
+};
 })();

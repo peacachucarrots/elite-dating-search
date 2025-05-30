@@ -1,6 +1,9 @@
 # app/models/chat.py
 import secrets
 from datetime import datetime
+from time import timezone
+from sqlalchemy.sql import func
+
 from ..extensions import db
 
 def _rand_id():
@@ -15,6 +18,7 @@ class ChatSession(db.Model):
     opened_at   = db.Column(db.DateTime, default=datetime.utcnow)
     closed_at   = db.Column(db.DateTime, nullable=True)
     assigned_at = db.Column(db.DateTime)
+    replied_via_email = db.Column(db.Boolean, default=False)
     rating      = db.Column(db.Integer)
 
     user        = db.relationship("User", back_populates="sessions")
@@ -36,7 +40,7 @@ class Message(db.Model):
     id      = db.Column(db.Integer, primary_key=True)
     author  = db.Column(db.String(8), nullable=False)
     body    = db.Column(db.Text, nullable=False)
-    ts      = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    ts      = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
 
     chat_id = db.Column(db.Integer, db.ForeignKey("chat_sessions.id"), nullable=False)
     chat = db.relationship("ChatSession", back_populates="messages")
