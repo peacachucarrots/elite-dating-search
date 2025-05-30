@@ -58,8 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   socket.on("new_chat", ({ sid, username }) => {
     placeIn("new", sid, username);
-    newChatPing.currentTime = 0;
-    newChatPing.play().catch(()=>{});
+    ping.currentTime = 0;
+    ping.play().catch(()=>{});
   });
   socket.on("new_chat_remove", ({ sid }) => drop(sid));
 
