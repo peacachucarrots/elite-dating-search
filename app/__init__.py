@@ -10,6 +10,7 @@ import calendar
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_talisman import Talisman
 from app.models import db
 from .settings import Dev, Prod
 from .extensions import socketio, db, login_manager, migrate, mail
@@ -66,6 +67,17 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     app.register_blueprint(blog_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(program_bp, url_prefix="/program")
+
+    csp = {
+        "default-src": ["'self'"],
+        "script-src": ["'self'", "https://js.stripe.com"],
+        "img-src": ["'self'", "data:"],
+    }
+
+    Talisman(app,
+             content_security_policy=csp,
+             force_https=not app.debug,
+             frame_options="DENY")
 
     # ── Global context + filters ───────────────────────────────────
     @app.context_processor

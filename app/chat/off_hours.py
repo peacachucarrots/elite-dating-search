@@ -73,6 +73,7 @@ def overnight_chats():
               (Msg2.ts == subq.c.last_ts))
         .join(UserAlias, ChatSession.user_id == UserAlias.id)
         .outerjoin(ProfAlias, ProfAlias.user_id == UserAlias.id)
+        .filter(ChatSession.replied_via_email.is_(False))
         .order_by(desc(Msg2.ts))
         .all()
     )
