@@ -2,7 +2,12 @@
 {% block title %}Verify code{% endblock %}
 {% block content %}
 <section class="max-w-sm mx-auto py-12">
-  <h1 class="text-xl font-semibold mb-6 text-center">Enter the code we sent to {{ phone }}</h1>
+  <h1 class="text-xl font-semibold mb-6 text-center">Enter the verification code below: </h1>
+  <div class="mb-4 p-3 bg-yellow-100 border text-sm">
+    {% if 'otp' in session %}
+  <p>Your code is: <strong>{{ session['otp'] }}</strong></p>
+{% endif %}
+  </div>
   <form method="post" novalidate class="space-y-4">
     {{ form.hidden_tag() }}
     {{ form.code(class="w-full border rounded px-3 py-2 text-center text-lg") }}

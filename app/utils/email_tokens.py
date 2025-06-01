@@ -1,8 +1,8 @@
 """
 Helpers for signed URLs in e-mail confirmation / password reset, etc.
 """
-from itsdangerous import URLSafeTimedSerializer
-from flask import current_app as app
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired, BadTimeSignature
+from flask import url_for, current_app as app
 
 
 def _serializer(salt: str) -> URLSafeTimedSerializer:
@@ -11,6 +11,10 @@ def _serializer(salt: str) -> URLSafeTimedSerializer:
         salt=salt
     )
 
+def generate_confirmation_url(user):
+    s = _serializer("email-confirm")
+    token = s.dumps(user.id)
+    return url_for("auth.confirm_email", token=token, _external=True)
 
 def generate_token(user_id: int, *, purpose: str, max_age: int = 86400) -> str:
     """Return a signed token that encodes the user id."""
@@ -22,7 +26,11 @@ def verify_token(token: str, *, purpose: str, max_age: int = 86400) -> int | Non
     Return the user_id embedded in *token* or raise itsdangerous.BadSignature /
     SignatureExpired if invalid or too old.
     """
+    s = _serializer(purpose)
     try:
-        return _serializer(purpose).loads(token, max_age=max_age)
-    except Exception:
-        return None
+        return s.loads(token, max_age=max_age)
+    except SignatureExpired:
+        app.logger.warning("Token expired")
+    except (BadSignature, BadTimeSignature):
+        app.logger.warning("Bad signature")
+    return None

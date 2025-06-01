@@ -17,3 +17,4 @@ python-dotenv
 twilio~=9.0
 Stripe~=12.2.0
 Flask-talisman~=1.1.0
+Bleach~=6.2.0

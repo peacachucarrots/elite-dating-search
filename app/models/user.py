@@ -40,6 +40,15 @@ class User(UserMixin, db.Model):
     last_login  = db.Column(db.DateTime)
 
     profile = db.relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    @property
+    def display_name(self) -> str:
+        p = self.profile
+        if p:
+            if p.display_name:
+                return p.display_name
+            if p.first_name and p.last_name:
+                return f"{p.first_name} {p.last_name}"
+        return self.email.split("@")[0]
 
     roles = db.relationship("Role", secondary=user_roles, lazy="joined")
     sessions = db.relationship("ChatSession", back_populates="user")

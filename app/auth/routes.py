@@ -12,7 +12,7 @@ from app import db
 from app.models.user import User
 from app.models.role import Role
 from app.models.profile import Profile
-from app.utils.email_tokens import generate_token, verify_token
+from app.utils.email_tokens import generate_token, generate_confirmation_url, verify_token
 from app.utils.sms import send_sms
 from .forms import RegisterForm, LoginForm, RequestResetForm, ResetForm, OtpForm
 from .email import send_confirmation_email, send_password_reset
@@ -33,7 +33,13 @@ def register():
             phone=form.phone.data
         )
 
-        user.roles.append(Role.query.filter_by(name="visitor").one())
+        visitor_role = Role.query.filter_by(name="visitor").first()
+        if visitor_role is None:  # first run / empty DB
+            visitor_role = Role(name="visitor", level=10)
+            db.session.add(visitor_role)
+            db.session.flush()  # have an id immediately, no commit yet
+
+        user.roles.append(visitor_role)
 
         # profile
         prof = Profile(
@@ -48,10 +54,11 @@ def register():
         db.session.commit()
 
         # ── e-mail verification ───────────────────────────────
-        send_confirmation_email(user)
+        confirm_url = generate_confirmation_url(user)
+        send_confirmation_email(user, confirm_url)
         flash("Check your inbox to confirm your e-mail.", "info")
 
-        return redirect(url_for("main.index"))
+        return redirect(url_for("auth.login"))
 
     return render_template("auth/register.html", form=form)
 
@@ -64,13 +71,17 @@ def confirm_email(token):
         return redirect(url_for("auth.login"))
 
     user = User.query.get_or_404(uid)
-    if not user.is_verified:
-        user.is_verified = True
+    try:
+        if not user.is_verified:
+            user.is_verified = True
         db.session.commit()
-        flash("E-mail verified — you can now log in.", "success")
-    else:
-        flash("E-mail was already verified.", "info")
+    except Exception as exc:
+        db.session.rollback()
+        current_app.logger.exception(exc)
+        flash("Couldn’t verify e-mail (internal error).", "danger")
+        return redirect(url_for("auth.login"))
 
+    flash("E-mail verified — you can now log in.", "success")
     return redirect(url_for("auth.login"))
 
 @bp.route("/resend-email", endpoint="resend_email_token", methods=["GET"])
@@ -78,7 +89,7 @@ def resend_email_token():
     """
     Re-send the “confirm your e-mail” message for an un-verified account.
 
-    We expect ?email=<adress> in the query-string (login() adds it).
+    We expect ?email=<address> in the query-string (login() adds it).
     """
     email = request.args.get("email", "").strip().lower()
     user  = User.query.filter_by(email=email).first_or_404()
@@ -88,7 +99,7 @@ def resend_email_token():
         return redirect(url_for("auth.login"))
 
     # create and send a fresh confirmation link
-    token       = generate_token(user.id, purpose="verify")
+    token       = generate_token(user.id, purpose="email-confirm")
     confirm_url = url_for("auth.confirm_email", token=token, _external=True)
     send_confirmation_email(user, confirm_url)
 
@@ -110,9 +121,10 @@ def login():
 
         if not user.is_verified:
             flash("Confirm your e-mail first.", "warning")
-            return redirect(url_for("auth.resend_email_token", email=user.email))
+            return redirect(url_for("auth.login", needs_verify=1, email=user.email))
 
         code = f"{randbelow(1_000_000):06d}"  # zero-padded 6-digits
+        session["otp"] = code
         user.phone_otp = code
         user.phone_otp_sent = datetime.utcnow()
         db.session.commit()

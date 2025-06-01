@@ -19,3 +19,9 @@
 @media (prefers-reduced-motion:reduce){
   .logo-wrapper svg path{animation:none;stroke-dashoffset:0}
 }
+
+.hero-bg {
+  background-image: url("/static/img/hero.jpg");
+  background-size: cover;
+  background-position: center;
+}

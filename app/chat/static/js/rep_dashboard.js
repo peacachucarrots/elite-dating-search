@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     live : document.getElementById("visitorList"),
     new  : document.getElementById("newChatList"),
     prev : document.getElementById("afterHoursList"),
+    app  : document.getElementById("appList")
   };
 
   /* -------------------------------------------------------------- */
@@ -51,8 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   socket.on("system",      d => renderLine(d, messagesPane));
 
   /* ---- visitor presence ---------------------------------------- */
-  socket.on("visitor_online",  ({ sid, username }) =>
-    addRow("live", sid, username));
+  socket.on("visitor_online",  ({ sid, username }) => addRow("live", sid, username));
   socket.on("visitor_offline", ({ sid }) => dropRow(sid));
 
   /* ---- new chat inside office hours ---------------------------- */
@@ -66,8 +66,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---- previous-day chats -------------------------------------- */
   socket.on("after_hours_chat",
-  ({ chat_id, username, email, preview }) =>
-      addRow("prev", chat_id, username, preview, "prev", email));
+  ({ chat_id, username, email, preview }) => addRow("prev", chat_id, username, preview, "prev", email));
+      
+  socket.on("program_apps",   ({ apps }) => {
+    appList.innerHTML = "";
+    apps.forEach(addAppRow);
+  });
+  socket.on("new_program_app", ({ app }) => addAppRow(app, true));
 
   /* ---- typing indicator from visitor --------------------------- */
   socket.on("typing", ({ sid, is_typing }) => {        
@@ -139,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
     hideTranscript();
     historyList.innerHTML = "";
   };
-  
+
   markBtn.onclick = () => {
   const chatId = markBtn.dataset.chatId;
   if (!chatId) return;
@@ -155,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const li = e.target.closest("li[data-id]");
     if (li) openChat(li);
   });
-});
+ });
 
 /* ---------------- helper funcs ------------------------------------ */
 
@@ -175,6 +180,24 @@ function addRow(listKey, id, username, preview = "", type = "live", email = "") 
      ${preview ? `<span class="block text-xs text-slate-500 truncate">${preview}</span>` : ""}`;
 
   lists[listKey].appendChild(li);
+}
+
+function addAppRow(app, highlight=false) {
+  const li  = document.createElement("li");
+  li.dataset.id = app.id;
+  li.className  =
+    "px-2 py-1 cursor-pointer hover:bg-gray-100" +
+    (highlight ? " bg-yellow-50" : "");
+
+  li.innerHTML = `
+    <strong class="mr-1">${app.program}</strong>
+    • ${app.submitted.slice(0,10)}
+    ${app.paid ? '<span class="text-emerald-600 ml-1">paid</span>' : ''}
+    <br><span class="text-xs text-slate-500">${app.first_name ?? ""} ${app.last_name ?? ""}</span>
+  `;
+
+  li.onclick = () => openAppModal(app);   // up to you
+  appList.appendChild(li);
 }
 
 /* drop row by id */

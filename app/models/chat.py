@@ -18,6 +18,7 @@ class ChatSession(db.Model):
     opened_at   = db.Column(db.DateTime, default=datetime.utcnow)
     closed_at   = db.Column(db.DateTime, nullable=True)
     assigned_at = db.Column(db.DateTime)
+    waiting_desc = db.Column(db.Boolean, nullable=False, default=True)
     replied_via_email = db.Column(db.Boolean, default=False)
     rating      = db.Column(db.Integer)
 

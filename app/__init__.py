@@ -4,7 +4,6 @@ Application factory + blueprint registration.
 Call create_app() from run.py, tests, or a WSGI entrypoint.
 """
 
-import stripe
 from datetime import datetime
 import calendar
 from flask import Flask
@@ -13,7 +12,7 @@ from flask_migrate import Migrate
 from flask_talisman import Talisman
 from app.models import db
 from .settings import Dev, Prod
-from .extensions import socketio, db, login_manager, migrate, mail
+from .extensions import socketio, db, login_manager, migrate, mail, csrf
 
 from importlib import import_module
 from typing import Union
@@ -46,8 +45,7 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-
-    stripe.api_key = app.config["STRIPE_SECRET_KEY"]
+    csrf.init_app(app)
 
     from app.models.user import User
 
@@ -57,27 +55,31 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
 
     # ── Register blueprints ─────────────────────────────────────────
     from .main import bp as main_bp
+    from .admin import bp as admin_bp
     from .chat import bp as chat_bp
     from .blog import bp as blog_bp
     from .auth import bp as auth_bp
     from .program import bp as program_bp
 
     app.register_blueprint(main_bp)
+    app.register_blueprint(admin_bp)
     app.register_blueprint(chat_bp, url_prefix="/chat")
     app.register_blueprint(blog_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(program_bp, url_prefix="/program")
 
-    csp = {
-        "default-src": ["'self'"],
-        "script-src": ["'self'", "https://js.stripe.com"],
-        "img-src": ["'self'", "data:"],
-    }
+    # csp = {
+    #    "default-src": ["'self'"],
+    #    "script-src": ["'self'", "https://js.stripe.com"],
+    #    "style-src": ["'self'", "https://cdn.jsdelivr.net"],
+    #    "img-src": ["'self'", "data:"],
+    #}
 
-    Talisman(app,
-             content_security_policy=csp,
-             force_https=not app.debug,
-             frame_options="DENY")
+    # Talisman(app,
+    #         content_security_policy=csp,
+    #         content_security_policy_nonce_in=['script'],
+    #         force_https=not app.debug,
+    #         frame_options="DENY")
 
     # ── Global context + filters ───────────────────────────────────
     @app.context_processor
@@ -88,5 +90,8 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     def month_name(value):
         """Convert int 1-12 to 'January'-'December'."""
         return calendar.month_name[int(value)]
+
+    from .cli import register_commands
+    register_commands(app)
 
     return app

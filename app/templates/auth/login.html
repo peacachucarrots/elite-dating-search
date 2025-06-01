@@ -4,6 +4,33 @@
 
 {% block content %}
 <section class="max-w-md mx-auto py-12">
+  {% if request.args.get('needs_verify') %}
+      <div class="mb-4 rounded-lg bg-yellow-100 p-3 border border-yellow-300 text-yellow-800">
+        <strong>Almost there!</strong><br>
+        We’ve found an account for <em>{{ request.args.get('email') }}</em>,
+        but the e-mail address isn’t confirmed yet.<br>
+        Check your inbox for the confirmation link or
+        <a class="underline font-medium"
+           href="{{ url_for('auth.resend_email_token',
+                            email=request.args.get('email')) }}">
+          resend it
+        </a>.
+      </div>
+    {% endif %}
+    
+    {% with msgs = get_flashed_messages(with_categories=True) %}
+    {% if msgs %}
+      {% for category, msg in msgs %}
+        <div class="mb-4 rounded-lg p-3
+                    {% if category == 'danger' %}bg-red-100 border border-red-300 text-red-800
+                    {% elif category == 'success' %}bg-green-100 border border-green-300 text-green-800
+                    {% elif category == 'warning' %}bg-yellow-100 border border-yellow-300 text-yellow-800
+                    {% else %}bg-neutral-100 border text-neutral-800{% endif %}">
+          {{ msg | e }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
   <h1 class="text-2xl font-semibold mb-6 text-center">Welcome back</h1>
 
   <form method="post" novalidate class="space-y-6">

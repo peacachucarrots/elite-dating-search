@@ -72,6 +72,10 @@
       </a>
     {% endif %}
     
+    {% if current_user.is_authenticated and current_user.has_role('admin') %}
+  <a href="{{ url_for('admin.users') }}">Admin Dashboard</a>
+{% endif %}
+    
     <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">
       Log&nbsp;out
     </a>

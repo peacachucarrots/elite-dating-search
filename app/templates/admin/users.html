@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-2xl font-semibold mb-6">All users</h1>
+
+{% with msgs = get_flashed_messages(with_categories=True) %}
+  {% for cat,msg in msgs %}
+    <div class="mb-4 alert alert-{{ 'warning' if cat=='info' else cat }}">{{ msg }}</div>
+  {% endfor %}
+{% endwith %}
+
+<table class="table-auto w-full text-sm">
+  <thead>
+    <tr class="text-left border-b"><th>Name</th><th>Email</th><th>Roles</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for u in users.items %}
+  <tr class="border-b">
+  	<td>{{ u.display_name }}</td>
+    <td>{{ u.email }}</td>
+
+    {# ── list the user’s roles ── #}
+    <td>{{ u.roles | map(attribute='name') | join(', ') }}</td>
+
+    <td>
+      <form method="post"
+            action="{{ url_for('admin.toggle_rep', uid=u.id, p=users.page) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        {% set role_names = u.roles | map(attribute='name') | list %}
+        {% if 'rep' in role_names %}
+          <button class="btn btn-sm btn-outline-danger">Remove Rep</button>
+        {% else %}
+          <button class="btn btn-sm btn-outline-primary">Make Rep</button>
+        {% endif %}
+      </form>
+    </td>
+  </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+<nav class="mt-6">
+  {% if users.has_prev %}
+    <a href="{{ url_for('admin.users', p=users.prev_num) }}">← prev</a>
+  {% endif %}
+  {% if users.has_next %}
+    <a href="{{ url_for('admin.users', p=users.next_num) }}" class="ml-4">next →</a>
+  {% endif %}
+</nav>
+{% endblock %}

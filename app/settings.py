@@ -28,8 +28,6 @@ class Base:
     """Settings shared by all environments."""
     # ── Core ────────────────────────────────────────────────────────────────
     SECRET_KEY                 = os.environ.get("SECRET_KEY", "dev-change-me")
-    STRIPE_SECRET_KEY          = os.environ.get("STRIPE_SECRET_KEY")
-    STRIPE_PUBLISHABLE_KEY     = os.environ.get("STRIPE_PUBLISHABLE_KEY")
     SESSION_COOKIE_HTTPONLY    = True
     SESSION_COOKIE_SAMESITE    = "Lax"
     SEND_FILE_MAX_AGE_DEFAULT  = 60 * 60          # 1 hour (static-file cache bust)
@@ -50,6 +48,9 @@ class Base:
 
     # ── 2FA / TOTP ─────────────────────────────────────────────────────────
     SECURITY_2FA_SECRET = os.environ.get("TOTP_SECRET", "totp-seed-dev")
+    TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
+    TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
+    TWILIO_FROM_NUMBER = os.environ.get("TWILIO_FROM_NUMBER")
 
     # ── OAuth (google-auth-flask) ──────────────────────────────────────────
     OAUTHLIB_INSECURE_TRANSPORT = os.environ.get("OAUTHLIB_INSECURE_TRANSPORT", "0")

@@ -1,7 +1,11 @@
 # app/models/program.py
+import enum
 from datetime import datetime
-
 from ..extensions import db
+
+class ProgramType(enum.Enum):
+    CLIENT    = "client"
+    CANDIDATE = "candidate"
 
 class ProgramApplication(db.Model):
     __tablename__ = "program_applications"
@@ -15,28 +19,16 @@ class ProgramApplication(db.Model):
     user      = db.relationship("User", back_populates="applications")
 
     # ── program metadata ──────────────────────────────────────────
-    program   = db.Column(db.Enum("client", "candidate",
-                                  name="program_enum"),
-                          nullable=False)
+    program   = db.Column(db.Enum(ProgramType), nullable=False)
     submitted = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # ── contact / profile details (optional) ──────────────────────
-    street          = db.Column(db.String(128))
-    city            = db.Column(db.String(64))
-    state           = db.Column(db.String(32))
-    zip             = db.Column(db.String(16))
-    country         = db.Column(db.String(64))
-
-    occupation      = db.Column(db.String(64))
-    income_bracket  = db.Column(db.String(32))   # “100-250 K”, “500 K+” …
-    education       = db.Column(db.String(32))   # “Bachelor”, “MBA”, …
-    marital_status  = db.Column(db.String(16))   # “single”, “divorced” …
-    ref_src         = db.Column(db.String(32))   # marketing attribution
-    intro           = db.Column(db.Text)         # free-text self-summary
-
     # ── paid-client specifics ─────────────────────────────────────
-    fee_paid   = db.Column(db.Boolean, default=False)
-    stripe_pi  = db.Column(db.String(64))        # PaymentIntent ID
+    status = db.Column(db.String(24), default="new")
+    ach_signed = db.Column(db.Boolean, default=False, nullable=False)
+    ach_doc_url = db.Column(db.String(255))  # e.g. DocuSign envelope URL
+    paid = db.Column(db.Boolean, default=False, nullable=False)
+
+    form_json = db.Column(db.JSON, nullable=False)
 
     def __repr__(self) -> str:                   # nice debug print
         return f"<App {self.id} {self.program} for user {self.user_id}>"

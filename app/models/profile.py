@@ -9,6 +9,7 @@ class Profile(db.Model):
 
     first_name = db.Column(db.String(64))
     last_name  = db.Column(db.String(64))
+    display_name = db.Column(db.String(80))
     dob        = db.Column(db.Date)
     gender     = db.Column(
         db.Enum("male", "female", "nonbinary", "other", name="gender_enum")
