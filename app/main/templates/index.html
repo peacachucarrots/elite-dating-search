@@ -1,4 +1,4 @@
-{# flask_app/templates/index.html #}
+{# main/templates/index.html #}
 {% extends "base.html" %}
 
 {% block title %}Elite Dating Search{% endblock %}
@@ -261,10 +261,10 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
 
 {% block extra_scripts %}
   {{ super() }}
-	<!-- global scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/glide.min.js" defer </script>
+	<!-- 3rd-party libs -->
+  <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/glide.min.js" defer> </script>
 
-  <!-- page-specific scripts -->
+  <!-- Site bundles -->
   <script src="{{ url_for('main.static', filename='js/main.js') }}" defer></script>
   <script src="{{ url_for('main.static', filename='js/hero-signature.js') }}" defer></script>
 {% endblock %}
