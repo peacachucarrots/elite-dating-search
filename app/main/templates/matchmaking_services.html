@@ -11,18 +11,36 @@ EliteDatingSearch offers three tiered matchmaking programs—each led by a dedic
 {% block content %}
 
 <!-- ── HERO ─────────────────────────────────────────────── -->
-<section class="relative bg-cover bg-center text-white"
-         style="background-image:url('{{ url_for('static', filename='img/services-hero.jpg') }}')">
-  <div class="absolute inset-0 bg-black/40"></div>
+<section class="relative bg-neutral-900">
+  <!-- background image -->
+  <img src="{{ url_for('main.static', filename='img/hero_matchmaking.jpg') }}"
+       alt="Silhouette of an elegant couple overlooking the city at dusk"
+       class="absolute inset-0 w-full h-full object-cover opacity-40">
 
-  <div class="relative max-w-4xl mx-auto py-24 text-center px-4">
-    <h1 class="text-4xl md:text-6xl font-serif leading-tight">
-      Matchmaking&nbsp;Services
+  <!-- hero copy -->
+  <div class="relative max-w-3xl mx-auto px-6 py-32 text-center text-white">
+    <h1 class="font-serif text-4xl md:text-5xl leading-tight mb-4">
+      Matchmaking&nbsp;Services, Tailored&nbsp;to&nbsp;You
     </h1>
-    <p class="mt-6 max-w-2xl mx-auto text-lg">
-      Three bespoke programs, one goal: finding your lifelong partner with
-      precision, privacy, and unparalleled expertise.
+    <p class="text-lg md:text-xl opacity-90 max-w-2xl mx-auto">
+      Whether you’re investing in a personalized executive search for
+      <strong>the one</strong>&nbsp;or joining our curated network
+      of high-caliber singles, we apply the same head-hunter rigor
+      to every introduction.
     </p>
+
+    <!-- calls to action -->
+    <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+      <a href="{{ url_for('program.client') }}"
+         class="btn btn-primary px-6 py-3 text-lg">
+        Apply as a&nbsp;Client
+      </a>
+
+      <a href="{{ url_for('program.candidate') }}"
+         class="btn btn-outline-light px-6 py-3 text-lg">
+        Join as a&nbsp;Candidate
+      </a>
+    </div>
   </div>
 </section>
 
@@ -80,7 +98,7 @@ EliteDatingSearch offers three tiered matchmaking programs—each led by a dedic
         <a href="/client-program"
            class="btn btn-primary mt-6 self-start">Become A Client</a>
       </article>
-
+    
       <!-- Candidate Program -->
       <article id="candidate"
                class="border rounded-lg bg-white p-8 shadow-sm flex flex-col h-full">
@@ -94,7 +112,7 @@ EliteDatingSearch offers three tiered matchmaking programs—each led by a dedic
         <a href="/candidate-program"
            class="btn btn-primary mt-6 self-start">Become A Candidate</a>
       </article>
-
+    
     </div>
   </div>
 </section>

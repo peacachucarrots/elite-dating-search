@@ -535,31 +535,6 @@ def handle_visitor(text: str) -> None:
         db.session.add(Message(chat_id=chat_id, author="visitor",
                                body=label, ts=now, user_id=user_id))
 
-        # ── special: connect-to-rep ────────────────────────────────
-        if faq_id == "human":
-            if off_hours:                         # ★ CHANGED (simpler test)
-                closed_msg = ("Live chat is closed right now, but we’ll "
-                              "e-mail you back 😊")
-                emit("visitor_msg",
-                     {"body": closed_msg, "author": "assistant", "ts": now_iso},
-                     room=sid)
-                db.session.add(Message(chat_id=chat_id, author="assistant",
-                                       body=closed_msg, ts=now,
-                                       user_id=user_id))
-                db.session.commit()
-                return
-
-            prompt = ("Before they join, could you briefly describe your "
-                      "question or what you need help with?")
-            emit("visitor_msg",
-                 {"body": prompt, "author": "assistant", "ts": now_iso},
-                 room=sid)
-            db.session.add(Message(chat_id=chat_id, author="assistant",
-                                   body=prompt, ts=now, user_id=user_id))
-            db.session.commit()
-            WAITING_DESC.add(sid)
-            return
-
         # normal FAQ answer
         answer = FAQ[faq_id]["answer"]
         emit("visitor_msg",

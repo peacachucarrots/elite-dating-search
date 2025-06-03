@@ -1,9 +1,13 @@
-document.addEventListener("DOMContentLoaded",()=>{
-  document.querySelectorAll(".logo-wrapper svg path")
-    .forEach((p,i)=>{
-      const len=p.getTotalLength();
-      p.style.strokeDasharray=len;
-      p.style.strokeDashoffset=len;
-      p.style.animationDelay=`${i*0.06}s`;  // stagger
-    });
+/* static/js/main.js */
+document.addEventListener('DOMContentLoaded', () => {
+  const tGlide = document.querySelector('[data-testid="testimonial-glide"]');
+  if (tGlide && window.Glide) {
+    new Glide(tGlide, {
+      type:       'carousel',
+      perView:    1,
+      gap:        0,
+      autoplay:   6000,
+      hoverpause: true
+    }).mount();
+  }
 });
