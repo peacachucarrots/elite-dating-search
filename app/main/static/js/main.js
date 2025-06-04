@@ -10,4 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
       hoverpause: true
     }).mount();
   }
+  });
+  
+document.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  const scrolled = window.scrollY > 500;
+
+  nav.classList.toggle('bg-neutral-900/60',  scrolled);
+  nav.classList.toggle('backdrop-blur-md',    scrolled);
 });

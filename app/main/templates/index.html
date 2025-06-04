@@ -10,19 +10,23 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
 <!-- ─────────────────────  HERO  ───────────────────── -->
 <section
   class="relative flex flex-col items-center justify-center
-         text-white bg-cover bg-center
-         min-h-[85vh] md:min-h-screen
-         py-24 md:py-32"
-  style="background-image:url('{{ url_for('main.static', filename='img/hero.jpg') }}')">
+         text-white min-h-[85vh] md:min-h-screen
+         py-24 md:py-32 overflow-hidden">
 
-  <!-- darken the photo -->
+  <!-- video background (fills the section) -->
+  <video
+    class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+    src="{{ url_for('main.static', filename='videos/hero-ultrawide.mp4') }}"
+    autoplay
+    muted
+    loop
+    playsinline        <!-- iOS / Android inline playback -->
+    poster="{{ url_for('main.static', filename='img/hero.jpg') }}"> <!-- fallback frame -->
+  </video>
+
+  <!-- darken the video for legibility -->
   <div class="absolute inset-0 bg-black/50"></div>
-  
-   <link rel="preload"
-       as="image"
-       type="image/svg+xml"
-       href="{{ url_for('main.static', filename='img/hero-signature.svg') }}">
-  
+
   <!-- content stack -->
   <div class="relative z-10 w-full max-w-5xl px-4">
 
@@ -35,12 +39,12 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
    </object>
 
     <!-- blurb + CTA -->
-    <div class="bg-white/80 text-neutral-900 p-8 mt-8 rounded backdrop-blur-sm text-center">
+    <div class="text-white p-8 mt-8 text-center">
     <h2 class="text-3xl font-semibold mb-4">
     You deserve exellence in all aspects of your life, including love.
     </h2>
       <p class="mb-6">
-        Our qualified matchmakers are committed to helping busy, successful people who respect their privacy and time form enduring, meaningful relationships. Let EliteDatingSearch’s experts lead the way.
+        Our qualified matchmakers are committed to helping happy, successful people who respect their privacy and time form enduring, meaningful relationships. Let EliteDatingSearch’s experts lead the way.
       </p>
       <a href="/matchmaking-services" class="btn btn-primary">
         Explore Our Services
