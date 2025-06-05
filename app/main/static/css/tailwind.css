@@ -1,0 +1,25 @@
+/* main/static/css/tailwind.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body { @apply m-0 p-0 font-sans leading-normal; }
+  h1, h2     { @apply font-semibold; }
+  :root      { --brand-gold:#caa86b; }
+}
+
+@layer components {
+  .wrapper     { @apply max-w-[1200px] mx-auto px-4; }
+  .btn         { @apply inline-block font-semibold rounded px-6 py-3 no-underline; }
+  .btn-primary { @apply text-white transition-colors; }
+  .btn-primary { background-color:var(--brand-gold); }
+  .btn-primary:hover,
+  .btn-primary:focus { background-color:#b99557; }
+}
+
+@layer utilities {
+  .bg-light   { background:#f7f7f7; }
+  .bg-hero    { background:url('main/static/img/hero.jpg') center/cover no-repeat; }
+  .hero-overlay{ background:rgba(0,0,0,.55); }
+}

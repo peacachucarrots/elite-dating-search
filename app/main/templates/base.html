@@ -31,21 +31,20 @@
         href="{{ url_for('main.static', filename='img/favicon-32x32.png') }}">
 
   {# ---------- CSS -------------------------------------------- #}
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet"
-        href="{{ url_for('main.static', filename='css/site.css') }}">
-	<link rel="stylesheet"
-      href="{{ url_for('chat.static', filename='css/chat_global.css') }}">
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/css/glide.core.min.css">
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/css/glide.theme.min.css">
+  <link rel="stylesheet"
+      href="{{ url_for('chat.static', filename='css/chat_global.css') }}">
+  <link rel="stylesheet"
+      href="{{ url_for('main.static', filename='css/site.css') }}">
 
   {# ---------- Extra head assets ------------------------------ #}
   {% block extra_head %}{% endblock %}
 </head>
 
-<body class="h-full flex flex-col flex1 min-h-0 text-neutral-900 bg-white">
+<body>
 {% block navbar %}
   {% include "partials/navbar.html" %}
 {% endblock %}
@@ -84,6 +83,7 @@
   <!-- Alpine (optional) + global JS -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="{{ url_for('main.static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('main.static', filename='js/scroll-animations.js') }}" defer></script>
 
   <!-- Socket.IO + visitor widget -->
   <script defer src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -95,23 +95,6 @@
   {# ---------- Extra JS --------------------------------------- #}
   {% block extra_js %}
     <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const path = document.querySelector('#hero-signature path');
-        if (!path) return;
-        const length = path.getTotalLength();
-        path.style.strokeDasharray = length;
-        path.style.strokeDashoffset = length;
-
-        anime({
-          targets: path,
-          strokeDashoffset: [length, 0],
-          duration: 2600,
-          easing: 'easeOutQuad',
-          delay: 400
-        });
-      });
-    </script>
   {% endblock %}
 
   {% block scripts %}{% endblock %}

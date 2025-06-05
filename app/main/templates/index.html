@@ -20,8 +20,8 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
     autoplay
     muted
     loop
-    playsinline        <!-- iOS / Android inline playback -->
-    poster="{{ url_for('main.static', filename='img/hero.jpg') }}"> <!-- fallback frame -->
+    playsinline
+    poster="{{ url_for('main.static', filename='img/hero.jpg') }}">
   </video>
 
   <!-- darken the video for legibility -->
@@ -54,8 +54,8 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
 </section>
 
 <!-- ─────────── WHY ELITE DATING SEARCH ─────────── -->
-<section id="why-us" class="bg-white text-black py-16 lg:py-24">
-  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+<section id="why-us" class="bg-white text-black py-16 lg:py-24 opacity-0" data-animate="fade-up" delay="2">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 grid gap-10">
     <!-- title -->
     <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight text-center">
       As the nation’s premier matchmaking company, we lead the industry in achieving results for our clients.
@@ -64,7 +64,7 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
     <!-- differentiators grid -->
     <div class="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
       <!-- 1 · White-Glove Concierge -->
-  <div class="flex flex-col items-center text-center">
+  <div class="flex flex-col items-center text-center opacity-0" data-animate="fade-up" data-delay="1">
     <!-- handshake icon -->
     <svg class="w-12 h-12 text-[#d4af37]" fill="none" stroke="currentColor" stroke-width="1.8"
          viewBox="0 0 24 24" aria-hidden="true">
@@ -78,7 +78,7 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
   </div>
 
   <!-- 2 · 48-Point Data Blueprint -->
-  <div class="flex flex-col items-center text-center">
+  <div class="flex flex-col items-center text-center opacity-0" data-animate="fade-up" data-delay="2">
     <!-- brain / chip icon -->
     <svg class="w-12 h-12 text-[#d4af37]" fill="none" stroke="currentColor" stroke-width="1.8"
          viewBox="0 0 24 24" aria-hidden="true">
@@ -92,7 +92,7 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
   </div>
 
       <!-- 3 ▸ exec-search rigor -->
-      <div class="flex flex-col items-center text-center">
+      <div class="flex flex-col items-center text-center opacity-0" data-animate="fade-up" data-delay="3">
         <svg class="w-12 h-12 text-[#d4af37]" fill="none" stroke="currentColor" stroke-width="1.8"
              viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round"
@@ -104,7 +104,7 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
       </div>
     
       <!-- 4 ▸ science-based matching -->
-      <div class="flex flex-col items-center text-center">
+      <div class="flex flex-col items-center text-center opacity-0" data-animate="fade-up" data-delay="4">
         <svg class="w-12 h-12 text-[#d4af37]" fill="none" stroke="currentColor" stroke-width="1.8"
              viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="12" r="9"/>
