@@ -12,19 +12,18 @@ import { renderLine }    from "/static/js/chat_common.js";
   const form   = document.getElementById("chatForm");
   const input  = document.getElementById("msgInput");
   const ratingBox  = document.getElementById("ratingBox");
-  const toggle = chatBox.querySelector(".toggle");
+  const toggleBtn = chatBox.querySelector('header .toggle');
   const starBtns = document.querySelectorAll("#ratingBox .rate-btn");
 
-  /* open / collapse ------------------------------------------------ */
-  const OPEN_KEY = "chatboxOpen";
-  let isOpen = localStorage.getItem(OPEN_KEY) === "true";
-  if (isOpen) chatBox.classList.remove("collapsed");
-  toggle.textContent = isOpen ? "▼" : "▲";
-  toggle.onclick = () => {
-    isOpen = !chatBox.classList.toggle("collapsed");
-    toggle.textContent = isOpen ? "▼" : "▲";
-    localStorage.setItem(OPEN_KEY, isOpen);
+  /* open / collapse */
+  const updateIcon = () => {
+    toggleBtn.textContent = chatBox.classList.contains('collapsed') ? '▲' : '▼';
   };
+  updateIcon();
+  toggleBtn.addEventListener('click', () => {
+    chatBox.classList.toggle('collapsed');
+    updateIcon();
+  });
 
   /* Socket.IO ------------------------------------------------------ */
   const socket = io({ path:"/socket.io", query:{ role:"visitor" } });

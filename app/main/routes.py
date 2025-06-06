@@ -1,6 +1,6 @@
 # app/main/routes.py
 from flask import render_template, url_for, abort
-from app.blog.data import POSTS     # single source of blog meta
+from app.blog.data import POSTS
 from . import bp
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ def index():
         {
             "title": p["title"],
             "url":   url_for("blog.show_post", slug=p["slug"]),
-            "img":   url_for("main.static", filename=p["thumb"]),   # ← change
+            "img":   url_for("main.static", filename=p["thumb"]),
         }
         for p in POSTS
     ]
@@ -35,13 +35,28 @@ def roi_of_love():
 
 @bp.route("/testimonials")
 def testimonials():
-    # simple stub data; replace with real testimonials later
-    sample = [
-        {"name": "Dave & Rebecca",
-         "quote": "I can honestly say ...",
-         "image": url_for("static", filename="img/testimonials/dave_rebecca.jpg")},
+    testimonials = [
+        {
+            "name": "Dave & Rebecca",
+            "quote": ("I can honestly say that I have never been happier in my life. "
+                "How can I put a price on finding someone I may spend the rest "
+                "of my life with?"),
+            "image": "dave-rebecca.jpg"
+        },
+        {
+            "name": "Alex & Samantha",
+            "quote": ("Elite Dating Search understood my hectic executive schedule "
+                "and still found me someone who challenges and inspires me."),
+            "image": "alex-samantha.jpg"
+        },
+        {
+            "name": "Maria & Julio",
+            "quote": ("Dating with intention changed everything. We were engaged "
+                "nine months after our first date—thank you EDS!"),
+            "image": "maria-julio.jpg"
+        }
     ]
-    return render_template("testimonials.html", testimonials=sample)
+    return render_template("testimonials.html", testimonials=testimonials)
 
 @bp.route("/about-us")
 def about_us():

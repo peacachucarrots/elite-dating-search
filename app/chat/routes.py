@@ -13,7 +13,7 @@ from flask_login import current_user, logout_user, login_required
 
 from sqlalchemy import func, desc
 
-from app.auth.permissions import require_role
+from app.auth.permissions import require_role, require_level
 from app.chat.faq import FAQ
 from app.chat.off_hours import overnight_chats
 from app.chat.sanitize import clean
@@ -59,7 +59,7 @@ def _display_name(user: User) -> str:
 # ---------------------------------------------------------------------------
 @bp.route("/rep")
 @login_required
-@require_role("rep")
+@require_level(20)
 def rep_dashboard():
     return render_template("rep.html")
 
@@ -243,7 +243,7 @@ def handle_disconnect():
 # Rep dashboard actions
 # ---------------------------------------------------------------------------
 @socketio.on("iam_rep")
-@require_role("rep")
+@require_level(20)
 def mark_rep():
     # Remove this socket from visitor pool
     REPS.add(request.sid)
@@ -276,7 +276,7 @@ def mark_rep():
                   room=request.sid)
 
 @socketio.on("mark_replied")
-@require_role("rep")
+@require_level(20)
 def mark_replied(data):
     """Rep clicked the 'Replied via e-mail' button."""
     chat_id = data["chat_id"]
@@ -297,7 +297,7 @@ def mark_replied(data):
     emit("prev_chat_remove", {"chat_id": chat_id}, room=request.sid)
 
 @socketio.on("join_visitor")
-@require_role("rep")
+@require_level(20)
 def join_visitor(data):
     """
     Rep dashboard requests to handle a visitor *or* an after-hours chat.
@@ -390,7 +390,7 @@ def join_visitor(data):
           f"({'live' if live else 'after-hours'})")
 
 @socketio.on("leave_visitor")
-@require_role("rep")
+@require_level(20)
 def leave_visitor(data):
     """Rep clicks “End chat”. Unpair and put visitor back in the lobby."""
     visitor_sid = data.get("sid")
@@ -452,7 +452,7 @@ def save_rating(data):
         db.session.commit()
 
 @socketio.on("history_request")
-@require_role("rep")
+@require_level(20)
 def history_request(data):
     """Rep asks for the full history of one past chat."""
     chat_id = data.get("chat_id")
@@ -484,7 +484,7 @@ def handle_visitor(text: str) -> None:
     visitor_name = SID_TO_NAME.get(sid, "Visitor")
     now          = datetime.utcnow()
     now_iso      = now.isoformat(timespec="seconds")
-    off_hours    = is_off_hours()                  # ★ NEW
+    off_hours    = is_off_hours()
 
     # ───────────────────────────────────────────────────────────────
     # 0) Waiting for description branch
@@ -521,27 +521,56 @@ def handle_visitor(text: str) -> None:
     # ───────────────────────────────────────────────────────────────
     if text.startswith("__faq__:"):
         faq_id = text.split(":", 1)[1]
-        label  = FAQ[faq_id]["label"]
+        label = FAQ[faq_id]["label"]
 
+        # ----------------------------- HUMAN / TALK-TO-REP
+        if faq_id == "human":
+            # 1. echo the visitor’s click so *they* see it
+            emit("visitor_msg",
+                 {"body": label, "author": "visitor", "ts": now_iso},
+                 room=sid)
+
+            # 2. choose the prompt (different after hours)
+            if off_hours:
+                prompt = ("Thanks for the details! Our live chat is closed right now, "
+                          "but we’ll review your message and e-mail you, typically by "
+                          "the next business day.")
+            else:
+                prompt = ("Before we connect you, can you briefly describe "
+                          "what your question or concern is?")
+
+                WAITING_DESC.add(sid)
+
+            emit("visitor_msg",
+                 {"body": prompt, "author": "assistant", "ts": now_iso},
+                 room=sid)
+
+            # persist both lines
+            db.session.add_all([
+                Message(chat_id=chat_id, author="visitor",
+                        body=label, ts=now, user_id=user_id),
+                Message(chat_id=chat_id, author="assistant",
+                        body=prompt, ts=now, user_id=user_id)
+            ])
+            db.session.commit()
+            return  # ← **stop here!** don’t run normal FAQ logic
+
+        # ----------------------------- every other FAQ shortcut
         emit("visitor_msg",
              {"body": label, "author": "visitor", "ts": now_iso},
              room=sid)
-        rep_sid = next((r for r, v in PAIR.items() if v == sid), None)
-        if rep_sid:
-            emit("visitor_msg",
-                 {"body": safe_body, "author": "visitor", "ts": now_iso},
-                 room=rep_sid, include_self=False)
 
-        db.session.add(Message(chat_id=chat_id, author="visitor",
-                               body=label, ts=now, user_id=user_id))
-
-        # normal FAQ answer
         answer = FAQ[faq_id]["answer"]
         emit("visitor_msg",
              {"body": answer, "author": "assistant", "ts": now_iso},
              room=sid)
-        db.session.add(Message(chat_id=chat_id, author="assistant",
-                               body=answer, ts=now, user_id=user_id))
+
+        db.session.add_all([
+            Message(chat_id=chat_id, author="visitor",
+                    body=label, ts=now, user_id=user_id),
+            Message(chat_id=chat_id, author="assistant",
+                    body=answer, ts=now, user_id=user_id)
+        ])
         db.session.commit()
         return
 
@@ -576,7 +605,7 @@ def handle_visitor(text: str) -> None:
              room="reps")
 
 @socketio.on("rep_msg")
-@require_role("rep")
+@require_level(20)
 def handle_rep(text: str) -> None:
     """Handle a line typed by the representative."""
     visitor_sid = PAIR.get(request.sid)

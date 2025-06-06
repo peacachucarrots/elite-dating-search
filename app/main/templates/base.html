@@ -1,9 +1,14 @@
+{% if add_nav_padding is not defined %}
+  {% set add_nav_padding = true %}
+{% endif %}
 <!doctype html>
-<html class="h-full" lang="en">
+<html class="h-full flex flex-col" lang="en">
 <head>
   <!-- ─── Core meta ─────────────────────────────────────────── -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  {% block head_extras %}{% endblock %}
 
   {# ---------- Title & description (one block each) ---------- #}
   <title>{% block title %}EliteDatingSearch{% endblock %}</title>
@@ -44,14 +49,15 @@
   {% block extra_head %}{% endblock %}
 </head>
 
-<body>
+<body class="min-h-screen flex flex-col font-sans leading-relaxed">
 {% block navbar %}
-  {% include "partials/navbar.html" %}
+  {% include "partials/navbar.html" with context %}
 {% endblock %}
 
   {% block hero %}{% endblock %}
 
-  <main id="main-content" class="flex-grow">
+{% set on_homepage = request.endpoint == 'main.index' %}
+  <main id="main-content" class="flex-1 {{ 'pt-16' if (add_nav_padding and not on_homepage) else '' }}">
     {% block content %}{% endblock %}
   </main>
 
@@ -82,8 +88,6 @@
 
   <!-- Alpine (optional) + global JS -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script src="{{ url_for('main.static', filename='js/main.js') }}"></script>
-  <script src="{{ url_for('main.static', filename='js/scroll-animations.js') }}" defer></script>
 
   <!-- Socket.IO + visitor widget -->
   <script defer src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>

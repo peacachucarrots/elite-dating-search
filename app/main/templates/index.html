@@ -265,10 +265,10 @@ EliteDatingSearch pairs high-achieving singles with equally exceptional partners
 
 {% block extra_scripts %}
   {{ super() }}
-	<!-- 3rd-party libs -->
   <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/glide.min.js" defer> </script>
 
   <!-- Site bundles -->
-  <script src="{{ url_for('main.static', filename='js/main.js') }}" defer></script>
   <script src="{{ url_for('main.static', filename='js/hero-signature.js') }}" defer></script>
+  <script src="{{ url_for('main.static', filename='js/nav-glass.js') }}" defer></script>
+  <script src="{{ url_for('main.static', filename='js/scroll-animations.js') }}" defer></script>
 {% endblock %}

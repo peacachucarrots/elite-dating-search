@@ -16,9 +16,18 @@
   .btn-primary { background-color:var(--brand-gold); }
   .btn-primary:hover,
   .btn-primary:focus { background-color:#b99557; }
+
+  .nav-link      { @apply transition-colors hover:text-[var(--brand-gold)]; }
+  .dropdown-link { @apply block px-4 py-2 text-sm; }
+  .mobile-link   { @apply px-6 py-4 hover:bg-gray-50; }
 }
 
 @layer utilities {
+	@keyframes fade-up {
+    from { opacity:0; transform:translateY(32px); }
+    to   { opacity:1; transform:translateY(0);   }
+  }
+  .animate-fade-up { animation:fade-up .8s ease both; }
   .bg-light   { background:#f7f7f7; }
   .bg-hero    { background:url('main/static/img/hero.jpg') center/cover no-repeat; }
   .hero-overlay{ background:rgba(0,0,0,.55); }

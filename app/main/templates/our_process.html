@@ -1,20 +1,18 @@
-<!-- our_process.html – Elite Dating Search -->
+<!-- our_process.html -->
 {% extends "base.html" %}
 
 {% block title %}Our Process – Elite Dating Search{% endblock %}
 
-{% block hero %}
-  <!-- HERO -->
+{% block content %}
+<!-- HERO -->
   <section class="relative h-[40vh] md:h-[50vh] w-full overflow-hidden">
-    <img src="{{ url_for('static', filename='img/our-process/hero_process.jpg') }}" alt="Couple and matchmaker reviewing profile" class="absolute inset-0 h-full w-full object-cover"/>
+    <img src="{{ url_for('main.static', filename='img/our-process/hero_process.jpg') }}" alt="Couple and matchmaker reviewing profile" class="absolute inset-0 h-full w-full object-cover"/>
     <div class="absolute inset-0 bg-black/60"></div>
     <div class="relative z-10 flex h-full items-center justify-center">
       <h1 class="text-white text-4xl md:text-6xl font-semibold tracking-tight">Our&nbsp;Process</h1>
     </div>
   </section>
-{% endblock %}
-
-{% block content %}
+  
   <!-- INTRO -->
   <section class="py-16 bg-white">
     <div class="container mx-auto px-6 max-w-4xl text-center">
@@ -53,7 +51,7 @@
             <p class="text-lg leading-relaxed">{{ blurb }}</p>
           </div>
           <div class="w-full md:w-5/12">
-            <img src="{{ url_for('static', filename='img/our-process/step' + loop.index|string + '.jpg') }}" alt="Illustration for {{ title }}" class="rounded-lg shadow-lg object-cover w-full h-64 md:h-80"/>
+            <img src="{{ url_for('main.static', filename='img/our-process/step' + loop.index|string + '.jpg') }}" alt="Illustration for {{ title }}" class="rounded-lg shadow-lg object-cover w-full h-64 md:h-80"/>
           </div>
         </div>
       </div>

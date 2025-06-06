@@ -1,5 +1,9 @@
-{# ───────────── NAVBAR PARTIAL ───────────── #}
-<nav class="fixed inset-x-0 top-0 z-50 text-white h-16 flex items-center">
+{# navbar.html #}
+{% set on_homepage = request.endpoint == 'main.index' %}
+<nav id="siteNav"
+     class="fixed inset-x-0 top-0 z-50 h-16 flex items-center
+            {{ 'text-white'           if on_homepage else 'text-neutral-900' }}
+            {{ ''                     if on_homepage else 'bg-white/60 backdrop-blur-md text-neutral-900 shadow-sm' }}">
   <div class="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
 
     <!-- Brand icon -->
@@ -60,8 +64,9 @@
     
     {# ───── CTA / AUTH LINKS (desktop) ───── #}
     {% if current_user.is_authenticated %}
-  <div class="hidden md:flex items-center space-x-6">
-    <span class="text-sm font-semibold text-gray-700">
+  <div class="hidden md:flex items-center space-x-6
+  				 {{ 'text-white'           if on_homepage else 'text-neutral-900' }}">
+    <span class="text-sm font-semibold">
       Welcome, {{ current_user.profile.first_name or current_user.email }}
     </span>
 

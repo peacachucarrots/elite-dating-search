@@ -636,6 +636,38 @@ h1, h2 {
   background-color:#b99557;
 }
 
+.nav-link {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.nav-link:hover {
+  color: var(--brand-gold);
+}
+
+.dropdown-link {
+  display: block;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.mobile-link {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.mobile-link:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(249 250 251 / var(--tw-bg-opacity));
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -956,6 +988,10 @@ h1, h2 {
   min-height: 100vh;
 }
 
+.\!w-auto {
+  width: auto !important;
+}
+
 .w-1 {
   width: 0.25rem;
 }
@@ -1056,11 +1092,19 @@ h1, h2 {
   flex: 1 1 0%;
 }
 
+.flex-none {
+  flex: none;
+}
+
 .flex-shrink {
   flex-shrink: 1;
 }
 
 .flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.shrink-0 {
   flex-shrink: 0;
 }
 
@@ -1130,22 +1174,6 @@ h1, h2 {
 
 .animate-bounce {
   animation: bounce 1s infinite;
-}
-
-@keyframes fade-up {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-up {
-  animation: fade-up 0.6s ease forwards;
 }
 
 .animate-none {
@@ -1533,9 +1561,17 @@ h1, h2 {
   background-color: rgb(248 250 252 / var(--tw-bg-opacity));
 }
 
+.bg-transparent {
+  background-color: transparent;
+}
+
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.bg-white\/60 {
+  background-color: rgb(255 255 255 / 0.6);
 }
 
 .bg-yellow-100 {
@@ -1689,6 +1725,15 @@ h1, h2 {
 .py-32 {
   padding-top: 8rem;
   padding-bottom: 8rem;
+}
+
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.pt-16 {
+  padding-top: 4rem;
 }
 
 .pt-2 {
@@ -2042,6 +2087,22 @@ h1, h2 {
   transition-duration: 300ms;
 }
 
+@keyframes fade-up {
+  from {
+    opacity:0;
+    transform:translateY(32px);
+  }
+
+  to   {
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation:fade-up .8s ease both;
+}
+
 .bg-light   {
   background:#f7f7f7;
 }
@@ -2081,6 +2142,10 @@ h1, h2 {
 .hover\:text-\[\#d4af37\]:hover {
   --tw-text-opacity: 1;
   color: rgb(212 175 55 / var(--tw-text-opacity));
+}
+
+.hover\:text-\[var\(--brand-gold\)\]:hover {
+  color: var(--brand-gold);
 }
 
 .hover\:text-white:hover {

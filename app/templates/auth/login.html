@@ -13,11 +13,10 @@
         <a class="underline font-medium"
            href="{{ url_for('auth.resend_email_token',
                             email=request.args.get('email')) }}">
-          resend it
-        </a>.
+          resend it</a>.
       </div>
     {% endif %}
-    
+
     {% with msgs = get_flashed_messages(with_categories=True) %}
     {% if msgs %}
       {% for category, msg in msgs %}

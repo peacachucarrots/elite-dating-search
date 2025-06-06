@@ -2,7 +2,7 @@
       href="{{ url_for('chat.static', filename='css/live_chat.css') }}">
 
 <div id="chatbox"
-     class="fixed bottom-4 right-4 w-80 bg-white shadow-lg rounded overflow-hidden collapsed">
+     class="fixed bottom-4 right-4 w-80 bg-white shadow-lg rounded overflow-hidden flex flex-col collapsed">
 
   <!-- header -->
   <header class="flex items-center justify-between bg-slate-100 px-3 py-2">
@@ -11,7 +11,7 @@
   </header>
 
   <!-- scrolling messages -->
-  <div id="messages" class="h-64 overflow-y-auto p-3 space-y-2"></div>
+  <div id="messages" class="flex-1 min-h-0 overflow-y-auto p-3 space-y-2"></div>
 
   <!-- satisfaction box (hidden until chat_closed) -->
   <div id="ratingBox" class="hidden p-3 text-center border-t">

@@ -6,3 +6,6 @@
 #chatbox .msg.rep     .bubble { background:#f1f5f9; color:#111827;   }
 
 #chatbox .msg.assistant .bubble { background:#e0f2fe; color:#075985; }
+
+#chatbox            { max-height: 450px; overflow: hidden !important; transition: max-height .3s ease; }
+#chatbox.collapsed { height: 40px; }
