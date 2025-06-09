@@ -20,8 +20,9 @@ from app.chat.sanitize import clean
 from app.chat.utils import reps_are_online, is_off_hours
 from app.extensions import socketio, db
 from app.models.chat import ChatSession, Message
+from app.models.program import ProgramApplication, ProgramType
 from app.models.user import User
-from app.program.service import latest_program_apps
+from app.program.service import latest_program_apps, FIELD_LABELS
 from . import bp
 
 # ---------------------------------------------------------------------------
@@ -62,6 +63,30 @@ def _display_name(user: User) -> str:
 @require_level(20)
 def rep_dashboard():
     return render_template("rep.html")
+
+@bp.route("/candidates")
+@login_required
+@require_level(20)
+def candidate_list():
+    apps = (
+        ProgramApplication.query
+        .filter_by(program=ProgramType.CANDIDATE)
+        .order_by(ProgramApplication.status.desc(),
+                  ProgramApplication.submitted.desc())
+        .all()
+    )
+    return render_template("rep/candidate_list.html", apps=apps)
+
+@bp.route("/candidate/<int:app_id>")
+@login_required
+@require_level(20)
+def candidate_detail(app_id):
+    app = ProgramApplication.query.get_or_404(app_id)
+    data = {
+        FIELD_LABELS.get(k, k.replace('_', ' ').title()): v
+        for k, v in app.form_json.items()
+    }
+    return render_template("rep/candidate_detail.html", app=app, answers=data, FIELD_LABELS=FIELD_LABELS)
 
 # ---------------------------------------------------------------------------
 # In-memory state (replace with DB when needed)

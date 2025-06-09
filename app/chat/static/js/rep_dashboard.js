@@ -10,15 +10,14 @@ socket.on("connect", () => socket.emit("iam_rep"));
 
 /* ── globals tied to DOM ------------------------------------------- */
 let messagesPane, pastPane, historyList, markBtn;
-let lists   = {};               // { live:<ul>, new:<ul>, prev:<ul> }
-let liveSID = null;             // visitor socket *if* current chat is live
-const typingDots  = new Map();  // { visitor_sid ➜ <div…> }
+let lists   = {};
+let liveSID = null;
+const typingDots  = new Map();
 const TYPING_MS   = 3000;
 let typingState = false;
 
 /* ── DOM ready ------------------------------------------------------ */
 document.addEventListener("DOMContentLoaded", () => {
-  /* grab elements once */
   messagesPane = document.getElementById("messages");
   pastPane     = document.getElementById("pastTranscript");
   historyList  = document.getElementById("historyList");
@@ -38,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
     live : document.getElementById("visitorList"),
     new  : document.getElementById("newChatList"),
     prev : document.getElementById("afterHoursList"),
-    app  : document.getElementById("appList")
   };
 
   /* -------------------------------------------------------------- */
@@ -68,12 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
   socket.on("after_hours_chat",
   ({ chat_id, username, email, preview }) => addRow("prev", chat_id, username, preview, "prev", email));
       
-  socket.on("program_apps",   ({ apps }) => {
-    appList.innerHTML = "";
-    apps.forEach(addAppRow);
-  });
-  socket.on("new_program_app", ({ app }) => addAppRow(app, true));
-
   /* ---- typing indicator from visitor --------------------------- */
   socket.on("typing", ({ sid, is_typing }) => {        
     if (sid !== liveSID) return;
@@ -180,24 +172,6 @@ function addRow(listKey, id, username, preview = "", type = "live", email = "") 
      ${preview ? `<span class="block text-xs text-slate-500 truncate">${preview}</span>` : ""}`;
 
   lists[listKey].appendChild(li);
-}
-
-function addAppRow(app, highlight=false) {
-  const li  = document.createElement("li");
-  li.dataset.id = app.id;
-  li.className  =
-    "px-2 py-1 cursor-pointer hover:bg-gray-100" +
-    (highlight ? " bg-yellow-50" : "");
-
-  li.innerHTML = `
-    <strong class="mr-1">${app.program}</strong>
-    • ${app.submitted.slice(0,10)}
-    ${app.paid ? '<span class="text-emerald-600 ml-1">paid</span>' : ''}
-    <br><span class="text-xs text-slate-500">${app.first_name ?? ""} ${app.last_name ?? ""}</span>
-  `;
-
-  li.onclick = () => openAppModal(app);   // up to you
-  appList.appendChild(li);
 }
 
 /* drop row by id */

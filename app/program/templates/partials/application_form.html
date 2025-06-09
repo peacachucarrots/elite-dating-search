@@ -1,21 +1,20 @@
 {# program/partials/application_form.html #}
-<form method="post" class="space-y-4">
+<form method="post" enctype="multipart/form-data" class="space-y-4" data-animate="fade-up">
   {{ form.hidden_tag() }}
 
-  <div class="grid md:grid-cols-2 gap-4">
+  <div class="grid md:grid-cols-2 gap-4" data-animate="fade-up">
     <input class="border p-2 bg-slate-100" value="{{ current_user.profile.first_name }}" disabled>
     <input class="border p-2 bg-slate-100" value="{{ current_user.profile.last_name }}"  disabled>
     <input class="border p-2 bg-slate-100" value="{{ current_user.email }}"             disabled>
     <input class="border p-2 bg-slate-100" value="{{ current_user.phone }}"             disabled>
   </div>
-
   {{ form.street.label }} {{ form.street(class="w-full border p-2") }}
   {{ form.city.label }} {{ form.city(class="w-full border p-2") }}
   {{ form.state.label }} {{ form.state(class="w-full border p-2") }}
   {{ form.zip.label }} {{ form.zip(class="w-full border p-2") }}
   {{ form.country.label }} {{ form.country(class="w-full border p-2") }}
 
-  <div class="grid md:grid-cols-2 gap-4">
+  <div class="grid md:grid-cols-2 gap-4" data-animate="fade-up">
     {{ form.occupation.label }} {{ form.occupation(class="border p-2") }}
     {{ form.income_bracket.label }} {{ form.income_bracket(class="border p-2") }}
     {{ form.education.label }} {{ form.education(class="border p-2") }}
@@ -24,6 +23,18 @@
   </div>
 
   {{ form.intro.label }} {{ form.intro(class="w-full border p-2 h-32") }}
+  
+  <div data-animate="fade-up">
+    {{ form.photo.label(class="block text-sm font-medium mb-1") }}
+    {{ form.photo(class="w-full border p-2 bg-white") }}
+    {% if form.photo.errors %}
+      <p class="text-sm text-red-600 mt-1">{{ form.photo.errors[0] }}</p>
+    {% endif %}
+  </div>
 
   {{ form.submit(class="btn btn-primary mt-4") }}
 </form>
+
+{% block extra_scripts %}
+<script src="{{ url_for('main.static', filename='js/scroll-animations.js') }}" defer></script>
+{% endblock %}

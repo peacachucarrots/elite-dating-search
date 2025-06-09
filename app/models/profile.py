@@ -1,4 +1,5 @@
 # app/models/profile.py
+from datetime import date
 from ..extensions import db
 
 class Profile(db.Model):
@@ -16,3 +17,12 @@ class Profile(db.Model):
     )
 
     user = db.relationship("User", back_populates="profile", uselist=False)
+
+    @property
+    def age(self) -> int | None:
+        """Return the user’s age in whole years (or None if DOB missing)."""
+        if not self.dob:
+            return None
+        today = date.today()
+        before_birthday = (today.month, today.day) < (self.dob.month, self.dob.day)
+        return today.year - self.dob.year - int(before_birthday)

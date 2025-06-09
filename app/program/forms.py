@@ -1,7 +1,9 @@
 # app/program/forms.py
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileAllowed, FileRequired, FileField
 from wtforms import StringField, TelField, TextAreaField, SelectField, SubmitField, HiddenField
 from wtforms.validators import DataRequired, Length
+from werkzeug.utils   import secure_filename
 
 class BaseProgramForm(FlaskForm):
     program   = HiddenField()
@@ -38,11 +40,18 @@ class BaseProgramForm(FlaskForm):
 
     intro = TextAreaField("Tell us a bit about yourself", validators=[Length(max=2000)])
 
+    photo = FileField(
+        "Upload a recent photo",
+        validators=[
+            FileAllowed(["jpg", "jpeg", "png", "webp"], "Images only!"),
+            FileRequired("Please choose a photo.")
+        ],
+    )
+
     submit = SubmitField("Submit application")
 
 class CandidateForm(BaseProgramForm):
-    pass                                     # free, so nothing extra
+    pass
 
 class ClientForm(BaseProgramForm):
-    # you can capture card later in Stripe Checkout
     pass

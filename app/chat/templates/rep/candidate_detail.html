@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ app.short_info().first_name }} – Candidate{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% set info = app.short_info() %}
+
+{% block content %}
+<section class="max-w-3xl mx-auto p-6 space-y-8">
+
+  <a href="{{ url_for('chat.candidate_list') }}"
+     class="text-sm text-blue-600 hover:underline">‹ Back to list</a>
+
+  <!-- profile header --------------------------------------- -->
+  <div
+    class="flex flex-col sm:flex-row items-center sm:items-start gap-6
+           border rounded-lg shadow-sm p-6 bg-white">
+
+    <img
+      src="{{ info.photo
+              and url_for('main.static', filename='img/candidates/' ~ info.photo)
+              or url_for('main.static', filename='img/placeholder_photo.jpg') }}"
+      alt="{{ info.first_name }} photo"
+      class="h-40 w-40 object-cover rounded-full shrink-0">
+
+    <div class="flex-1 space-y-1">
+      <h1 class="text-2xl font-semibold">
+        {{ info.first_name }} {{ info.last_name }}
+        {% if info.age %}<span class="text-neutral-500">({{ info.age }})</span>{% endif %}
+      </h1>
+      {% if info.city and info.state %}
+        <p class="text-neutral-600">{{ info.city }}, {{ info.state }}</p>
+      {% endif %}
+      {% if info.occupation %}
+        <p class="text-neutral-600">{{ info.occupation }}</p>
+      {% endif %}
+
+      <!-- status badge -->
+      <span class="inline-block mt-2 px-2 py-0.5 rounded-full text-xs
+                   {% if app.status == 'new' %} bg-rose-100 text-rose-700
+                   {% elif app.status == 'in-review' %} bg-yellow-100 text-yellow-700
+                   {% elif app.status == 'shortlisted' %} bg-green-100 text-green-700
+                   {% else %} bg-slate-200 text-slate-600{% endif %}">
+        {{ app.status|replace('-', ' ')|title }}
+      </span>
+    </div>
+  </div>
+
+  <!-- answer sheet ----------------------------------------- -->
+  <section
+  class="border rounded-lg bg-neutral-50 p-6 space-y-6">
+
+  <h2 class="font-semibold text-lg">Full application</h2>
+
+  <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 text-sm">
+
+  {% for key, value in answers.items() %}
+    {% set label = FIELD_LABELS.get(
+         key,
+         key|replace('_', ' ')
+            |replace('-', ' ')
+            |title
+       ) %}
+
+    {% if key in ['photo', 'photo_file', 'photofile'] %}
+      <div class="sm:col-span-2 flex items-center gap-4">
+        <dt class="sr-only">{{ label }}</dt>
+        <dd>
+          <img
+            src="{{ url_for('main.static',
+                             filename='img/candidates/' ~ value) }}"
+            alt="{{ answers.get('first_name', 'Candidate') }} photo"
+            class="h-40 w-40 object-cover rounded shadow"
+          >
+        </dd>
+      </div>
+
+    {% else %}
+      <div>
+        <dt class="font-semibold text-neutral-600 tracking-wide">
+          {{ label }}
+        </dt>
+        <dd class="mt-1 text-neutral-900">{{ value }}</dd>
+      </div>
+    {% endif %}
+  {% endfor %}
+</dl>
+</section>
+
+</section>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Candidate Applications{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<section class="p-6 max-w-7xl mx-auto">
+<a href="{{ url_for('chat.rep_dashboard') }}"
+               class="px-3 py-1 rounded bg-blue-600 text-white text-xs">Rep Dashboard</a>
+
+  <h1 class="text-2xl font-semibold mb-6">Candidate Pool</h1>
+
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {% for app in apps %}
+      {% set info = app.short_info() %}
+      <article class="border rounded-lg shadow-sm overflow-hidden">
+        <img
+          src="{{ info.photo
+                  and url_for('main.static', filename='img/candidates/' ~ info.photo)
+                  or url_for('main.static', filename='img/placeholder_photo.jpg') }}"
+          alt="{{ info.first_name }} photo"
+          class="h-48 w-full object-cover">
+
+        <div class="p-4 text-sm space-y-1">
+          <h2 class="text-lg font-semibold">
+            {{ info.first_name }} {{ info.last_name }} - {{ info.age }}
+          </h2>
+          <p class="text-neutral-600">
+            {{ info.city }}, {{ info.state }} {% if info.occupation %} • {{ info.occupation }}{% endif %}
+          </p>
+    
+          <div class="mt-3 flex gap-2">
+            <a href="{{ url_for('chat.candidate_detail', app_id=app.id) }}"
+               class="px-3 py-1 rounded bg-blue-600 text-white text-xs">View</a>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -2,12 +2,6 @@
 
 {% block title %}Client Success Stories – Elite Dating Search{% endblock %}
 
-{% block head_extras %}
-  {{ super() }}
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-{% endblock %}
-
 {% block content %}
 <!-- ── Hero (Testimonials) ── -->
 <section class="relative bg-cover bg-center text-white"
@@ -48,8 +42,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
-  {{ super() }}
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       new Swiper('.swiper', {

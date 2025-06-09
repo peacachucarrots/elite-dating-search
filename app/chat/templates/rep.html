@@ -31,6 +31,11 @@
   		‹ Home
   		</a>
   	
+  	<a href="{{ url_for('chat.candidate_list') }}"
+   class="inline-block mb-3 text-sm px-3 py-1 bg-slate-200 rounded hover:bg-slate-300">
+  Candidate Applications
+</a>
+  	
   	<h2 class="font-bold mb-1">Active visitors</h2>
   	<ul id="visitorList" class="divide-y border"></ul>
   	
@@ -39,10 +44,6 @@
   	
   	<h2 class="font-bold mb-1">After-hours chats</h2>
   	<ul id="afterHoursList" class="divide-y border"></ul>
-  	
-  	<h2 class="font-bold mb-1">Program applications</h2>
-  		<ul id="appList" class="divide-y border text-sm"></ul>
-
   </div>
 
     <!-- ── Chat + history area ─────────────────────────── -->

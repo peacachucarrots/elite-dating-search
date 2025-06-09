@@ -2,42 +2,194 @@
 {% extends "base.html" %}
 {% block title %}Complimentary Candidate Program{% endblock %}
 
+{% block head_extras %}
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+{% endblock %}
+
 {% block content %}
-<!-- ── Hero ─────────────────────────────────────────────── -->
-<section class="bg-brand-dark text-white py-20">
-  <div class="max-w-4xl mx-auto text-center px-4">
-    <h1 class="text-4xl font-serif mb-4">
-      Find&nbsp;the&nbsp;love&nbsp;of&nbsp;your&nbsp;life
+
+<!-- ─────────────────────────── HERO ──────────────────────────── -->
+<section
+  class="relative flex items-center justify-center min-h-[85vh] bg-cover bg-center text-white"
+  style="background-image:url('{{ url_for('main.static', filename='img/hero_candidates.jpg') }}')"
+  data-animate="fade-up">
+
+  <div class="absolute inset-0 bg-black/60"></div>
+
+  <div class="relative z-10 max-w-3xl px-6 text-center space-y-6">
+    <h1 class="text-4xl md:text-5xl font-serif leading-tight">
+      Meet&nbsp;exceptional&nbsp;partners<br>without the apps
     </h1>
-    <p class="text-xl mb-8">
-      Join our <strong>complimentary Candidate&nbsp;Program.</strong>
+
+    <p class="text-xl md:text-2xl font-light">
+      Join our <span class="font-semibold text-brand-gold">complimentary Candidate Program</span>
+      and let our matchmakers introduce you to high-calibre singles who value commitment.
     </p>
-    <a href="#apply" class="btn btn-primary">Apply&nbsp;now</a>
+
+    <a href="#apply" class="btn btn-primary btn-lg inline-block" data-delay="0.2">
+      Apply&nbsp;Now
+    </a>
   </div>
 </section>
 
-<!-- ── Benefits (example) ───────────────────────────────── -->
-<section class="max-w-4xl mx-auto py-16 px-4">
-  <h2 class="text-3xl font-semibold mb-6 text-center">Why apply?</h2>
-  <ul class="space-y-4">
-    <li class="flex items-start">
-      <span class="text-brand-gold mr-3">✓</span>
-      Personal introductions to verified clients
-    </li>
-    <li class="flex items-start">
-      <span class="text-brand-gold mr-3">✓</span>
-      Discreet, professional matchmaking team
-    </li>
-    <li class="flex items-start">
-      <span class="text-brand-gold mr-3">✓</span>
-      Completely free to join and be matched
-    </li>
-  </ul>
+
+
+<!-- ───────────────────────── BENEFITS GRID ───────────────────── -->
+<section class="max-w-6xl mx-auto py-24 px-6">
+  <h2 class="text-3xl sm:text-4xl font-semibold text-center mb-14"
+      data-animate="fade-up">
+    Why elite singles choose us&nbsp;…
+  </h2>
+
+  <div class="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+   <!-- 1 · Introductions to vetted clients -->
+  <div class="flex items-start gap-3" data-animate="fade-up" data-delay="0.5">
+    <svg class="w-7 h-7 flex-shrink-0 text-[var(--brand-gold)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M16 12h4a2 2 0 0 1 2 2v4m-2-6v-2a4 4 0 0 0-4-4h-4M8 12H4a2 2 0 0 0-2 2v4m2-6V8a4 4 0 0 1 4-4h4m-7 8 4 4m6-4-4 4" />
+    </svg>
+    <p>
+      <strong>Personal introductions</strong><br>
+      to vetted, verified clients
+    </p>
+  </div>
+
+  <!-- 2 · Confidentiality & discretion -->
+  <div class="flex items-start gap-3" data-animate="fade-up" data-delay="1">
+    <svg class="w-7 h-7 flex-shrink-0 text-[var(--brand-gold)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 3 4 6v6c0 5 3.8 9.4 8 10 4.2-.6 8-5 8-10V6l-8-3z" />
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 11v2a3 3 0 1 0 6 0v-2" />
+    </svg>
+    <p>100 % confidentiality &amp;<br>white-glove discretion</p>
+  </div>
+
+  <!-- 3 · Professional coaching -->
+  <div class="flex items-start gap-3" data-animate="fade-up" data-delay="1.5">
+    <svg class="w-7 h-7 flex-shrink-0 text-[var(--brand-gold)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 18h6m-6 3h6M12 2a7 7 0 0 0-4 12.7V16h8v-1.3A7 7 0 0 0 12 2z" />
+    </svg>
+    <p>Professional dating<br>coaching &amp; feedback</p>
+  </div>
+
+  <!-- 4 · Fast-track relationships -->
+  <div class="flex items-start gap-3" data-animate="fade-up" data-delay="2">
+    <svg class="w-7 h-7 flex-shrink-0 text-[var(--brand-gold)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M5 12 2 22l10-3M22 2 12 5l4 4-5 5 4 4 3-10" />
+    </svg>
+    <p>Fast-track to serious<br>relationships (no swiping)</p>
+  </div>
+
+  <!-- 5 · Free to join -->
+  <div class="flex items-start gap-3" data-animate="fade-up" data-delay="2.5">
+    <svg class="w-7 h-7 flex-shrink-0 text-[var(--brand-gold)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 21s-7-4.5-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.5-7 10-11 10z" />
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 8v4m-2-2h4" />
+    </svg>
+    <p>Completely <strong>free</strong> to join<br>&amp; be matched</p>
+  </div>
+
+  <!-- 6 · Exclusive network -->
+  <div class="flex items-start gap-3" data-animate="fade-up" data-delay="3">
+    <svg class="w-7 h-7 flex-shrink-0 text-[var(--brand-gold)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="m12 3 2.8 6.2 6.9 1-5 4.9 1.2 6.9L12 18l-5.9 3.1 1.2-6.9-5-4.9 6.9-1L12 3z" />
+    </svg>
+    <p>Part of an <strong>exclusive</strong><br>national network</p>
+  </div>
+  </div>
 </section>
 
-<!-- ── Application form ─────────────────────────────────── -->
-<section id="apply" class="max-w-4xl mx-auto py-16 px-4">
-  <h2 class="text-3xl font-semibold mb-6 text-center">Application</h2>
-  {% include "partials/application_form.html" %}
+
+
+<!-- ─────────────────────── HOW-IT-WORKS STEP BAR ─────────────── -->
+<section class="bg-neutral-50 py-24 px-6">
+  <h2 class="text-3xl sm:text-4xl font-semibold text-center mb-14"
+      data-animate="fade-up">
+    How the Candidate&nbsp;Program&nbsp;works
+  </h2>
+
+  <ol class="relative border-l-2 border-brand-gold max-w-4xl mx-auto space-y-12">
+    {% set steps = [
+      ("Apply online",                      "Complete the brief form below. It’s free."),
+      ("Speak with a matchmaker",           "We verify profiles & learn your relationship goals."),
+      ("Get introduced",                    "You’ll meet other candidates who match your criteria."),
+      ("Date with intention",               "Enjoy curated dates & ongoing feedback."),
+      ("Find the one",                      "Our success metric? Your last first date.")
+    ] %}
+    {% for title, blurb in steps %}
+      <li class="pl-8 opacity-0" data-animate="fade-up" data-delay="{{ loop.index * 0.15 }}">
+        <span class="absolute left-[-10px] top-1.5 w-5 h-5 rounded-full bg-brand-gold"></span>
+        <h3 class="text-xl font-semibold">{{ title }}</h3>
+        <p class="mt-1 text-sm text-neutral-600">{{ blurb }}</p>
+      </li>
+    {% endfor %}
+  </ol>
 </section>
+
+<!-- ───────────────────────── TESTIMONIALS SLIDER ─────────────── -->
+<section class="max-w-6xl mx-auto py-24 px-6">
+  <h2 class="text-3xl sm:text-4xl font-semibold text-center mb-14"
+      data-animate="fade-up">
+    Candidate&nbsp;Success&nbsp;Stories
+  </h2>
+
+  <div id="testimonialSwiper" class="swiper w-full" data-animate="fade-up" data-delay="0.5">
+    <div class="swiper-wrapper">
+      {% for t in testimonials %}
+      <div class="swiper-slide">
+        <figure class="bg-white p-8 shadow rounded-lg flex flex-col md:flex-row items-center gap-6 max-w-xl mx-auto">
+          <img src="{{ url_for('main.static', filename='img/clients/' ~ t.image) }}"
+               alt="{{ t.name }}" class="h-32 w-32 object-cover rounded-full shrink-0">
+          <figcaption>
+            <p class="italic leading-relaxed">“{{ t.quote }}”</p>
+            <p class="mt-4 font-semibold text-brand-gold">{{ t.name }}</p>
+          </figcaption>
+        </figure>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="swiper-pagination mt-8"></div>
+  </div>
+</section>
+
+<!-- ──────────────────────────── APPLY FORM ───────────────────── -->
+<section id="apply" class="py-24 px-6 bg-brand-dark/5">
+  <h2 class="text-3xl sm:text-4xl font-semibold text-center mb-10"
+      data-animate="fade-up">
+    Apply&nbsp;Now&nbsp;— it’s free&nbsp;and&nbsp;confidential
+  </h2>
+
+  <div class="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl p-10 opacity-0"
+       data-animate="fade-up" data-delay="0.1">
+    {% include "partials/application_form.html" %}
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  {{ super() }}
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.querySelector('#testimonialSwiper');
+      if (!el) return;
+
+      new Swiper(el, {
+        slidesPerView: 1,
+        loop: true,
+        spaceBetween: 24,
+        autoplay: { delay: 6000, disableOnInteraction: false },
+        pagination: { el: '.swiper-pagination', clickable: true },
+      });
+    });
+  </script>
+  <script src="{{ url_for('main.static', filename='js/scroll-animations.js') }}" defer></script>
 {% endblock %}

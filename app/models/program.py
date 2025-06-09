@@ -30,5 +30,17 @@ class ProgramApplication(db.Model):
 
     form_json = db.Column(db.JSON, nullable=False)
 
-    def __repr__(self) -> str:                   # nice debug print
+    def __repr__(self) -> str:
         return f"<App {self.id} {self.program} for user {self.user_id}>"
+
+    def short_info(self):
+        data = self.form_json or {}
+        return {
+            "first_name": data.get("first_name", "–"),
+            "last_name": data.get("last_name", ""),
+            "age": data.get("age"),
+            "city": data.get("city"),
+            "state": data.get("state"),
+            "occupation": data.get("occupation"),
+            "photo": data.get("photo")
+        }
