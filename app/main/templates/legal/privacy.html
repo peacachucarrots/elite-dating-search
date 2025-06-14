@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy & Data Protection | EliteDatingSearch{% endblock %}
+
+{% block content %}
+<section class="prose mx-auto max-w-3xl py-8">
+  <h1 class="text-3xl font-bold mb-6">Privacy Notice</h1>
+
+  <!-- 1 ▸ What information we collect -->
+  <h2 class="text-2xl font-semibold mt-8">1. What information we collect</h2>
+  <p class="mt-4">When you apply for membership or use our platform, we collect the following categories of data:</p>
+  <ul class="list-disc list-inside space-y-2">
+    <li><strong>Account &amp; Contact Information</strong> — your first and last name, email address, phone number, and postal address.</li>
+    <li><strong>Profile &amp; Application Details</strong> — answers to our compatibility questionnaire, demographic details (age, gender identity, city), lifestyle preferences, relationship goals, photographs, and any videos you choose to upload.</li>
+    <li><strong>Matchmaker Notes</strong> — observations our in-house team records during interviews, coaching sessions, and post-date feedback calls.</li>
+    <li><strong>Payment Information</strong> — billing address plus limited card details (last four digits &amp; expiration date). All full payment data is handled by our PCI-compliant processor.</li>
+    <li><strong>Usage Data</strong> — log files, IP address, device &amp; browser type, session timestamps, clicks, and chat activity within the service.</li>
+    <li><strong>Communications</strong> — emails, chat transcripts, support tickets, and survey responses.</li>
+    <li><strong>Sensitive / Optional Attributes</strong> — to the extent you volunteer them (e.g., religion, ethnicity, health considerations) as part of your matchmaking profile. You may edit or remove these fields at any time.</li>
+  </ul>
+
+  <!-- 2 ▸ How we use your information -->
+  <h2 class="text-2xl font-semibold mt-8">2. How we use your information</h2>
+  <ul class="list-disc list-inside space-y-2">
+    <li><strong>Provide &amp; personalize the service</strong> — build your private profile, calculate compatibility scores, curate introductions, and facilitate coaching sessions.</li>
+    <li><strong>Facilitate payments</strong> — collect membership fees, process refunds, and detect fraudulent transactions.</li>
+    <li><strong>Communicate with you</strong> — send onboarding instructions, match proposals, date reminders, and other service-related messages.</li>
+    <li><strong>Improve and secure the platform</strong> — monitor usage, debug issues, perform analytics, and protect against spam, harassment, or other abuse.</li>
+    <li><strong>Legal &amp; compliance</strong> — satisfy tax, accounting, anti-money-laundering, or court requirements.</li>
+  </ul>
+
+  <!-- 3 ▸ When we share information -->
+  <h2 class="text-2xl font-semibold mt-8">3. When we share information</h2>
+  <div class="overflow-x-auto mt-4">
+    <table class="min-w-full border divide-y divide-gray-300 text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-4 py-2 text-left font-semibold">Recipient</th>
+          <th class="px-4 py-2 text-left font-semibold">What they receive</th>
+          <th class="px-4 py-2 text-left font-semibold">Purpose</th>
+          <th class="px-4 py-2 text-left font-semibold">Safeguards</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr>
+          <td class="px-4 py-2">In-house matchmakers &amp; coaches</td>
+          <td class="px-4 py-2">Full profile + application data</td>
+          <td class="px-4 py-2">Human matchmaking, date feedback</td>
+          <td class="px-4 py-2">NDAs, role-based access</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-2">Potential partners (matches)</td>
+          <td class="px-4 py-2">Limited profile (first name, age range, city, lifestyle traits, photo)</td>
+          <td class="px-4 py-2">Determine mutual interest</td>
+          <td class="px-4 py-2">Provided only after your explicit “yes”</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-2">Service providers</td>
+          <td class="px-4 py-2">Payment processor, cloud hosting, e-signature vendor, analytics tools</td>
+          <td class="px-4 py-2">Operate core platform</td>
+          <td class="px-4 py-2">Data-processing agreements, encryption-in-transit/at-rest</td>
+        </tr>
+        <tr>
+          <td class="px-4 py-2">Legal / compliance</td>
+          <td class="px-4 py-2">Information required by law or court order</td>
+          <td class="px-4 py-2">Fulfil legal obligations</td>
+          <td class="px-4 py-2">Reviewed case-by-case</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="mt-6 font-semibold">We never sell or rent your personal data.</p>
+  <p class="mt-2 text-sm text-gray-600">[CCPA “Sale/Share”]: We do not “sell” personal information as defined under CCPA §1798.140(ad).</p>
+</section>
+{% endblock %}

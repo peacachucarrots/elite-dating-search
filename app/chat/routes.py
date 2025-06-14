@@ -7,7 +7,7 @@ All in-memory state lives here (ALIVE, VISITORS, etc.). Swap for a DB later.
 from collections import defaultdict
 from datetime import datetime
 
-from flask import Blueprint, render_template, request, abort, current_app
+from flask import Blueprint, render_template, request, abort, current_app, flash, redirect, url_for
 from flask_socketio import emit, join_room, leave_room
 from flask_login import current_user, logout_user, login_required
 
@@ -87,6 +87,47 @@ def candidate_detail(app_id):
         for k, v in app.form_json.items()
     }
     return render_template("rep/candidate_detail.html", app=app, answers=data, FIELD_LABELS=FIELD_LABELS)
+
+@bp.route("/clients")
+@login_required
+@require_level(20)
+def client_list():
+    apps = (
+        ProgramApplication.query
+        .filter_by(program=ProgramType.CLIENT)
+        .order_by(ProgramApplication.submitted.desc())
+        .all()
+    )
+    return render_template("rep/client_list.html", apps=apps)
+
+@bp.route("/client/<int:app_id>")
+@login_required
+@require_level(20)
+def client_detail(app_id):
+    app = ProgramApplication.query.get_or_404(app_id)
+    data = {
+        FIELD_LABELS.get(k, k.replace('_', ' ').title()): v
+        for k, v in app.form_json.items()
+    }
+    return render_template("rep/client_detail.html", app=app, answers=data, FIELD_LABELS=FIELD_LABELS)
+
+@bp.route("/client/<int:app_id>/status", methods=["POST"])
+@login_required
+@require_level(20)
+def update_client_status(app_id: int):
+    """Rep marks a paid-client application as Paid / In-Progress / Done …"""
+    if not current_user.has_role("rep"):
+        abort(403)
+
+    app = ProgramApplication.query.get_or_404(app_id)
+    app.status = request.form.get("status", app.status)
+    app.paid   = bool(request.form.get("paid"))
+    app.ach_signed = bool(request.form.get("ach_signed"))
+
+    db.session.commit()
+    flash("Application status updated.", "success")
+
+    return redirect(url_for("chat.client_detail", app_id=app_id))
 
 # ---------------------------------------------------------------------------
 # In-memory state (replace with DB when needed)

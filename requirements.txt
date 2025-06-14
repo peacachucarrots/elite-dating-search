@@ -5,6 +5,7 @@ pytest>=8
 
 # ─── new for authentication ───────────────────────────
 Flask-Login>=0.6
+Flask-limiter
 passlib[bcrypt]~=1.7
 Flask-WTF~=1.2
 Flask-SQLAlchemy~=3.1

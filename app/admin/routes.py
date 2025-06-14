@@ -7,7 +7,6 @@ from ..models import User, Role, db
 from . import bp
 
 def get_rep_role():
-    # first call is after the app context exists; result is cached
     return Role.query.filter_by(name="rep").one()
 
 @bp.route("/users")

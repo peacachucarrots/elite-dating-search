@@ -1,59 +1,82 @@
 # app/__init__.py
 """
 Application factory + blueprint registration.
-Call create_app() from run.py, tests, or a WSGI entrypoint.
+Call create_app() from run.py, tests, or your WSGI entry-point.
 """
 
-from datetime import datetime
-import calendar
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_talisman import Talisman
-from app.models import db
-from .settings import Dev, Prod
-from .extensions import socketio, db, login_manager, migrate, mail, csrf
+from __future__ import annotations
 
+import os
+import calendar
+from datetime import datetime
 from importlib import import_module
 from typing import Union
 
+from flask import Flask
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+# ── Extensions (one singleton each) ────────────────────────────────
+from app.extensions import (
+    db,
+    migrate,
+    mail,
+    socketio,
+    login_manager,
+    csrf,
+    limiter,
+)
+
+# Optional security extras
+# from flask_talisman import Talisman
+
+# ------------------------------------------------------------------
+# Configuration loader
+# ------------------------------------------------------------------
 DEFAULT_SETTINGS = "app.settings.Dev"
 
-def _load_config(app: Flask, cfg):
-    """Handle str -> dotted path import or class/object directly."""
+def _load_config(app: Flask, cfg: Union[str, type, None]) -> None:
+    """
+    Accepts:
+    • dotted-path string   -> "package.module.Class"
+    • class / object       -> Config class instance
+    • None                 -> DEFAULT_SETTINGS
+    """
     if cfg is None:
-        cfg = DEFAULT_SETTINGS
+        cfg = os.getenv("FLASK_CONFIG", DEFAULT_SETTINGS)
 
     if isinstance(cfg, str):
         module_path, _, class_name = cfg.rpartition(".")
-        module = import_module(module_path)
-        cfg_obj = getattr(module, class_name)
+        cfg_obj = getattr(import_module(module_path), class_name)
     else:
-        cfg_obj = cfg                               # already a class / instance
+        cfg_obj = cfg
 
     app.config.from_object(cfg_obj)
 
 
+# ------------------------------------------------------------------
+# Factory
+# ------------------------------------------------------------------
 def create_app(config_object: Union[str, type, None] = None) -> Flask:
-    """Create and configure a Flask application instance."""
     app = Flask(__name__, static_url_path="/static")
     _load_config(app, config_object)
 
-    # ── Init extensions ─────────────────────────────────────────────
-    socketio.init_app(app, cors_allowed_origins="*")
-    mail.init_app(app)
+    # ── Bind extensions ────────────────────────────────────────────
     db.init_app(app)
     migrate.init_app(app, db)
+    mail.init_app(app)
+    socketio.init_app(app, cors_allowed_origins="*")
     login_manager.init_app(app)
     csrf.init_app(app)
+    limiter.init_app(app)
 
+    # ── User loader for Flask-Login ────────────────────────────────
     from app.models.user import User
 
     @login_manager.user_loader
     def load_user(user_id: str) -> User | None:
         return User.query.get(int(user_id))
 
-    # ── Register blueprints ─────────────────────────────────────────
+    # ── Blueprints ────────────────────────────────────────────────
     from .main import bp as main_bp
     from .admin import bp as admin_bp
     from .chat import bp as chat_bp
@@ -68,30 +91,37 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(program_bp, url_prefix="/program")
 
-    # csp = {
-    #    "default-src": ["'self'"],
-    #    "script-src": ["'self'", "https://js.stripe.com"],
-    #    "style-src": ["'self'", "https://cdn.jsdelivr.net"],
-    #    "img-src": ["'self'", "data:"],
-    #}
-
-    # Talisman(app,
+    # ── Security headers (prod) ───────────────────────────────────
+    # if not app.debug:
+    #     csp = {
+    #         "default-src": ["'self'"],
+    #         "script-src": ["'self'", "https://js.stripe.com"],
+    #         "style-src":  ["'self'", "https://cdn.jsdelivr.net"],
+    #         "img-src":    ["'self'", "data:"],
+    #     }
+    #     Talisman(
+    #         app,
     #         content_security_policy=csp,
-    #         content_security_policy_nonce_in=['script'],
-    #         force_https=not app.debug,
-    #         frame_options="DENY")
+    #         content_security_policy_nonce_in=["script"],
+    #         force_https=True,
+    #         frame_options="DENY",
+    #     )
 
-    # ── Global context + filters ───────────────────────────────────
+    # ── Trust reverse-proxy headers (NGINX → Gunicorn) ────────────
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
+    # ── Jinja globals & filters ───────────────────────────────────
     @app.context_processor
-    def inject_now():
+    def inject_now() -> dict[str, int]:
         return {"current_year": datetime.utcnow().year}
 
     @app.template_filter("month_name")
-    def month_name(value):
-        """Convert int 1-12 to 'January'-'December'."""
+    def month_name(value) -> str:
         return calendar.month_name[int(value)]
 
+    # ── CLI commands (Flask-Migrate, etc.) ───────────────────────
     from .cli import register_commands
+
     register_commands(app)
 
     return app

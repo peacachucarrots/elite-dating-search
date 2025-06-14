@@ -1,86 +1,100 @@
-{# program/templates/client.html #}
 {% extends "base.html" %}
 {% block title %}Private Client Program{% endblock %}
 
 {% block content %}
-<!-- ── Hero ─────────────────────────────────────────────── -->
-<section class="bg-brand-dark text-white py-20">
-  <div class="max-w-4xl mx-auto text-center px-4">
-    <h1 class="text-4xl font-serif mb-4">
-      World-class matchmaking, <br class="hidden md:inline">tailored for you
+<!-- ── HERO ──────────────────────────────────────────────────── -->
+<section
+  class="relative flex items-center justify-center text-white
+         bg-center bg-cover min-h-[80vh] md:min-h-[90vh]"
+  style="background-image:url('{{ url_for('main.static',
+                                  filename='img/hero_clients.png') }}')">
+
+  <!-- dark overlay -->
+  <div class="absolute inset-0 bg-black/60"></div>
+
+  <!-- copy -->
+  <div class="relative z-10 max-w-3xl text-center px-4" data-animate="fade-up">
+    <h1 class="text-4xl md:text-5xl font-serif tracking-tight mb-6">
+      A Bespoke Search for&nbsp;the&nbsp;Extraordinary
     </h1>
-    <p class="text-xl mb-8">
-      Become an <strong>Elite&nbsp;Dating&nbsp;Search Private&nbsp;Client</strong>
-      and work 1-on-1 with our head matchmaker.
+    <p class="text-xl md:text-2xl font-light mb-8">
+      Our Private Client Program pairs you with a dedicated
+      matchmaker who conducts an executive-style search
+      across our national network—and beyond.
     </p>
-    <a href="#apply" class="btn btn-primary">Schedule Consultation</a>
+    <a href="#apply" class="btn btn-primary px-8 py-4 text-lg shadow-lg">
+      Begin&nbsp;Your&nbsp;Search
+    </a>
   </div>
 </section>
 
-<!-- ── What’s included / benefits ───────────────────────── -->
-<section class="max-w-5xl mx-auto py-16 px-4">
-  <h2 class="text-3xl font-semibold mb-6 text-center">What you receive</h2>
-  <div class="grid md:grid-cols-2 gap-8">
-    <div class="space-y-4">
-      <h3 class="text-xl font-semibold flex items-center">
-        <span class="text-brand-gold mr-2">✓</span> Dedicated Matchmaker
-      </h3>
-      <p>Monthly strategy calls, date feedback, and continuous profile curation.</p>
-    </div>
+<!-- ── BENEFITS GRID ─────────────────────────────────────────── -->
+<section class="bg-neutral-50 py-20 px-4">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-semibold text-center mb-12"
+        data-animate="fade-up">
+      The Private&nbsp;Client&nbsp;Advantage
+    </h2>
 
-    <div class="space-y-4">
-      <h3 class="text-xl font-semibold flex items-center">
-        <span class="text-brand-gold mr-2">✓</span> Proactive &amp; Confidential Search
-      </h3>
-      <p>We discreetly scout within our network and beyond based on your criteria.</p>
-    </div>
-
-    <div class="space-y-4">
-      <h3 class="text-xl font-semibold flex items-center">
-        <span class="text-brand-gold mr-2">✓</span> Verified Date Prospects
-      </h3>
-      <p>All introductions are background-checked and interviewed by our team.</p>
-    </div>
-
-    <div class="space-y-4">
-      <h3 class="text-xl font-semibold flex items-center">
-        <span class="text-brand-gold mr-2">✓</span> Personal Image Consulting
-      </h3>
-      <p>Styling, photography, and mindset coaching to present your best self.</p>
+    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-3"
+         data-animate="fade-up">
+      {% set perks = [
+        ('White-glove<br>concierge',         'handshake'),
+        ('48-point<br>compatibility map',    'brain-circuit'),
+        ('Executive-search<br>recruiting',   'briefcase'),
+        ('Private introductions<br>& NDAs',  'shield-check'),
+        ('Date coaching &amp;<br>feedback',  'message-circle'),
+        ('Absolute discretion<br>& privacy', 'lock')
+      ] %}
+      {% for text, icon in perks %}
+        <div class="flex flex-col items-center text-center p-6 bg-white shadow
+                    rounded-lg hover:shadow-lg transition-shadow">
+          <svg class="h-12 w-12 text-[var(--brand-gold)] mb-4" fill="none"
+               stroke="currentColor" stroke-width="1.8">
+            {% if icon == 'handshake' %}
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 15l5-5m0 0l4 4m-4-4v12M21 9l-5 5m0 0l-4-4m4 4V3"/>
+            {% elif icon == 'brain-circuit' %}
+              <path d="M9 9h6v6H9z"/><rect x="3" y="3" width="18" height="18" rx="2"/>
+            {% elif icon == 'briefcase' %}
+              <path d="M3 7h18v13H3z"/><path d="M8 7V5h8v2"/>
+            {% elif icon == 'shield-check' %}
+              <path d="M12 3l9 4v6c0 5-3 9-9 12-6-3-9-7-9-12V7z"/>
+              <path d="M9 12l2 2 4-4"/>
+            {% elif icon == 'message-circle' %}
+              <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 1 1 8.5-8.5z"/>
+              <polyline points="8 11 12 15 16 11"/>
+            {% else %} {# lock #}
+              <rect x="4" y="10" width="16" height="10" rx="2"/>
+              <path d="M8 10V6a4 4 0 1 1 8 0v4"/>
+            {% endif %}
+          </svg>
+          <p class="leading-snug">{{ text | safe }}</p>
+        </div>
+      {% endfor %}
     </div>
   </div>
 </section>
 
-<!-- ── Process timeline (example) ───────────────────────── -->
-<section class="bg-slate-50 py-16">
+<!-- ── APPLICATION FORM ─────────────────────────────────────── -->
+<section id="apply" class="py-20">
   <div class="max-w-5xl mx-auto px-4">
-    <h2 class="text-3xl font-semibold mb-10 text-center">Our Proven Process</h2>
-    <ol class="grid md:grid-cols-4 gap-6 text-center text-slate-700">
-      <li>
-        <div class="text-brand-gold text-4xl font-bold mb-2">1</div>
-        Consultation
-      </li>
-      <li>
-        <div class="text-brand-gold text-4xl font-bold mb-2">2</div>
-        Search &amp; Vetting
-      </li>
-      <li>
-        <div class="text-brand-gold text-4xl font-bold mb-2">3</div>
-        Introductions
-      </li>
-      <li>
-        <div class="text-brand-gold text-4xl font-bold mb-2">4</div>
-        Ongoing Support
-      </li>
-    </ol>
+    <h2 class="text-3xl md:text-4xl font-semibold text-center mb-8"
+        data-animate="fade-up">
+      Private&nbsp;Client&nbsp;Application
+    </h2>
+
+    {# App form wrapped in a luxe card #}
+    <div class="bg-white/90 backdrop-blur-sm border rounded-2xl shadow-xl p-8"
+         data-animate="fade-up">
+      {% include "partials/application_form.html" %}
+    </div>
   </div>
 </section>
+{% endblock %}
 
-<!-- ── Application form ─────────────────────────────────── -->
-<section id="apply" class="max-w-4xl mx-auto py-16 px-4">
-  <h2 class="text-3xl font-semibold mb-6 text-center">
-    Book Your Initial Consultation
-  </h2>
-  {% include "partials/application_form.html" %}
-</section>
+{% block extra_scripts %}
+  {{ super() }}
+  <script src="{{ url_for('main.static',
+                          filename='js/scroll-animations.js') }}" defer></script>
 {% endblock %}

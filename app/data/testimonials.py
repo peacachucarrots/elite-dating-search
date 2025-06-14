@@ -1,5 +1,5 @@
 # app/data/testimonials.py
-testimonials = [
+TESTIMONIALS = [
     {
         "name": "Dave & Rebecca",
         "quote": ("I can honestly say that I have never been happier in my life. "

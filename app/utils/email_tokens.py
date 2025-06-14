@@ -3,7 +3,30 @@ Helpers for signed URLs in e-mail confirmation / password reset, etc.
 """
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired, BadTimeSignature
 from flask import url_for, current_app as app
+from flask_mail import Mail, Message
+from app.settings import Base
 
+SUPPORT_INBOX = "clientrelations@elitedatingsearch.com"
+
+def send_support_email(name: str, subject: str | None, sender: str, message: str) -> None:
+    from app.extensions import mail
+    subj = f"[Contact Form] {subject.strip() if subject else 'No subject'}"
+
+    body = (
+        f"Name: {name}\n"
+        f"Email: {sender}\n\n"
+        f"Message:\n{message}\n"
+    )
+
+    msg = Message(
+        subject=subj,
+        recipients=[SUPPORT_INBOX],
+        body=message,
+        reply_to=sender,
+        sender=app.config["MAIL_DEFAULT_SENDER"]
+    )
+
+    mail.send(msg)
 
 def _serializer(salt: str) -> URLSafeTimedSerializer:
     return URLSafeTimedSerializer(

@@ -6,7 +6,7 @@ from uuid import uuid4
 from werkzeug.utils import secure_filename
 from pathlib import Path
 
-from app.data.testimonials import testimonials
+from app.data.testimonials import TESTIMONIALS
 from app.program.service import FIELD_LABELS
 from .forms import CandidateForm, ClientForm
 from ..models.program import ProgramApplication, ProgramType
@@ -14,7 +14,8 @@ from ..extensions import db
 
 from . import bp
 
-UPLOAD_DIR = Path("app/main/static/img/candidates")
+CAN_UPLOAD_DIR = Path("app/main/static/img/candidates")
+CLIENT_UPLOAD_DIR = Path("app/main/static/img/clients")
 
 @bp.route("/candidate", methods=["GET", "POST"])
 @login_required
@@ -24,8 +25,8 @@ def candidate():
         photo_file = form.photo.data
         filename   = secure_filename(photo_file.filename)
         unique     = f"{uuid4().hex}_{filename}"
-        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-        photo_file.save(UPLOAD_DIR / unique)
+        CAN_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        photo_file.save(CAN_UPLOAD_DIR / unique)
 
         data = form.data.copy()
         data.pop("csrf_token", None)
@@ -51,43 +52,67 @@ def candidate():
 
     return render_template("candidate.html",
                            form=form,
-                           testimonials=testimonials)
+                           testimonials=TESTIMONIALS)
 
 @bp.route("/client", methods=["GET", "POST"])
 @login_required
-def client():
+def client() -> str:
+    """
+    Paid-client application form.
+    Creates a ProgramApplication(row) after validating the form.
+    """
     form = ClientForm(obj=current_user)
-    if form.validate_on_submit():
-        photo_file = form.photo.data
+
+    if not form.validate_on_submit():
+        # first GET or validation errors → redisplay form
+        return render_template("client.html", form=form)
+
+    # ── 1. Handle (optional) profile photo ─────────────────────────
+    photo_file = form.photo.data
+    unique_filename = None
+
+    if photo_file and photo_file.filename:
         filename = secure_filename(photo_file.filename)
-        unique = f"{uuid4().hex}_{filename}"
-        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-        photo_file.save(UPLOAD_DIR / unique)
+        unique_filename = f"{uuid4().hex}_{filename}"
+        CLIENT_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        photo_file.save(CLIENT_UPLOAD_DIR / unique_filename)
 
-        data = form.data.copy()
-        data.pop("csrf_token", None)
-        data.update({
-            "first_name": current_user.profile.first_name,
-            "last_name": current_user.profile.last_name,
-            "email": current_user.email,
-            "phone": current_user.phone,
-        })
-        app = ProgramApplication(
-            user_id    = current_user.id,
-            program    = ProgramType.CLIENT,
-            status     = "new",          # will become 'call_set' → 'ach_sent'…
-            ach_signed = False,
-            paid       = False,
-            form_json  = data,
-        )
-        db.session.add(app)
-        db.session.commit()
+    # ── 2. Prepare JSON payload for storage ────────────────────────
+    data = form.data.copy()
+    # Remove objects we don’t want in JSON
+    for fld in ("csrf_token", "photo", "submit"):
+        data.pop(fld, None)
 
-        flash("Application received – our matchmaking team will review shortly.",
-              "success")
-        return redirect(url_for("program.thank_you", kind="client"))
+    # Extra user-meta we always store
+    profile = current_user.profile
+    age = current_user.profile.age
 
-    return render_template("client.html", form=form)
+    data.update(
+        first_name = profile.first_name if profile else "",
+        last_name  = profile.last_name  if profile else "",
+        age        = age,
+        email      = current_user.email,
+        phone      = current_user.phone,
+        photo      = unique_filename,
+    )
+
+    # ── 3. Persist application row ─────────────────────────────────
+    app = ProgramApplication(
+        user_id    = current_user.id,
+        program    = ProgramType.CLIENT,
+        status     = "new",
+        ach_signed = False,
+        paid       = False,
+        form_json  = data,
+    )
+    db.session.add(app)
+    db.session.commit()
+
+    flash(
+        "Application received – our matchmaking team will review it shortly.",
+        "success",
+    )
+    return redirect(url_for("program.thank_you", kind="client"))
 
 @bp.route("/client/confirm", methods=["POST"])
 @login_required

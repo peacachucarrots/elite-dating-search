@@ -14,7 +14,6 @@ from zoneinfo import ZoneInfo
 
 EASTERN = ZoneInfo("America/New_York")
 
-# reps available **between** these times, inclusive
 OFFICE_OPEN  = time(9, 0)   # 09:00
 OFFICE_CLOSE = time(18, 0)  # 18:00
 
@@ -98,12 +97,8 @@ class Test(Base):
 class Prod(Base):
     DEBUG   = False
     TESTING = False
-
-    # Honour DATABASE_URL supplied by Render, Heroku, Fly.io, etc.
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
-
-    # Extra hardening
     SESSION_COOKIE_SECURE = True
-    PREFERRED_URL_SCHEME  = "https"
+    REMEMBER_COOKIE_SECURE = True
+    PREFERRED_URL_SCHEME = "https"
 
     # Make sure you really give Flask a strong secret key in prod!

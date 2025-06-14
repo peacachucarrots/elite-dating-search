@@ -1,24 +1,13 @@
-{% extends "base.html" %}
-{% block title %}Client Applications{% endblock %}
-
-{% block content %}
-<h1 class="text-2xl font-semibold mb-6">Paid-Client Applications</h1>
-<a href="{{ url_for('chat.rep_dashboard') }}"
-	class="inline-block mb-3 text-sm px-3 py-1 items-center bg-slate-200 rounded hover:bg-slate-300">
-	‹ Home
-  </a>
-
 <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
   {% for app in apps %}
     {% set info = app.short_info() %}
     <article class="border rounded-lg shadow-sm overflow-hidden">
       <img
         src="{{ info.photo
-                and url_for('main.static', filename='img/clients/' ~ info.photo)
+                and url_for('main.static', filename='img/candidates/' ~ info.photo)
                 or url_for('main.static', filename='img/placeholder_photo.jpg') }}"
         alt="{{ info.first_name }} photo"
         class="h-48 w-full object-cover">
-
       <div class="p-4 text-sm space-y-1">
         <h2 class="text-lg font-semibold">
           {{ info.first_name }} {{ info.last_name }}
@@ -28,13 +17,12 @@
           {{ info.city }}{% if info.state %}, {{ info.state }}{% endif %}
           {% if info.occupation %} • {{ info.occupation }}{% endif %}
         </p>
-    
         <div class="mt-3 flex gap-2">
-          <a href="{{ url_for('chat.client_detail', app_id=app.id) }}"
+          <a href="{{ url_for('chat.candidate_detail' if app.program.name=='CANDIDATE'
+                               else 'chat.client_detail', app_id=app.id) }}"
              class="px-3 py-1 rounded bg-blue-600 text-white text-xs">View</a>
         </div>
       </div>
     </article>
   {% endfor %}
 </div>
-{% endblock %}
