@@ -1,10 +1,5 @@
 """
 Configuration objects.
-
-Usage
------
->>> app = Flask(__name__)
->>> app.config.from_object("app.settings.Dev")  # or Prod / Test
 """
 
 from pathlib import Path
@@ -32,12 +27,13 @@ class Base:
     SEND_FILE_MAX_AGE_DEFAULT  = 60 * 60
 
     # ── Flask-SQLAlchemy ───────────────────────────────────────────────────
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # ── Flask-SocketIO (optional Redis queue) ──────────────────────────────
+    # ── Flask-SocketIO ──────────────────────────────
     SOCKETIO_MESSAGE_QUEUE     = os.environ.get("REDIS_URL")
 
-    # ── Mail (Flask-Mail or Flask-SMTP) ────────────────────────────────────
+    # ── Mail (Flask-Mail) ────────────────────────────────────
     MAIL_SERVER = os.environ.get("MAIL_SERVER")
     MAIL_PORT = os.environ.get("MAIL_PORT")
     MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS")
@@ -68,6 +64,10 @@ class Dev(Base):
         "DEV_DATABASE_URI",
         f"sqlite:///{BASE_DIR / 'dev.db'}"
     )
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     SQLALCHEMY_ECHO = True
 
 
@@ -90,4 +90,8 @@ class Prod(Base):
     TESTING = False
     SESSION_COOKIE_SECURE = True
     REMEMBER_COOKIE_SECURE = True
+<<<<<<< Updated upstream
     PREFERRED_URL_SCHEME = "https"
+=======
+    PREFERRED_URL_SCHEME = "https"
+>>>>>>> Stashed changes
