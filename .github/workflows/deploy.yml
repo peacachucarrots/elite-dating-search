@@ -24,7 +24,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             set -e
-            cd /root/elite-dating-search
+            cd /home/deploy/elite-dating-search
             echo "Pulling latest commit…"
             git pull origin main
 
