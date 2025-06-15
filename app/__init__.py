@@ -69,6 +69,23 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     csrf.init_app(app)
     limiter.init_app(app)
 
+    @app.context_processor
+    def _override_url_for():
+        from flask import url_for
+        import os, time
+
+        def dated_url_for(endpoint, **values):
+            if endpoint == "static":
+                file_path = os.path.join(app.static_folder, values["filename"])
+                try:
+                    values["v"] = int(os.stat(file_path).st_mtime)
+                except FileNotFoundError:
+                    # bad path → skip cache-buster so you still get a 404 in browser
+                    pass
+            return url_for(endpoint, **values)
+
+        return {"url_for": dated_url_for}
+
     # ── User loader for Flask-Login ────────────────────────────────
     from app.models.user import User
 
@@ -114,16 +131,6 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     @app.context_processor
     def inject_now() -> dict[str, int]:
         return {"current_year": datetime.utcnow().year}
-
-    @app.context_processor
-    def override_url_for():
-        from flask import url_for
-        def dated_url_for(endpoint, **values):
-            if endpoint == "static":
-                file_path = os.path.join(app.static_folder, values["filename"])
-                values["v"] = int(os.stat(file_path).st_mtime)
-            return url_for(endpoint, **values)
-        return {"url_for": dated_url_for}
 
     @app.template_filter("month_name")
     def month_name(value) -> str:
