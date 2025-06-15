@@ -64,10 +64,7 @@ class Dev(Base):
         "DEV_DATABASE_URI",
         f"sqlite:///{BASE_DIR / 'dev.db'}"
     )
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
     SQLALCHEMY_ECHO = True
 
 
@@ -90,8 +87,4 @@ class Prod(Base):
     TESTING = False
     SESSION_COOKIE_SECURE = True
     REMEMBER_COOKIE_SECURE = True
-<<<<<<< Updated upstream
     PREFERRED_URL_SCHEME = "https"
-=======
-    PREFERRED_URL_SCHEME = "https"
->>>>>>> Stashed changes
