@@ -71,12 +71,12 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
 
     @app.context_processor
     def _override_url_for():
-        print("url_for called with endpoint =", endpoint)
         from flask import url_for
         import os, time
 
         def dated_url_for(endpoint, **values):
-            if endpoint == "static":
+            print("url_for called with endpoint =", endpoint)
+            if endpoint == "static" or endpoint.endswith(".static"):
                 file_path = os.path.join(app.static_folder, values["filename"])
                 try:
                     values["v"] = int(os.stat(file_path).st_mtime)
