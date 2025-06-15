@@ -71,22 +71,28 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
 
     @app.context_processor
     def _override_url_for():
-        from flask import url_for
-        import os, time
+        from flask import url_for, current_app
+        import os
 
         def dated_url_for(endpoint, **values):
-            print("url_for called with endpoint =", endpoint)
             if endpoint == "static" or endpoint.endswith(".static"):
-                file_path = os.path.join(app.static_folder, values["filename"])
-                try:
-                    values["v"] = int(os.stat(file_path).st_mtime)
-                except FileNotFoundError:
-                    # bad path → skip cache-buster so you still get a 404 in browser
-                    pass
+                if endpoint == "static":
+                    folder = current_app.static_folder
+                else:
+                    bp_name = endpoint.rsplit(".", 1)[0]
+                    folder = current_app.blueprints[bp_name].static_folder
+                filename = values.get("filename", None)
+                if filename:
+                    file_path = os.path.join(folder, filename)
+                    try:
+                        values["v"] = int(os.stat(file_path).st_mtime)
+                    except OSError:
+                        pass
             return url_for(endpoint, **values)
 
         return {"url_for": dated_url_for}
 
+    app.jinja_env.globals["url_for"] = dated_url_for
     # ── User loader for Flask-Login ────────────────────────────────
     from app.models.user import User
 
