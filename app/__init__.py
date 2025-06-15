@@ -71,6 +71,7 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
 
     @app.context_processor
     def _override_url_for():
+	print("url_for called with endpoint =", endpoint)
         from flask import url_for
         import os, time
 
