@@ -12,7 +12,7 @@ def _rand_id():
 class ChatSession(db.Model):
     __tablename__ = "chat_sessions"
 
-    id          = db.Column(db.String(32), primary_key=True, default=_rand_id)
+    id          = db.Column(db.Integer, primary_key=True, default=_rand_id)
     user_id     = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     seq         = db.Column(db.Integer, nullable=False)
     opened_at   = db.Column(db.DateTime, default=datetime.utcnow)
