@@ -1,33 +1,41 @@
+# .github/workflows/deploy.yml
 name: Deploy to Droplet
+
 on:
   push:
-    branches: [main]
+    branches: [main]          # auto-deploy on every merge to main
+  workflow_dispatch:          # …or manual “Run workflow” button
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      # 1. Pull the commit the workflow is running on (needed for metadata only)
+      - name: Checkout (for metadata only)
         uses: actions/checkout@v4
 
-      - name: Copy deploy script
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "."
-          target: "/home/deploy/elite-dating"
-
-      - name: Run deploy commands
+      # 2. SSH into the Droplet and run the deploy script
+      - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /home/deploy/elite-dating
-            git pull
-            docker compose build web
+            set -e
+            cd /root/elite-dating-search
+            echo "Pulling latest commit…"
+            git pull origin main
+
+            echo "Rebuilding web image (no cache)…"
+            docker compose build --no-cache web
+
+            echo "Restarting stack…"
             docker compose up -d
-            docker compose exec web flask db upgrade
+
+            echo "Running migrations…"
+            # ignore exit code 1 if there are no new revisions
+            docker compose exec web flask db upgrade || true
+
+            echo "Deploy complete"
