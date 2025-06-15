@@ -115,6 +115,16 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     def inject_now() -> dict[str, int]:
         return {"current_year": datetime.utcnow().year}
 
+    @app.context_processor
+    def override_url_for():
+        from flask import url_for
+        def dated_url_for(endpoint, **values):
+            if endpoint == "static":
+                file_path = os.path.join(app.static_folder, values["filename"])
+                values["v"] = int(os.stat(file_path).st_mtime)
+            return url_for(endpoint, **values)
+        return {"url_for": dated_url_for}
+
     @app.template_filter("month_name")
     def month_name(value) -> str:
         return calendar.month_name[int(value)]
