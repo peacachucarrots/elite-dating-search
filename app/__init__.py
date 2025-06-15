@@ -12,7 +12,7 @@ from datetime import datetime
 from importlib import import_module
 from typing import Union
 
-from flask import Flask
+from flask import Flask, url_for, current_app
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # ── Extensions (one singleton each) ────────────────────────────────
@@ -52,6 +52,19 @@ def _load_config(app: Flask, cfg: Union[str, type, None]) -> None:
 
     app.config.from_object(cfg_obj)
 
+def dated_url_for(endpoint, **values):
+    if endpoint == "static" or endpoint.endswith(".static"):
+        # resolves the correct static folder (app or blueprint)
+        folder = (current_app.static_folder if endpoint == "static"
+                  else current_app.blueprints[endpoint.rsplit(".", 1)[0]].static_folder)
+        filename = values.get("filename")
+        if filename:
+            try:
+                values["v"] = int(os.stat(os.path.join(folder, filename)).st_mtime)
+            except OSError:
+                pass  # file missing: skip cache-buster
+    return url_for(endpoint, **values)
+
 
 # ------------------------------------------------------------------
 # Factory
@@ -68,29 +81,6 @@ def create_app(config_object: Union[str, type, None] = None) -> Flask:
     login_manager.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
-
-    @app.context_processor
-    def _override_url_for():
-        from flask import url_for, current_app
-        import os
-
-        def dated_url_for(endpoint, **values):
-            if endpoint == "static" or endpoint.endswith(".static"):
-                if endpoint == "static":
-                    folder = current_app.static_folder
-                else:
-                    bp_name = endpoint.rsplit(".", 1)[0]
-                    folder = current_app.blueprints[bp_name].static_folder
-                filename = values.get("filename", None)
-                if filename:
-                    file_path = os.path.join(folder, filename)
-                    try:
-                        values["v"] = int(os.stat(file_path).st_mtime)
-                    except OSError:
-                        pass
-            return url_for(endpoint, **values)
-
-        return {"url_for": dated_url_for}
 
     app.jinja_env.globals["url_for"] = dated_url_for
     # ── User loader for Flask-Login ────────────────────────────────
