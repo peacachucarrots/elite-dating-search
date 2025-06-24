@@ -27,7 +27,7 @@ class Base:
     SEND_FILE_MAX_AGE_DEFAULT  = 60 * 60
 
     # ── Flask-SQLAlchemy ───────────────────────────────────────────────────
-    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI_DEV")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI_PROD")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # ── Flask-SocketIO ──────────────────────────────
