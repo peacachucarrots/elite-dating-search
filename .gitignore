@@ -22,4 +22,4 @@ migrations/**/versions/*.pyc
 # OS / editors
 .DS_Store
 .idea/
-.vscode/
+.vscode/sendgrid.env

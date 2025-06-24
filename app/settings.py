@@ -21,13 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 class Base:
     """Settings shared by all environments."""
     # ── Core ────────────────────────────────────────────────────────────────
-    SECRET_KEY                 = os.environ.get("SECRET_KEY", "dev-change-me")
+    SECRET_KEY                 = os.environ.get("SECRET_KEY")
     SESSION_COOKIE_HTTPONLY    = True
     SESSION_COOKIE_SAMESITE    = "Lax"
     SEND_FILE_MAX_AGE_DEFAULT  = 60 * 60
 
     # ── Flask-SQLAlchemy ───────────────────────────────────────────────────
-    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI_DEV")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # ── Flask-SocketIO ──────────────────────────────

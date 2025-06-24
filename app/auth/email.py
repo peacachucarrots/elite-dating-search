@@ -7,31 +7,43 @@ Utility helpers for *transactional* e-mails:
 Add more (welcome letter, TOTP setup, etc.) as you grow.
 """
 
-from flask import current_app as app, render_template, url_for
-from flask_mail import Message
-
-from app.extensions import mail          # app/__init__.py sets this up
-from app.models import User              # SQLAlchemy User model
+from flask import render_template, url_for
+from app.models import User
 from app.utils.email_tokens import generate_token, verify_token
 
+import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ------------------------------------------------------------------ #
 # low-level helper                                                   #
 # ------------------------------------------------------------------ #
 def _send_email(subject: str, recipient: str,
                 html_tpl: str, text_tpl: str, **ctx) -> None:
-    """Render Jinja templates and send multipart e-mail."""
+    """Send Email via SendGrid API."""
     html_body = render_template(html_tpl, **ctx)
     text_body = render_template(text_tpl, **ctx)
 
-    msg = Message(
-        subject     = subject,
-        recipients  = [recipient],
-        html        = html_body,
-        body        = text_body,
-        sender      = app.config.get("MAIL_DEFAULT_SENDER"),
-    )
-    mail.send(msg)
+    message = Mail(
+        from_email=os.environ.get("MAIL_USERNAME"),
+        to_emails=recipient,
+        subject=subject,
+        plain_text_content=text_body,
+        html_content=html_body)
+    try:
+        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        response = sg.send(message)
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
+    except Exception as e:
+        if hasattr(e, "status_code"):
+            print("Status:", e.status_code)
+        if hasattr(e, "body"):
+            print("Body:", e.body)
 
 
 # ------------------------------------------------------------------ #
