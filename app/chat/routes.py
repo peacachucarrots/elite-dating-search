@@ -172,7 +172,6 @@ def handle_connect(auth):
 
     match role:
         case "visitor":
-            created_new = False
             chat = (
                 ChatSession.query
                 .filter_by(user_id=user_id, closed_at=None)
@@ -182,48 +181,33 @@ def handle_connect(auth):
 
             if chat is None:
                 chat = _create_session_for(user_id, request.sid)
-                created_new = True
 
             SID_TO_SESSION[request.sid] = chat.id
+            VISITORS.add(request.sid)
             join_room(request.sid)
 
-            if created_new:
-                VISITORS.add(request.sid)
-                emit("visitor_msg",
-                     {"body": "Hi! What can I help you with today?",
+            emit("visitor_msg",
+                 {"body": "Hi! What can I help you with today?",
+                  "author": "assistant",
+                  "ts": datetime.utcnow().isoformat(timespec="seconds")},
+                 room=request.sid)
+
+            options = [{"id": key, "label": value["label"]}
+                       for key, value in FAQ.items()]
+
+            if reps_are_online():
+                options.append({"id": "human", "label": "Connect me to a representative"})
+            else:
+                emit("rep_msg",
+                     {"body": ("Our representatives are available 9 a.m.–6 p.m. ET, "
+                               "Monday–Friday. Feel free to leave a message "
+                               "and we’ll reach out via email typically within "
+                               "the next business day."),
                       "author": "assistant",
                       "ts": datetime.utcnow().isoformat(timespec="seconds")},
                      room=request.sid)
-                db.session.add(
-                    Message(chat_id=chat.id,
-                            author="assistant",
-                            ts=datetime.utcnow(),
-                            user_id=user_id)
-                )
 
-                options = [{"id": key, "label": value["label"]} for key, value in FAQ.items()]
-                if reps_are_online():
-                    options.append({"id": "human", "label": "Connect me to a representative"})
-                else:
-                    off_msg = ("Our representatives are available 9 a.m.–6 p.m. ET, "
-                                   "Monday–Friday. Feel free to leave a message "
-                                   "and we’ll reach out via email typically within "
-                                   "the next business day.")
-                    emit("rep_msg",
-                         {"body": off_msg,
-                          "author": "assistant",
-                          "ts": datetime.utcnow().isoformat(timespec="seconds")},
-                         room=request.sid)
-                    db.session.add(
-                        Message(chat_id=chat_id,
-                                author="assistant",
-                                body=off_msg,
-                                ts=datetime.utcnow(),
-                                user_id=user_id)
-                    )
-
-                emit("quick_options", {"options": options}, room=request.sid)
-                db.session.commit()
+            emit("quick_options", {"options": options}, room=request.sid)
 
             history = (Message.query
                        .filter_by(chat_id=chat.id)
