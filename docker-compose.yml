@@ -2,10 +2,10 @@
 services:
   web:
     build: .
-    command: >-
+    command: >
       gunicorn -k gevent -w 4 --worker-connections 1000
-      --max-requests 1000 --max-requests-jitter 100
-      -b 0.0.0.0:8000 wsgi:app
+              --timeout 90 --keep-alive 5
+              -b 0.0.0.0:8000 wsgi:app
     env_file: .env
     depends_on: [db, redis]
     ports:
