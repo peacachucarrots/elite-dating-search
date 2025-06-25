@@ -10,6 +10,7 @@ services:
     depends_on: [db, redis]
     environment:
       - REDIS_URL=redis://redis:6379/0
+      - WEB_CONCURRENCY=1
     ports:
       - "8000:8000"
 
