@@ -573,7 +573,7 @@ def handle_visitor(text: str) -> None:
              {"body": reply, "author": "assistant", "ts": now_iso},
              room=sid)
         db.session.add(Message(chat_id=chat_id, author="assistant",
-                               body=thanks, ts=now, user_id=user_id))
+                               body=reply, ts=now, user_id=user_id))
 
         # Only wake reps if we’re inside office hours
         if not off_hours:
