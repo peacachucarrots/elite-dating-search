@@ -589,9 +589,8 @@ def handle_visitor(text: str) -> None:
     # ───────────────────────────────────────────────────────────────
     if text.startswith("__faq__:"):
         faq_id = text.split(":", 1)[1]
-        label = FAQ[faq_id]["label"]
 
-        # ----------------------------- HUMAN / TALK-TO-REP
+        # HUMAN / TALK-TO-REP
         if faq_id == "human":
             # 1. echo the visitor’s click so *they* see it
             emit("visitor_msg",
@@ -602,18 +601,17 @@ def handle_visitor(text: str) -> None:
             if off_hours:
                 prompt = ("Thanks for the details! Our live chat is closed right now, "
                           "but we’ll review your message and e-mail you, typically by "
-                          "the next business day.")
+                          "the next business day. If you aren't signed in, please leave "
+                          "your email in the message. Thank you!")
             else:
                 prompt = ("Before we connect you, can you briefly describe "
                           "what your question or concern is?")
-
                 WAITING_DESC.add(sid)
 
             emit("visitor_msg",
                  {"body": prompt, "author": "assistant", "ts": now_iso},
                  room=sid)
 
-            # persist both lines
             db.session.add_all([
                 Message(chat_id=chat_id, author="visitor",
                         body=label, ts=now, user_id=user_id),
@@ -621,14 +619,19 @@ def handle_visitor(text: str) -> None:
                         body=prompt, ts=now, user_id=user_id)
             ])
             db.session.commit()
-            return  # ← **stop here!** don’t run normal FAQ logic
+            return
 
-        # ----------------------------- every other FAQ shortcut
+        # every other FAQ shortcut
+        try:
+            label = FAQ[faq_id]["label"]
+            answer = FAQ[faq_id]["answer"]
+        except KeyError:
+            current_app.logger.warning("Unknown FAQ id: %s", faq_id)
+            return
+
         emit("visitor_msg",
              {"body": label, "author": "visitor", "ts": now_iso},
              room=sid)
-
-        answer = FAQ[faq_id]["answer"]
         emit("visitor_msg",
              {"body": answer, "author": "assistant", "ts": now_iso},
              room=sid)
