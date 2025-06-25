@@ -592,6 +592,7 @@ def handle_visitor(text: str) -> None:
 
         # HUMAN / TALK-TO-REP
         if faq_id == "human":
+            label = "Connect me to a representative"
             # 1. echo the visitor’s click so *they* see it
             emit("visitor_msg",
                  {"body": label, "author": "visitor", "ts": now_iso},
