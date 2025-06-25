@@ -172,6 +172,7 @@ def handle_connect(auth):
 
     match role:
         case "visitor":
+            created_new = False
             chat = (
                 ChatSession.query
                 .filter_by(user_id=user_id, closed_at=None)
@@ -181,52 +182,53 @@ def handle_connect(auth):
 
             if chat is None:
                 chat = _create_session_for(user_id, request.sid)
+                created_new = True
 
             SID_TO_SESSION[request.sid] = chat.id
-
-            VISITORS.add(request.sid)
             join_room(request.sid)
 
-            emit("visitor_msg",
-                 {"body": "Hi! What can I help you with today?",
-                  "author": "assistant",
-                  "ts": datetime.utcnow().isoformat(timespec="seconds")},
-                 room=request.sid)
-
-            options = [{"id": key, "label": value["label"]}
-                       for key, value in FAQ.items()]
-
-            if reps_are_online():
-                options.append({"id": "human", "label": "Connect me to a representative"})
-            else:
-                emit("rep_msg",
-                     {"body": ("Our representatives are available 9 a.m.–6 p.m. ET, "
-                               "Monday–Friday. Feel free to leave a message "
-                               "and we’ll reach out via email typically within "
-                               "the next business day."),
+            if created_new:
+                VISITORS.add(request.sid)
+                emit("visitor_msg",
+                     {"body": "Hi! What can I help you with today?",
                       "author": "assistant",
                       "ts": datetime.utcnow().isoformat(timespec="seconds")},
                      room=request.sid)
 
-            emit("quick_options", {"options": options}, room=request.sid)
+                options = [{"id": key, "label": value["label"]}
+                           for key, value in FAQ.items()]
 
-            history = (Message.query
-                       .filter_by(chat_id=chat.id)
-                       .order_by(Message.ts)
-                       .all())
+                if reps_are_online():
+                    options.append({"id": "human", "label": "Connect me to a representative"})
+                else:
+                    emit("rep_msg",
+                         {"body": ("Our representatives are available 9 a.m.–6 p.m. ET, "
+                                   "Monday–Friday. Feel free to leave a message "
+                                   "and we’ll reach out via email typically within "
+                                   "the next business day."),
+                          "author": "assistant",
+                          "ts": datetime.utcnow().isoformat(timespec="seconds")},
+                         room=request.sid)
 
-            for m in history:
-                emit("visitor_msg",
-                     {"body": m.body,
-                      "author": m.author,
-                      "ts": m.ts.isoformat()},
-                     room=request.sid)
+                emit("quick_options", {"options": options}, room=request.sid)
 
-            emit("visitor_online",
-                 {"sid": request.sid, "username": display_name},
-                 room="reps")
-            current_app.logger.debug("+++ Visitor connected", display_name)
-            return
+                history = (Message.query
+                           .filter_by(chat_id=chat.id)
+                           .order_by(Message.ts)
+                           .all())
+
+                for m in history:
+                    emit("visitor_msg",
+                         {"body": m.body,
+                          "author": m.author,
+                          "ts": m.ts.isoformat()},
+                         room=request.sid)
+
+                emit("visitor_online",
+                     {"sid": request.sid, "username": display_name},
+                     room="reps")
+                current_app.logger.debug("+++ Visitor connected", display_name)
+                return
         case "rep":
             if not current_user.has_role("rep"):
                 emit("system", "You are not authorized as a representative.")
