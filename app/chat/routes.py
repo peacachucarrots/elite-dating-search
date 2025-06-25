@@ -194,23 +194,36 @@ def handle_connect(auth):
                       "author": "assistant",
                       "ts": datetime.utcnow().isoformat(timespec="seconds")},
                      room=request.sid)
+                db.session.add(
+                    Message(chat_id=chat_id,
+                            author="assistant",
+                            ts=datetime.utcnow(),
+                            user_id=user_id)
+                )
 
-                options = [{"id": key, "label": value["label"]}
-                           for key, value in FAQ.items()]
-
+                options = [{"id": key, "label": value["label"]} for key, value in FAQ.items()]
                 if reps_are_online():
                     options.append({"id": "human", "label": "Connect me to a representative"})
                 else:
-                    emit("rep_msg",
-                         {"body": ("Our representatives are available 9 a.m.–6 p.m. ET, "
+                    off_msg = ("Our representatives are available 9 a.m.–6 p.m. ET, "
                                    "Monday–Friday. Feel free to leave a message "
                                    "and we’ll reach out via email typically within "
-                                   "the next business day."),
+                                   "the next business day.")
+                    emit("rep_msg",
+                         {"body": off_msg,
                           "author": "assistant",
                           "ts": datetime.utcnow().isoformat(timespec="seconds")},
                          room=request.sid)
+                    db.session.add(
+                        Message(chat_id=chat_id,
+                                author="assistant",
+                                body=off_msg,
+                                ts=datetime.utcnow(),
+                                user_id=user_id)
+                    )
 
                 emit("quick_options", {"options": options}, room=request.sid)
+                db.session.commit()
 
             history = (Message.query
                        .filter_by(chat_id=chat.id)
