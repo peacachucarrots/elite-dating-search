@@ -8,7 +8,8 @@ from .extensions import db
 def seed_roles():
     """Insert visitor / rep / admin rows if they’re missing."""
     default_roles = [
-        ("visitor", 10),
+        ("visitor", 0),
+        ("client",  10),
         ("rep",     20),
         ("admin",   30),
     ]
