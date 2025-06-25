@@ -1,4 +1,4 @@
-# app/__init__.py
+app/__init__.py
 """
 Application factory + blueprint registration.
 Call create_app() from run.py, tests, or your WSGI entry-point.

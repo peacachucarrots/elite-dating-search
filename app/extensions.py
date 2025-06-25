@@ -23,10 +23,14 @@ convention = {
     "pk":  "pk_%(table_name)s"
 }
 
-socketio = SocketIO(cors_allowed_origins="*")
+socketio = SocketIO(
+    cors_allowed_origins="*",
+    async_mode="gevent",
+    message_queue=os.getenv("SOCKETIO_REDIS")
+)
 db = SQLAlchemy(metadata=MetaData(naming_convention=convention))
 login_manager = LoginManager()
-login_manager.login_view = "auth.login"         # redirect for @login_required
+login_manager.login_view = "auth.login"
 login_manager.session_protection = "strong"
 migrate = Migrate()
 mail = Mail()

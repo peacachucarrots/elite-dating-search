@@ -24,6 +24,8 @@ services:
   redis:
     image: redis:7-alpine
     restart: always
+    environment:
+      - REDIS_URL=redis://redis:6379/0
 
   nginx:
     image: nginx:1.27-alpine
