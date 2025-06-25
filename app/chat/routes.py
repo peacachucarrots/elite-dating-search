@@ -36,7 +36,7 @@ def _create_session_for(user_id: int) -> ChatSession:
         .scalar()
     ) + 1
 
-    chat = ChatSession(user_id=user_id, seq=next_seq)
+    chat = ChatSession(user_id=user_id, socket_sid=socket_sid, seq=next_seq)
     db.session.add(chat)
     db.session.commit()
     return chat
@@ -180,7 +180,7 @@ def handle_connect(auth):
             )
 
             if chat is None:
-                chat = _create_session_for(user_id)
+                chat = _create_session_for(user_id, request.sid)
 
             SID_TO_SESSION[request.sid] = chat.id
 
