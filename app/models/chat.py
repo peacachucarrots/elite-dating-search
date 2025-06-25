@@ -6,13 +6,10 @@ from sqlalchemy.sql import func
 
 from ..extensions import db
 
-def _rand_id():
-    return secrets.token_urlsafe(12)
-
 class ChatSession(db.Model):
     __tablename__ = "chat_sessions"
 
-    id          = db.Column(db.Integer, primary_key=True, default=_rand_id)
+    id          = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id     = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     socket_sid  = db.Column(db.String(32), unique=True)
     seq         = db.Column(db.Integer, nullable=False)
