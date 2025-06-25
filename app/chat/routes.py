@@ -195,7 +195,7 @@ def handle_connect(auth):
                       "ts": datetime.utcnow().isoformat(timespec="seconds")},
                      room=request.sid)
                 db.session.add(
-                    Message(chat_id=chat_id,
+                    Message(chat_id=chat.id,
                             author="assistant",
                             ts=datetime.utcnow(),
                             user_id=user_id)
