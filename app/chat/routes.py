@@ -28,23 +28,23 @@ from . import bp
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
-def _get_session(visitor_sid) -> ChatSession:
-    sess = ChatSession.query.filter_by(id=visitor_sid).first()
-    if not sess:
-        sess = ChatSession(id=visitor_sid,
-                           visitor_id=current_user.get_id() if current_user.is_authenticated else None)
-        db.session.add(sess)
-        db.session.commit()
-    return sess
-
 def _create_session_for(user_id: int) -> ChatSession:
-    next_seq = (db.session.query(func.coalesce(func.max(ChatSession.seq), 0))
-                .filter_by(user_id=user_id)
-                .scalar()) + 1
+    """Create the *next* numbered session for this user."""
+    next_seq = (
+        db.session.query(func.coalesce(func.max(ChatSession.seq), 0))
+        .filter_by(user_id=user_id)
+        .scalar()
+    ) + 1
+
     chat = ChatSession(user_id=user_id, seq=next_seq)
     db.session.add(chat)
     db.session.commit()
     return chat
+
+def current_session_for_socket(sid: str) -> ChatSession | None:
+    """Look up the DB row that belongs to this socket."""
+    chat_id = SID_TO_SESSION.get(sid)
+    return ChatSession.query.get(chat_id) if chat_id else None
 
 def _display_name(user: User) -> str:
     """
@@ -146,7 +146,7 @@ WAITING_DESC: set[str]   = set()          # chose 'human' but no response yet
 # Socket.IO lifecycle
 # ---------------------------------------------------------------------------
 @socketio.on("connect")
-def handle_connect():
+def handle_connect(auth):
     if not current_user.is_authenticated:
         emit("system",
              {"body": "Please log in to use the chat.",
@@ -172,10 +172,12 @@ def handle_connect():
 
     match role:
         case "visitor":
-            chat = (ChatSession.query
-                    .filter_by(user_id=user_id, closed_at=None)
-                    .order_by(ChatSession.opened_at.desc())
-                    .first())
+            chat = (
+                ChatSession.query
+                .filter_by(user_id=user_id, closed_at=None)
+                .order_by(ChatSession.opened_at.desc())
+                .first()
+            )
 
             if chat is None:
                 chat = _create_session_for(user_id)
