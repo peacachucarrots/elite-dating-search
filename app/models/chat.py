@@ -14,6 +14,7 @@ class ChatSession(db.Model):
 
     id          = db.Column(db.Integer, primary_key=True, default=_rand_id)
     user_id     = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    socket_sid  = db.Column(db.String(32), unique=True)
     seq         = db.Column(db.Integer, nullable=False)
     opened_at   = db.Column(db.DateTime, default=datetime.utcnow)
     closed_at   = db.Column(db.DateTime, nullable=True)
