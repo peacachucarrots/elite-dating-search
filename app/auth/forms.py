@@ -36,10 +36,10 @@ class RegisterForm(FlaskForm):
                                          EqualTo("password", message="Passwords must match.")])
     first_name = StringField("First name", validators=[DataRequired()])
     last_name = StringField("Last name", validators=[DataRequired()])
-    phone = StringField("Mobile phone",
+    phone = StringField("Phone Number",
                         validators=[DataRequired(), Length(min=8, max=20)])
-    dob = DateField("Date of birth (YYYY-MM-DD)",
-                    validators=[DataRequired()], format="%Y-%m-%d")
+    dob = DateField("Date of birth (MM-DD-YYYY)",
+                    validators=[DataRequired()], format="%m-%d-%Y")
     gender = SelectField(
         "Gender",
         choices=[("male", "Male"), ("female", "Female"),
