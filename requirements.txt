@@ -1,12 +1,10 @@
 Flask==3.0.2
 gunicorn>=23.0
-gevent>=24.0
-gunicorn>=21.2.02
 gevent>=24.0.02
+python-socketio[gevent]
 psycopg[binary]>=3.1
 redis>=5.0
 flask-socketio
-eventlet
 pytest>=8
 
 # ─── new for authentication ───────────────────────────
