@@ -179,41 +179,57 @@ def handle_connect(auth):
                 .first()
             )
 
-            if chat is None:
+            now = datetime.utcnow()
+
+            created_new = chat is None  # <— flag
+            if created_new:
                 chat = _create_session_for(user_id, request.sid)
 
-            SID_TO_SESSION[request.sid] = chat.id
             VISITORS.add(request.sid)
-            join_room(request.sid)
 
-            emit("visitor_msg",
-                 {"body": "Hi! What can I help you with today?",
-                  "author": "assistant",
-                  "ts": datetime.utcnow().isoformat(timespec="seconds")},
-                 room=request.sid)
-
-            options = [{"id": key, "label": value["label"]}
-                       for key, value in FAQ.items()]
-
-            if reps_are_online():
-                options.append({"id": "human", "label": "Connect me to a representative"})
-            else:
-                emit("rep_msg",
-                     {"body": ("Our representatives are available 9 a.m.–6 p.m. ET, "
-                               "Monday–Friday. Feel free to leave a message "
-                               "and we’ll reach out via email typically within "
-                               "the next business day."),
+            if created_new:
+                greeting = "Hi! What can I help you with today?"
+                emit("visitor_msg",
+                     {"body": greeting,
                       "author": "assistant",
-                      "ts": datetime.utcnow().isoformat(timespec="seconds")},
+                      "ts": now.isoformat(timespec="seconds")},
                      room=request.sid)
 
-            emit("quick_options", {"options": options}, room=request.sid)
+                db.session.add(Message(chat_id=chat.id,
+                                       author="assistant",
+                                       body=greeting,
+                                       ts=now,
+                                       user_id=user_id))
 
-            history = (Message.query
-                       .filter_by(chat_id=chat.id)
-                       .order_by(Message.ts)
-                       .all())
+                if not reps_are_online():
+                    off_msg = ("Our representatives are available 9 a.m.–6 p.m. ET, "
+                               "Monday–Friday. Feel free to leave a message and we’ll "
+                               "reach out via email typically within the next business day.")
+                    emit("rep_msg",
+                         {"body": off_msg,
+                          "author": "assistant",
+                          "ts": now.isoformat(timespec="seconds")},
+                         room=request.sid)
 
+                    db.session.add(Message(chat_id=chat.id,
+                                           author="assistant",
+                                           body=off_msg,
+                                           ts=now,
+                                           user_id=user_id))
+
+                options = [{"id": k, "label": v["label"]} for k, v in FAQ.items()]
+                if reps_are_online():
+                    options.append({"id": "human", "label": "Connect me to a representative"})
+                emit("quick_options", {"options": options}, room=request.sid)
+
+                db.session.commit()
+
+            history = (
+                Message.query
+                .filter_by(chat_id=chat.id)
+                .order_by(Message.ts)
+                .all()
+            )
             for m in history:
                 emit("visitor_msg",
                      {"body": m.body,
