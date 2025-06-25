@@ -28,7 +28,7 @@ from . import bp
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
-def _create_session_for(user_id: int) -> ChatSession:
+def _create_session_for(user_id: int, socket_sid: str) -> ChatSession:
     """Create the *next* numbered session for this user."""
     next_seq = (
         db.session.query(func.coalesce(func.max(ChatSession.seq), 0))
