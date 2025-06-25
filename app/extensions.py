@@ -26,7 +26,7 @@ convention = {
 socketio = SocketIO(
     cors_allowed_origins="*",
     async_mode="gevent",
-    message_queue=os.getenv("SOCKETIO_REDIS")
+    message_queue=os.getenv("REDIS_URL")
 )
 db = SQLAlchemy(metadata=MetaData(naming_convention=convention))
 login_manager = LoginManager()
