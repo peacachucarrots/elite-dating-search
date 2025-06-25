@@ -212,23 +212,23 @@ def handle_connect(auth):
 
                 emit("quick_options", {"options": options}, room=request.sid)
 
-                history = (Message.query
-                           .filter_by(chat_id=chat.id)
-                           .order_by(Message.ts)
-                           .all())
+            history = (Message.query
+                       .filter_by(chat_id=chat.id)
+                       .order_by(Message.ts)
+                       .all())
 
-                for m in history:
-                    emit("visitor_msg",
-                         {"body": m.body,
-                          "author": m.author,
-                          "ts": m.ts.isoformat()},
-                         room=request.sid)
+            for m in history:
+                emit("visitor_msg",
+                     {"body": m.body,
+                      "author": m.author,
+                      "ts": m.ts.isoformat()},
+                     room=request.sid)
 
-                emit("visitor_online",
-                     {"sid": request.sid, "username": display_name},
-                     room="reps")
-                current_app.logger.debug("+++ Visitor connected", display_name)
-                return
+            emit("visitor_online",
+                 {"sid": request.sid, "username": display_name},
+                 room="reps")
+            current_app.logger.debug("+++ Visitor connected", display_name)
+            return
         case "rep":
             if not current_user.has_role("rep"):
                 emit("system", "You are not authorized as a representative.")
