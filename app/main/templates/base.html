@@ -40,6 +40,8 @@
       href="{{ url_for('chat.static', filename='css/chat_global.css') }}">
   <link rel="stylesheet"
       href="{{ url_for('main.static', filename='css/site.css') }}">
+  <link rel="stylesheet"
+  		href="{{ url_for('main.static', filename='css/navbar.css') }}">
 
   {# ---------- Extra head assets ------------------------------ #}
   {% block extra_head %}{% endblock %}
@@ -90,7 +92,9 @@
   <script defer type="module"
   			src="{{ url_for('static', filename='js/chat_common.js') }}"></script>
   <script defer type="module"
-  					src="{{ url_for('chat.static', filename='js/live_chat.js') }}"></script>
+  			src="{{ url_for('chat.static', filename='js/live_chat.js') }}"></script>
+  <script defer
+     		src="{{ url_for('main.static', filename='js/navbar.js') }}"></script>
 
   {# ---------- Extra JS --------------------------------------- #}
   {% block extra_js %}
