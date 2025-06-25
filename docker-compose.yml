@@ -8,6 +8,8 @@ services:
               -b 0.0.0.0:8000 wsgi:app
     env_file: .env
     depends_on: [db, redis]
+    environment:
+      - REDIS_URL=redis://redis:6379/0
     ports:
       - "8000:8000"
 
@@ -24,8 +26,6 @@ services:
   redis:
     image: redis:7-alpine
     restart: always
-    environment:
-      - REDIS_URL=redis://redis:6379/0
 
   nginx:
     image: nginx:1.27-alpine
