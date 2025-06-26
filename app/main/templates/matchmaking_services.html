@@ -95,7 +95,7 @@ EliteDatingSearch offers three tiered matchmaking programs—each led by a dedic
           Premium, fee-based search with nationwide sourcing, up to 12 curated
           introductions, and six months of personalized guidance.
         </p>
-        <a href="/client-program"
+        <a href="{{ url_for ('program.client') }}"
            class="btn btn-primary mt-6 self-start">Become A Client</a>
       </article>
     
@@ -107,9 +107,9 @@ EliteDatingSearch offers three tiered matchmaking programs—each led by a dedic
         </h3>
         <p class="flex-grow">
           Join our confidential database of relationship-minded singles at no
-          cost. Be considered for introductions to EliteDatingSearch clients.
+          cost. Be considered for introductions to other EliteDatingSearch candidates.
         </p>
-        <a href="/candidate-program"
+        <a href="{{ url_for ('program.candidate') }}"
            class="btn btn-primary mt-6 self-start">Become A Candidate</a>
       </article>
     
@@ -122,7 +122,8 @@ EliteDatingSearch offers three tiered matchmaking programs—each led by a dedic
   <h2 class="text-3xl font-serif mb-6">
     Unsure which program is for you?
   </h2>
-  Leave us a live chat and we'll be in touch with you shortly!
+  Leave us a live chat or send us a message directly to our email!
+  <a href="{{ url_for ('main.static', filename='contact.html') }}"
 </section>
 
 {% endblock %}
