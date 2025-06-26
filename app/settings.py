@@ -26,12 +26,11 @@ class Base:
     SESSION_COOKIE_SAMESITE    = "Lax"
     SEND_FILE_MAX_AGE_DEFAULT  = 60 * 60
 
-    # ── Flask-SQLAlchemy ───────────────────────────────────────────────────
-    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI_DEV")
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # ── Flask Rate-Limiter ───────────────────────────────────────────────────
+    RATELIMIT_DEFAULT = "10/minute"
 
-    # ── Flask-SocketIO ──────────────────────────────
-    SOCKETIO_MESSAGE_QUEUE     = os.environ.get("REDIS_URL")
+    # ── Flask-SQLAlchemy ───────────────────────────────────────────────────
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # ── Mail (Flask-Mail) ────────────────────────────────────
     MAIL_SERVER = os.environ.get("MAIL_SERVER")
@@ -61,11 +60,9 @@ class Dev(Base):
     DEBUG  = True
     TESTING = False
 
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DEV_DATABASE_URI",
-        f"sqlite:///{BASE_DIR / 'dev.db'}"
-    )
-
+    SOCKETIO_ASYNC_MODE = os.environ.get("SOCKETIO_ASYNC_MODE")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    RATELIMIT_STORAGE_URI = os.environ.get("RATELIMIT_STORAGE_URI")
     SQLALCHEMY_ECHO = True
 
 
@@ -89,3 +86,11 @@ class Prod(Base):
     SESSION_COOKIE_SECURE = True
     REMEMBER_COOKIE_SECURE = True
     PREFERRED_URL_SCHEME = "https"
+
+    # ── Flask-SocketIO ──────────────────────────────
+    SOCKETIO_MESSAGE_QUEUE = os.environ.get("SOCKETIO_MESSAGE_QUEUE")
+    SOCKETIO_ASYNC_MODE = os.environ.get("SOCKETIO_ASYNC_MODE")
+
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    RATELIMIT_STORAGE_URI = os.environ.get("LIMITER_STORAGE_URI")
+

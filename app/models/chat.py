@@ -1,7 +1,5 @@
 # app/models/chat.py
-import secrets
 from datetime import datetime
-from time import timezone
 from sqlalchemy.sql import func
 
 from ..extensions import db
@@ -37,7 +35,7 @@ class Message(db.Model):
     __tablename__ = "messages"
 
     id      = db.Column(db.Integer, primary_key=True)
-    author  = db.Column(db.String(8), nullable=False)
+    author  = db.Column(db.String(10), nullable=False)
     body    = db.Column(db.Text, nullable=False)
     ts      = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
 

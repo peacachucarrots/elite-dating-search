@@ -23,11 +23,7 @@ convention = {
     "pk":  "pk_%(table_name)s"
 }
 
-socketio = SocketIO(
-    cors_allowed_origins="*",
-    async_mode="gevent",
-    message_queue=os.getenv("REDIS_URL")
-)
+socketio = SocketIO(cors_allowed_origins="*")
 db = SQLAlchemy(metadata=MetaData(naming_convention=convention))
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
@@ -38,13 +34,7 @@ csrf = CSRFProtect()
 limiter = Limiter(key_func=get_remote_address, storage_uri=os.environ.get("LIMITER_STORAGE_URI"))
 
 # ----------------------------------------------------------------------
-# Ready for future extensions — just uncomment / install when needed.
+# Ready for future extensions
 # ----------------------------------------------------------------------
-# from flask_sqlalchemy import SQLAlchemy
-# db = SQLAlchemy()
-#
-# from flask_migrate import Migrate
-# migrate = Migrate()
-#
 # from flask_bcrypt import Bcrypt
 # bcrypt = Bcrypt()

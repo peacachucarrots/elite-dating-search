@@ -12,7 +12,7 @@ env/
 venv/
 
 # Environment / secrets
-.env         # where you'll keep SECRET_KEY, DB_URL, mail creds, etc.
+.env*         # where you'll keep SECRET_KEY, DB_URL, mail creds, etc.
 
 # Databases & migrations
 *.sqlite3
@@ -23,3 +23,4 @@ migrations/**/versions/*.pyc
 .DS_Store
 .idea/
 .vscode/sendgrid.env
+sendgrid.env

@@ -8,7 +8,7 @@
 }
 
 /* —— Typography —— */
-.contact-title {
+.contact-heading {
   font-size: 1.875rem;
   line-height: 2.25rem;
   font-weight: 700;
@@ -21,7 +21,7 @@
 }
 
 /* —— Flash message banner —— */
-.flash-msg {
+.flash-message {
   background-color: #d1fae5; /* emerald‑100 */
   border: 1px solid #6ee7b7; /* emerald‑300 */
   padding: 1rem;

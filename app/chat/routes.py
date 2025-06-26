@@ -277,7 +277,7 @@ def handle_connect(auth):
             current_app.logger.debug("+++ Unknown Role connected", request.sid)
 
 @socketio.on("disconnect")
-def handle_disconnect():
+def handle_disconnect(auth):
     sid = request.sid
     timestamp = datetime.utcnow().isoformat(timespec="seconds")
 
