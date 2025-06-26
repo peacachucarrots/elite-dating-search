@@ -248,6 +248,11 @@ def handle_connect(auth):
             if not current_user.has_role("rep"):
                 emit("system", "You are not authorized as a representative.")
                 return
+            emit("visitor_msg",
+                 {"body": "Looking to chat? Tap the Rep Dashboard in the top right for a more comprehensive view.",
+                        "author": "assistant",
+                        "ts": datetime.utcnow()},
+                        room=request.sid)
             REPS.add(request.sid)
             join_room("reps")
             current_app.logger.debug("+++ REP connected", display_name)
@@ -256,6 +261,11 @@ def handle_connect(auth):
             if not current_user.has_role("admin"):
                 emit("system", "You are not authorized as an admin.")
                 return
+            emit("visitor_msg",
+                 {"body": f"Welcome Admin {current_user.first_name}",
+                  "author": "assistant",
+                  "ts": datetime.utcnow()},
+                 room=request.sid)
             current_app.logger.debug("+++ Admin connected", display_name)
             return
         case _:
