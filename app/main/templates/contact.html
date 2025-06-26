@@ -1,33 +1,32 @@
 {% extends "base.html" %}
-
 {% block title %}Contact Us | EliteDatingSearch{% endblock %}
 
 {% block content %}
-<section class="prose mx-auto max-w-2xl py-8">
-  <h1 class="text-3xl font-bold mb-6">Get in Touch</h1>
-  <p class="mb-6 text-gray-600">Have a question about membership, coaching, or your account? Send us a message and a member of our team will respond as soon as possible.</p>
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/contact.css') }}">
+
+<section class="contact-wrapper">
+  <h1 class="contact-heading">Get in Touch</h1>
+  <p class="contact-intro">Have a question about membership, coaching, or your account? Send us a message and a member of our team will respond as soon as possible.</p>
 
   {# Flash message placeholder #}
   {% with msgs = get_flashed_messages() %}
     {% if msgs %}
-      <div class="bg-green-100 border border-green-300 rounded-lg p-4 mb-6">
-        {{ msgs[0] }}
-      </div>
+      <div class="flash-message">{{ msgs[0] }}</div>
     {% endif %}
   {% endwith %}
 
-<form action="{{ url_for('main.contact') }}" method="POST" class="space-y-6">
+	<form action="{{ url_for('main.contact') }}" method="POST" class="contact-form">
     {{ form.hidden_tag() }}
 
     {{ form.ts() }}
-    {{ form.website(class_="hidden") }}
-
-    {{ form.name.label }}  {{ form.name(class="w-full ...") }}
-    {{ form.email.label }} {{ form.email(class="w-full ...") }}
-    {{ form.subject.label }}{{ form.subject(class="w-full ...") }}
-    {{ form.message.label }}{{ form.message(rows=6, class="w-full ...") }}
-
-    <button …>Send Message</button>
-</form>
+    {{ form.website(class="hidden") }}
+    
+    <label class="field-label">{{ form.name.label }} {{ form.name(class="field-input") }}</label>
+    <label class="field-label">{{ form.email.label }} {{ form.email(class="field-label") }}</label>
+    <label class="field-label">{{ form.subject.label }} {{ form.subject(class="field-input") }}</label>
+    <label class="field-label">{{ form.message.label }} {{ form.message(rows=6, class="field-inptut") }}</label>
+    
+    <button type="submit" class="submit-btn">Send Message</button>
+	</form>
 </section>
 {% endblock %}
