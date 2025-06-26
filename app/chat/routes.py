@@ -171,6 +171,7 @@ def handle_connect(auth):
 
     SID_TO_USER[request.sid] = user_id
     SID_TO_NAME[request.sid] = display_name
+    now = datetime.utcnow()
 
     match role:
         case "visitor" | "client":
@@ -180,8 +181,6 @@ def handle_connect(auth):
                 .order_by(ChatSession.opened_at.desc())
                 .first()
             )
-
-            now = datetime.utcnow()
 
             created_new = chat is None
             if created_new:
@@ -251,7 +250,7 @@ def handle_connect(auth):
             emit("visitor_msg",
                  {"body": "Looking to chat? Tap the Rep Dashboard in the top right for a more comprehensive view.",
                         "author": "assistant",
-                        "ts": datetime.utcnow()},
+                        "ts": now.isoformat(timespec="seconds")},
                         room=request.sid)
             REPS.add(request.sid)
             join_room("reps")
@@ -262,9 +261,9 @@ def handle_connect(auth):
                 emit("system", "You are not authorized as an admin.")
                 return
             emit("visitor_msg",
-                 {"body": f"Welcome Admin {current_user.display_name}!",
+                 {"body": f"Welcome Admin {current_user.profile.first_name}!",
                   "author": "assistant",
-                  "ts": datetime.utcnow()},
+                  "ts": now.isoformat(timespec="seconds")},
                  room=request.sid)
             current_app.logger.debug("+++ Admin connected", display_name)
             return
