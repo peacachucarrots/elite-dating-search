@@ -226,18 +226,19 @@ def handle_connect(auth):
 
                 db.session.commit()
 
-            history = (
-                Message.query
-                .filter_by(chat_id=chat.id)
-                .order_by(Message.ts)
-                .all()
-            )
-            for m in history:
-                emit("visitor_msg",
-                     {"body": m.body,
-                      "author": m.author,
-                      "ts": m.ts.isoformat()},
-                     room=request.sid)
+            else:
+                history = (
+                    Message.query
+                    .filter_by(chat_id=chat.id)
+                    .order_by(Message.ts)
+                    .all()
+                )
+                for m in history:
+                    emit("visitor_msg",
+                         {"body": m.body,
+                          "author": m.author,
+                          "ts": m.ts.isoformat()},
+                         room=request.sid)
 
             emit("visitor_online",
                  {"sid": request.sid, "username": display_name},
