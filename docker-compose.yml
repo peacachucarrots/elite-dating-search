@@ -50,7 +50,7 @@ services:
 
 secrets:
   pg_password:
-    file: ./docker-secrets/pg_password.txt
+    file: /home/deploy/docker-secrets/pg_password.txt
 
 volumes:
   pgdata:
