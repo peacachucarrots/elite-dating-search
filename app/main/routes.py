@@ -59,7 +59,7 @@ def terms():
     return render_template("legal/terms.html")
 
 @bp.route("/contact", methods=["GET", "POST"])
-@limiter.limit('1/minute;3/day')
+@limiter.limit('2/minute;10/day')
 def contact():
     form = ContactForm()
     if request.method == "GET":
