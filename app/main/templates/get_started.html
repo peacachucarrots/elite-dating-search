@@ -1,4 +1,4 @@
-{# flask_app/templates/get_started.html #}
+{# main/templates/get_started.html #}
 {% extends "base.html" %}
 
 {% block title %}Get Started – Elite Dating Search{% endblock %}
@@ -6,7 +6,7 @@
 Speak with a dedicated matchmaker and design a bespoke search for your last first date.
 {% endblock %}
 
-{# ───────────────────── HERO ───────────────────── #}
+{# ─────────────────── HERO ─────────────────── #}
 {% block hero %}
 <section class="relative h-[45vh] md:h-[55vh] w-full overflow-hidden">
   <img src="{{ url_for('static', filename='img/get-started/hero_get_started.jpg') }}"
@@ -23,7 +23,7 @@ Speak with a dedicated matchmaker and design a bespoke search for your last firs
 {% endblock %}
 
 {% block content %}
-{# ───────────── INTRO COPY ───────────── #}
+{# ───────────────── INTRO COPY ───────────────── #}
 <section class="py-16 bg-white">
   <div class="container mx-auto px-6 max-w-3xl text-center">
     <h2 class="text-3xl font-semibold mb-6">Your Last First Date Begins Here</h2>
@@ -63,7 +63,7 @@ Speak with a dedicated matchmaker and design a bespoke search for your last firs
           Executive-search<br>methodology
         </p>
       </div>
-
+    
       <!-- Data-driven compatibility -->
       <div class="flex flex-col items-center text-center">
         <svg class="w-12 h-12 text-black" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -75,7 +75,7 @@ Speak with a dedicated matchmaker and design a bespoke search for your last firs
           Neuroscience-backed<br>compatibility profiling
         </p>
       </div>
-
+    
       <!-- White-glove concierge -->
       <div class="flex flex-col items-center text-center">
         <svg class="w-12 h-12 text-black" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -87,7 +87,7 @@ Speak with a dedicated matchmaker and design a bespoke search for your last firs
           White-glove concierge<br>and coaching
         </p>
       </div>
-
+    
       <!-- Discreet & private -->
       <div class="flex flex-col items-center text-center">
         <svg class="w-12 h-12 text-black" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -99,11 +99,8 @@ Speak with a dedicated matchmaker and design a bespoke search for your last firs
           100% discreet, private<br>introductions
         </p>
       </div>
-
+    
     </div>
   </div>
 </section>
-
-{# ───────────── Contact Information (elegant) ───────────── #}
-{% include 'partials/contact_form.html' %}
 {% endblock %}
