@@ -160,6 +160,8 @@ def handle_connect(auth):
         role = "admin"
     elif current_user.has_role("rep"):
         role = "rep"
+    elif current_user.has_role("client"):
+        role = "client"
     else:
         role = "visitor"
     ALIVE.add(request.sid)
@@ -171,7 +173,7 @@ def handle_connect(auth):
     SID_TO_NAME[request.sid] = display_name
 
     match role:
-        case "visitor":
+        case "visitor" | "client":
             chat = (
                 ChatSession.query
                 .filter_by(user_id=user_id, closed_at=None)
@@ -181,7 +183,7 @@ def handle_connect(auth):
 
             now = datetime.utcnow()
 
-            created_new = chat is None  # <— flag
+            created_new = chat is None
             if created_new:
                 chat = _create_session_for(user_id, request.sid)
 
@@ -240,7 +242,7 @@ def handle_connect(auth):
             emit("visitor_online",
                  {"sid": request.sid, "username": display_name},
                  room="reps")
-            current_app.logger.debug("+++ Visitor connected", display_name)
+            current_app.logger.debug("+++ Visitor/Client connected", display_name)
             return
         case "rep":
             if not current_user.has_role("rep"):
@@ -249,6 +251,12 @@ def handle_connect(auth):
             REPS.add(request.sid)
             join_room("reps")
             current_app.logger.debug("+++ REP connected", display_name)
+            return
+        case "admin":
+            if not current_user.has_role("admin"):
+                emit("system", "You are not authorized as an admin.")
+                return
+            current_app.logger.debug("+++ Admin connected", display_name)
             return
         case _:
             current_app.logger.debug(f"!!! Unknown role '{role}' for SID {request.sid}. Treating as a visitor...")
