@@ -262,7 +262,7 @@ def handle_connect(auth):
                 emit("system", "You are not authorized as an admin.")
                 return
             emit("visitor_msg",
-                 {"body": f"Welcome Admin {current_user.first_name}",
+                 {"body": f"Welcome Admin {current_user.display_name}!",
                   "author": "assistant",
                   "ts": datetime.utcnow()},
                  room=request.sid)
