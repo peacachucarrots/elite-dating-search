@@ -186,6 +186,7 @@ def handle_connect(auth):
             if created_new:
                 chat = _create_session_for(user_id, request.sid)
 
+            SID_TO_SESSION[request.sid] = chat.id
             VISITORS.add(request.sid)
 
             if created_new:
