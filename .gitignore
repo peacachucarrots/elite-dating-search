@@ -24,3 +24,4 @@ migrations/**/versions/*.pyc
 .idea/
 .vscode/sendgrid.env
 sendgrid.env
+.env*
