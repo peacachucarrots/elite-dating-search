@@ -8,8 +8,8 @@ services:
                --timeout 90 --keep-alive 5
                -b 0.0.0.0:8000 wsgi:app
     env_file:
-      - .env
-      - .env.prod
+      - /home/deploy/env-files/.env
+      - /home/deploy/env-files/.env.prod
     environment:
       DATABASE_URL: /run/secrets/pg_password
       REDIS_URL: redis://redis:6379/0
