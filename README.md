@@ -9,18 +9,17 @@ representatives.
 - **Real-time visitor → representative chat** (WebSockets).
 - Reps see *Active Visitors* and *New Chats* queues.
 - System messages & typing indicators.
-- In-memory matchmaking; pluggable for database later.
-- Container-ready (`docker compose up`) with Eventlet web server.
+- Container-ready with gevent web server.
 
 ---
 
 ## Tech Stack
 | Layer | Tech |
 |-------|------|
-| Backend | Flask 2, Flask-SocketIO 5 (Eventlet) |
-| Frontend | Vanilla JS, TailwindCSS |
+| Backend | Flask 2, Flask-SocketIO (gevent) |
+| Frontend | CSS, JS |
 | Testing | Pytest + Flask-SocketIO’s test client |
-| Deployment | Docker, Gunicorn-eventlet |
+| Deployment | Docker, Gunicorn |
 
 ---
 
@@ -32,4 +31,4 @@ python 3.12+
 git
 # optional: Docker 24+ for container workflow
 
-> **TODO:** Before launch, switch Flask-Mail creds to no-reply@elitedatingsearch.com through SendGrid/Postmark/SES and publish SPF + DKIM records.
+> **TODO:**
