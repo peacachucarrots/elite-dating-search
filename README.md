@@ -1,7 +1,7 @@
 # Elite Dating Search – Real-time Concierge Chat
 
 A Flask + Socket.IO web app that lets high-end dating clients chat with live
-representatives instantly—no signup, no page reloads.
+representatives.
 
 ---
 
