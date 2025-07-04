@@ -22,14 +22,16 @@
         content="{% block description %}{{ default_description }}{% endblock %}">
 
   {# ---------- Open-Graph tags -------------------------------- #}
-  <meta property="og:type"        content="website">
+  <meta property="og:type"
+        content="website">
   <meta property="og:title"
         content="{% block og_title %}{{ self.title()|striptags }}{% endblock %}">
   <meta property="og:description"
         content="{% block og_desc %}{{ self.description()|striptags }}{% endblock %}">
   <meta property="og:image"
         content="{{ url_for('main.static', filename='img/og-default.jpg') }}">
-  <meta property="og:url"         content="{{ request.url }}">
+  <meta property="og:url"         
+        content="{{ request.url }}">
 
   {# ---------- Favicons --------------------------------------- #}
   <link rel="icon" type="image/png" sizes="32x32"
@@ -54,7 +56,7 @@
   {% include "partials/navbar.html" with context %}
 {% endblock %}
 
-  {% block hero %}{% endblock %}
+{% block hero %}{% endblock %}
 
 {% set on_homepage = request.endpoint == 'main.index' %}
   <main id="main-content" class="flex-1 {{ 'pt-16' if (add_nav_padding and not on_homepage) else '' }}">
@@ -70,7 +72,7 @@
         style="
           position: fixed;
           right: 1rem; bottom: 1rem;
-          background: #2563eb;        /* Tailwind 'blue-600' */
+          background: #2563eb;
           color: white;
           padding: .5rem 1rem;
           border-radius: .5rem;

@@ -1,274 +1,137 @@
-{# main/templates/index.html #}
+{# templates/index.html #}
 {% extends "base.html" %}
-
 {% block title %}Elite Dating Search{% endblock %}
 {% block description %}
 EliteDatingSearch pairs high-achieving singles with equally exceptional partners through discreet, data-driven matchmaking.
 {% endblock %}
 
 {% block content %}
-<!-- ─────────────────────  HERO  ───────────────────── -->
-<section
-  class="relative flex flex-col items-center justify-center
-         text-white min-h-[85vh] md:min-h-screen
-         py-24 md:py-32 overflow-hidden">
+<link  rel="stylesheet"
+       href="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/css/glide.core.min.css">
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/index.css') }}">
+<!-- ─────────── HERO ─────────── -->
+<section id="hero" class="hero">
+  <video class="hero__video"
+         src="{{ url_for('main.static', filename='videos/hero-ultrawide.mp4') }}"
+         autoplay muted loop playsinline
+         poster="{{ url_for('main.static', filename='img/hero.jpg') }}"></video>
+  <div class="hero__overlay"></div>
 
-  <!-- video background (fills the section) -->
-  <video
-    class="absolute inset-0 w-full h-full object-cover pointer-events-none"
-    src="{{ url_for('main.static', filename='videos/hero-ultrawide.mp4') }}"
-    autoplay
-    muted
-    loop
-    playsinline
-    poster="{{ url_for('main.static', filename='img/hero.jpg') }}">
-  </video>
+  <div class="hero__inner">
+    <object id="heroSignature"
+            data="{{ url_for('main.static', filename='img/hero-signature.svg') }}"
+            type="image/svg+xml" class="hero__logo">
+      Elite Dating Search logo
+    </object>
 
-  <!-- darken the video for legibility -->
-  <div class="absolute inset-0 bg-black/50"></div>
-
-  <!-- content stack -->
-  <div class="relative z-10 w-full max-w-5xl px-4">
-
-    <!-- centred signature -->
-   <object id="heroSignature"
-         data="{{ url_for('main.static', filename='img/hero-signature.svg') }}"
-         type="image/svg+xml"
-         class="pointer-events-none select-none">
-     Elite Dating Search logo
-   </object>
-
-    <!-- blurb + CTA -->
-    <div class="text-white p-8 mt-8 text-center">
-    <h2 class="text-3xl font-semibold mb-4">
-    You deserve exellence in all aspects of your life, including love.
-    </h2>
-      <p class="mb-6">
-        Our qualified matchmakers are committed to helping happy, successful people who respect their privacy and time form enduring, meaningful relationships. Let EliteDatingSearch’s experts lead the way.
+    <div class="hero__blurb">
+      <h2>You deserve excellence in all aspects of your life, including love.</h2>
+      <p>
+        Our qualified matchmakers are committed to helping happy, successful people who respect their privacy and time
+        form enduring, meaningful relationships. Let Elite&nbsp;Dating&nbsp;Search’s experts lead the way.
       </p>
-      <a href="/matchmaking-services" class="btn btn-primary">
-        Explore Our Services
-      </a>
+      <a href="/matchmaking-services" class="btn btn-primary">Explore Our Services</a>
     </div>
   </div>
 </section>
 
-<!-- ─────────── WHY ELITE DATING SEARCH ─────────── -->
-<section id="why-us" class="bg-white text-black py-16 lg:py-24 opacity-0" data-animate="fade-up" delay="2">
-  <div class="max-w-7xl mx-auto px-6 lg:px-8 grid gap-10">
-    <!-- title -->
-    <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight text-center">
-      As the nation’s premier matchmaking company, we lead the industry in achieving results for our clients.
-    </h2>
+<!-- ───────── WHY EDS ───────── -->
+<section id="why-us" class="why">
+  <h2>As the nations premier matchmaking company, we lead the industry in achieving results for our clients.</h2>
 
-    <!-- differentiators grid -->
-    <div class="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-      <!-- 1 · White-Glove Concierge -->
-  <div class="flex flex-col items-center text-center opacity-0" data-animate="fade-up" data-delay="1">
-    <!-- handshake icon -->
-    <svg class="w-12 h-12 text-[#d4af37]" fill="none" stroke="currentColor" stroke-width="1.8"
-         viewBox="0 0 24 24" aria-hidden="true">
-      <path stroke-linecap="round" stroke-linejoin="round"
-            d="M3 15l5-5m0 0l4 4m-4-4v12M21 9l-5 5m0 0l-4-4m4 4V3" />
-    </svg>
-    <p class="mt-4 font-medium leading-snug">
-      White-glove concierge<br>
-      from first hello to exclusivity
-    </p>
+  <div class="why__grid">
+    <article class="why__item" data-animate="fade-up" data-delay="1">
+      {% include "icons/handshake.svg" %}
+      <p>White-glove concierge<br>from first hello to exclusivity</p>
+    </article>
+
+    <article class="why__item" data-animate="fade-up" data-delay="2">
+      {% include "icons/brain-chip.svg" %}
+      <p>48-point psychometric &amp;<br>lifestyle compatibility model</p>
+    </article>
+
+    <article class="why__item" data-animate="fade-up" data-delay="3">
+      {% include "icons/checkmark.svg" %}
+      <p>Executive-search methodology<br>(rigorous vetting + NDAs)</p>
+    </article>
+
+    <article class="why__item" data-animate="fade-up" data-delay="4">
+      {% include "icons/clock.svg" %}
+      <p>Neuroscience-backed<br>compatibility profiling</p>
+    </article>
   </div>
+</section>
 
-  <!-- 2 · 48-Point Data Blueprint -->
-  <div class="flex flex-col items-center text-center opacity-0" data-animate="fade-up" data-delay="2">
-    <!-- brain / chip icon -->
-    <svg class="w-12 h-12 text-[#d4af37]" fill="none" stroke="currentColor" stroke-width="1.8"
-         viewBox="0 0 24 24" aria-hidden="true">
-      <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9 9h6v6H9z" />
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-    </svg>
-    <p class="mt-4 font-medium leading-snug">
-      48-point psychometric &amp;<br>lifestyle compatibility model
-    </p>
-  </div>
+<!-- ───────── TESTIMONIALS ───────── -->
+<section id="testimonials" class="testimonials">
+  <h2>Client&nbsp;Love&nbsp;Stories</h2>
 
-      <!-- 3 ▸ exec-search rigor -->
-      <div class="flex flex-col items-center text-center opacity-0" data-animate="fade-up" data-delay="3">
-        <svg class="w-12 h-12 text-[#d4af37]" fill="none" stroke="currentColor" stroke-width="1.8"
-             viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M5 13l4 4L19 7"/>
-        </svg>
-        <p class="mt-4 font-medium leading-snug">
-          Executive-search methodology<br>(rigorous vetting&nbsp;+&nbsp;NDAs)
-        </p>
-      </div>
-    
-      <!-- 4 ▸ science-based matching -->
-      <div class="flex flex-col items-center text-center opacity-0" data-animate="fade-up" data-delay="4">
-        <svg class="w-12 h-12 text-[#d4af37]" fill="none" stroke="currentColor" stroke-width="1.8"
-             viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="9"/>
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 6v6l4 2"/>
-        </svg>
-        <p class="mt-4 font-medium leading-snug">
-          Neuroscience-backed<br>compatibility profiling
-        </p>
-      </div>
+  <div class="glide glide--testimonials carousel">
+    <div class="glide__track" data-glide-el="track">
+      <ul class="glide__slides">
+        {% for t in testimonials %}
+          <li class="glide__slide flex flex-col lg:flex-row items-center gap-8">
+            <img src="{{ url_for('main.static', filename='img/clients/' ~ t.image) }}"
+                 alt="{{ t.name }}" />
+            <blockquote>
+              <p>{{ t.quote|safe }}</p>
+              <footer>— {{ t.name }}</footer>
+            </blockquote>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
   </div>
 </section>
 
-<!-- ───────── TESTIMONIAL CAROUSEL ───────── -->
-<section id="testimonials" class="bg-[#E24767] text-white">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+<!-- ───────── LESSONS IN LOVE ───────── -->
+<section id="lessons" class="lessons">
+  <header>
+    <h2>Lessons&nbsp;In&nbsp;Love</h2>
+    <p>Insights from the nations leading executive-matchmaking team</p>
+  </header>
 
-    <h2 class="text-3xl lg:text-4xl font-semibold mb-10">
-      Client&nbsp;Love&nbsp;Stories
-    </h2>
-    <!-- Glide core -->
-    <div class="glide" data-testid="testimonial-glide">
-      <div class="glide__track" data-glide-el="track">
-        <ul class="glide__slides">
-    
-          <!-- Slide 1 -->
-          <li class="glide__slide flex flex-col lg:flex-row items-center gap-8">
-            <img src="{{ url_for('main.static', filename='img/clients/dave-rebecca.jpg') }}"
-                 alt="Dave and Rebecca"
-                 class="w-full sm:w-2/3 lg:w-1/3 rounded-2xl shadow-lg object-cover">
-            <blockquote class="max-w-xl italic font-light">
-              <p class="text-lg sm:text-xl leading-relaxed">
-                “I can honestly say that I have never been happier in my life.
-                How can I put a price on finding someone I may spend the rest of my life with?
-                I would recommend <span class="font-semibold text-[#d4af37]">Elite&nbsp;Dating&nbsp;Search</span>
-                to anyone committed to finding their last first date!”
-              </p>
-              <footer class="mt-4 font-semibold">— Dave & Rebecca</footer>
-            </blockquote>
-          </li>
-    
-          <!-- Slide 2 -->
-          <li class="glide__slide flex flex-col lg:flex-row items-center gap-8">
-            <img src="{{ url_for('main.static', filename='img/clients/alex-samantha.jpg') }}"
-                 alt="Alex and Samantha"
-                 class="w-full sm:w-2/3 lg:w-1/3 rounded-2xl shadow-lg object-cover">
-            <blockquote class="max-w-xl italic font-light">
-              <p class="text-lg sm:text-xl leading-relaxed">
-                “Elite Dating Search understood my hectic executive schedule and still found me
-                someone who challenges and inspires me every day.”
-              </p>
-              <footer class="mt-4 font-semibold">— Alex & Samantha</footer>
-            </blockquote>
-          </li>
-    
-          <!-- Slide 3 -->
-          <li class="glide__slide flex flex-col lg:flex-row items-center gap-8">
-            <img src="{{ url_for('main.static', filename='img/clients/maria-julio.jpg') }}"
-                 alt="Maria and Julio"
-                 class="w-full sm:w-2/3 lg:w-1/3 rounded-2xl shadow-lg object-cover">
-            <blockquote class="max-w-xl italic font-light">
-              <p class="text-lg sm:text-xl leading-relaxed">
-                “Dating with intention changed everything. We were engaged
-                nine months after our first date—thank you <span class="font-semibold text-[#d4af37]">EDS</span>!”
-              </p>
-              <footer class="mt-4 font-semibold">— Maria & Julio</footer>
-            </blockquote>
-          </li>
-    
-          <!-- …add more <li> slides as you collect stories -->
-        </ul>
-      </div>
-    
-      <!-- Navigation dots -->
-      <div class="glide__bullets mt-8" data-glide-el="controls[nav]">
-        <button class="glide__bullet" data-glide-dir="=0"></button>
-        <button class="glide__bullet" data-glide-dir="=1"></button>
-        <button class="glide__bullet" data-glide-dir="=2"></button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ───────── LESSONS IN LOVE  ───────── -->
-<section id="lessons" class="py-20 px-4">
-  <div class="max-w-7xl mx-auto">
-
-    <!-- Heading -->
-    <h2 class="text-center text-3xl md:text-4xl font-serif tracking-tight">
-      Lessons&nbsp;In&nbsp;Love
-    </h2>
-    <p class="mt-3 text-center text-base md:text-lg text-gray-700">
-      Insights from the nation’s leading executive-matchmaking team
-    </p>
-    
-    <!-- Carousel -->
-    <div class="glide mt-12">
-      
-      <!-- Slides -->
-      <div data-glide-el="track" class="glide__track">
-        <ul class="glide__slides">
-          {% for p in recent_posts %}
+  <div class="glide lessons__carousel carousel">
+    <div class="glide__track" data-glide-el="track">
+      <ul class="glide__slides">
+        {% for p in recent_posts %}
           <li class="glide__slide">
-            <a href="{{ p.url }}" class="block group">
-              <img
-                src="{{ p.img }}"
-                alt="{{ p.title }} thumbnail"
-                class="w-full h-52 md:h-60 lg:h-64 object-cover rounded-xl shadow-lg
-                       transition-transform duration-300 group-hover:-translate-y-1"
-              />
-              <h3 class="mt-3 text-lg font-semibold text-center">
-                {{ p.title }}
-              </h3>
+            <a href="{{ p.url }}">
+              <img src="{{ p.img }}" alt="{{ p.title }} thumbnail">
+              <h3>{{ p.title }}</h3>
             </a>
           </li>
-          {% endfor %}
-        </ul>
-      </div>
-    
-      <!-- Arrows (hidden on very small screens) -->
-      <div data-glide-el="controls"
-           class="hidden sm:flex justify-between mt-6 mx-2">
-        <button data-glide-dir="<"
-                class="px-3 py-2 rounded-full bg-black/40 text-white
-                       hover:bg-black/60 focus:outline-none">
-          ‹
-        </button>
-        <button data-glide-dir=">"
-                class="px-3 py-2 rounded-full bg-black/40 text-white
-                       hover:bg-black/60 focus:outline-none">
-          ›
-        </button>
-      </div>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="lessons__arrows" data-glide-el="controls">
+      <button data-glide-dir="<">‹</button>
+      <button data-glide-dir=">">›</button>
     </div>
   </div>
 </section>
 
-<!-- ──────────────────────── PROGRAM SPLIT ──────────────────────── -->
-<section class="max-w-7xl mx-auto py-20 px-4 grid md:grid-cols-2 gap-12">
-  <div class="text-center p-8 border rounded">
-    <h3 class="text-2xl font-serif mb-4">Client Program</h3>
-    <p class="mb-6">Premium, fee-based search led by a dedicated matchmaker</p>
-    <a href="{{ url_for('program.client', origin='client') }}" class="btn btn-primary">
-      Become A Client
-    </a>
-  </div>
+<!-- ───────── PROGRAM SPLIT ───────── -->
+<section class="programs">
+  <article class="programs__card">
+    <h3>Client Program</h3>
+    <p>Premium, fee-based search led by a dedicated matchmaker</p>
+    <a href="{{ url_for('program.client', origin='client') }}" class="btn btn-primary">Become A Client</a>
+  </article>
 
-  <div class="text-center p-8 border rounded bg-neutral-50">
-    <h3 class="text-2xl font-serif mb-4">Candidate Program</h3>
-    <p class="mb-6">Complimentary, private profile in our national network</p>
-    <a href="{{ url_for('program.candidate', origin='candidate') }}" class="btn btn-primary">
-      Become A Candidate
-    </a>
-  </div>
+  <article class="programs__card programs__card--alt">
+    <h3>Candidate Program</h3>
+    <p>Complimentary, private profile in our national network</p>
+    <a href="{{ url_for('program.candidate', origin='candidate') }}" class="btn btn-primary">Become A Candidate</a>
+  </article>
 </section>
 {% endblock %}
 
 {% block extra_scripts %}
   {{ super() }}
-  <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/glide.min.js" defer> </script>
-
-  <!-- Site bundles -->
+  <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide@3.6.0/dist/glide.min.js" defer></script>
+  <script src="{{ url_for('main.static', filename='js/index.js') }}" defer></script>
   <script src="{{ url_for('main.static', filename='js/hero-signature.js') }}" defer></script>
-  <script src="{{ url_for('main.static', filename='js/nav-glass.js') }}" defer></script>
   <script src="{{ url_for('main.static', filename='js/scroll-animations.js') }}" defer></script>
 {% endblock %}

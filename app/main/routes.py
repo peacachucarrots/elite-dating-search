@@ -21,7 +21,7 @@ def index():
         }
         for p in POSTS
     ]
-    return render_template("index.html", recent_posts=recent)
+    return render_template("index.html", recent_posts=recent, testimonials=TESTIMONIALS)
 
 # ──────────────────────────────────────────────────────────────────────────
 # Static marketing pages

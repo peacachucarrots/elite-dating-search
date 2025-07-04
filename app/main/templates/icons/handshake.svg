@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 24 24" stroke-width="1.8" fill="none"
+     stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <!-- two stylised hands clasping -->
+  <path d="M3 15l5-5 4 4"/>
+  <path d="M21 9l-5 5-4-4"/>
+  <!-- wrists -->
+  <path d="M8 10v10M16 14V4"/>
+</svg>
