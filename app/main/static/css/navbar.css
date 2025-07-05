@@ -5,6 +5,8 @@
   --nav-bg    : rgba(255,255,255,.6);
 }
 
+.pt-nav { padding-top: var(--nav-height); }
+
 .site-nav {
   position: fixed;
   inset: 0 auto auto 0;

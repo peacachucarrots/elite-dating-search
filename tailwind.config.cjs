@@ -8,6 +8,9 @@ module.exports = {
   theme: {
     extend: {
       keyframes: { },
+      spacing: {
+        nav: '4rem',
+      }
     },
   plugins: [],
   }

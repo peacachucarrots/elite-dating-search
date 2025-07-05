@@ -3,109 +3,89 @@
 {% endif %}
 <!doctype html>
 <html class="h-full flex flex-col" lang="en">
-<head>
-  <!-- ─── Core meta ─────────────────────────────────────────── -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
 
-  {% block head_extras %}{% endblock %}
+    {% block head_extras %}{% endblock %}
 
-  {# ---------- Title & description (one block each) ---------- #}
-  <title>{% block title %}EliteDatingSearch{% endblock %}</title>
+    {# ---------- Title & description (one block each) ---------- #}
+    <title>{% block title %}EliteDatingSearch{% endblock %}</title>
 
-  {% set default_description = (
-      "EliteDatingSearch offers confidential, executive-level matchmaking "
-      "for commitment-minded singles."
-  ) %}
+    {% set default_description =
+        ("EliteDatingSearch offers confidential, executive-level matchmaking "
+        "for commitment-minded singles.")
+    %}
 
-  <meta name="description"
-        content="{% block description %}{{ default_description }}{% endblock %}">
+    <meta name="description"
+          content="{% block description %}{{ default_description }}{% endblock %}">
 
-  {# ---------- Open-Graph tags -------------------------------- #}
-  <meta property="og:type"
-        content="website">
-  <meta property="og:title"
-        content="{% block og_title %}{{ self.title()|striptags }}{% endblock %}">
-  <meta property="og:description"
-        content="{% block og_desc %}{{ self.description()|striptags }}{% endblock %}">
-  <meta property="og:image"
-        content="{{ url_for('main.static', filename='img/og-default.jpg') }}">
-  <meta property="og:url"         
-        content="{{ request.url }}">
+    {# ---------- Open-Graph tags -------------------------------- #}
+    <meta property="og:type"
+          content="website">
+    <meta property="og:title"
+          content="{% block og_title %}{{ self.title()|striptags }}{% endblock %}">
+    <meta property="og:description"
+          content="{% block og_desc %}{{ self.description()|striptags }}{% endblock %}">
+    <meta property="og:image"
+          content="{{ url_for('main.static', filename='img/og-default.jpg') }}">
+    <meta property="og:url"         
+          content="{{ request.url }}">
 
-  {# ---------- Favicons --------------------------------------- #}
-  <link rel="icon" type="image/png" sizes="32x32"
-        href="{{ url_for('main.static', filename='img/favicon-32x32.png') }}">
+    {# ---------- Favicons --------------------------------------- #}
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="{{ url_for('main.static', filename='img/favicon-32x32.png') }}">
 
-  {# ---------- CSS -------------------------------------------- #}
-  <link rel="stylesheet"
-      href="{{ url_for('chat.static', filename='css/chat_global.css') }}">
-  <link rel="stylesheet"
-      href="{{ url_for('main.static', filename='css/site.css') }}">
-  <link rel="stylesheet"
-  		href="{{ url_for('main.static', filename='css/navbar.css') }}">
-  <link rel="stylesheet"
-  		href="{{ url_for('main.static', filename='css/footer.css') }}">
+    {# ---------- CSS -------------------------------------------- #}
+    <link rel="stylesheet"
+        href="{{ url_for('chat.static', filename='css/chat_global.css') }}">
+    <link rel="stylesheet"
+        href="{{ url_for('main.static', filename='css/site.css') }}">
+    <link rel="stylesheet"
+        href="{{ url_for('main.static', filename='css/navbar.css') }}">
+    <link rel="stylesheet"
+        href="{{ url_for('main.static', filename='css/footer.css') }}">
 
-  {# ---------- Extra head assets ------------------------------ #}
-  {% block extra_head %}{% endblock %}
-</head>
+    {% block extra_head %}{% endblock %}
+  </head>
 
-<body class="min-h-screen flex flex-col font-sans leading-relaxed">
-{% block navbar %}
-  {% include "partials/navbar.html" with context %}
-{% endblock %}
+  <body class="min-h-screen flex flex-col font-sans leading-relaxed">
+    {% block navbar %}
+      {% include "partials/navbar.html" %}
+    {% endblock %}
 
-{% block hero %}{% endblock %}
+    {% block hero %}{% endblock %}
 
-{% set on_homepage = request.endpoint == 'main.index' %}
-  <main id="main-content" class="flex-1 {{ 'pt-16' if (add_nav_padding and not on_homepage) else '' }}">
-    {% block content %}{% endblock %}
-  </main>
+    {% set on_homepage = request.endpoint == 'main.index' %}
+    <main id="main-content" class="flex-1 {{ 'pt-nav' if (add_nav_padding and not on_homepage) else '' }}">
+      {% block content %}{% endblock %}
+    </main>
 
-  {# ----- live-chat widget (hide on /rep by overriding block) -- #}
-  {% block live_chat %}
-  	{% if current_user.is_authenticated %}
-    	{% include "partials/live_chat.html" %}
-    {% else %}
-    	<a  href="{{ url_for('auth.login', next=request.full_path) }}"
-        style="
-          position: fixed;
-          right: 1rem; bottom: 1rem;
-          background: #2563eb;
-          color: white;
-          padding: .5rem 1rem;
-          border-radius: .5rem;
-          font-size: .875rem;
-          box-shadow: 0 2px 6px rgba(0,0,0,.2);
-          text-decoration: none;
-        ">
-      Log&nbsp;in&nbsp;to&nbsp;chat
-    </a>
-   {% endif %}
-  {% endblock %}
-{% block footer %}
-  {% include "partials/footer.html" %}
-{% endblock %}
+    {% block live_chat %}
+      {% include "partials/live_chat.html" %}
+    {% endblock %}
 
-  <!-- Alpine (optional) + global JS -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {% block footer %}
+      {% include "partials/footer.html" %}
+    {% endblock %}
 
-  <!-- Socket.IO + visitor widget -->
-  <script defer src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <script defer type="module"
-  			src="{{ url_for('static', filename='js/chat_common.js') }}"></script>
-  <script defer type="module"
-  			src="{{ url_for('chat.static', filename='js/live_chat.js') }}"></script>
-  <script defer
-     		src="{{ url_for('main.static', filename='js/navbar.js') }}"></script>
+    <!-- Global JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-  {# ---------- Extra JS --------------------------------------- #}
-  {% block extra_js %}
-    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
-  {% endblock %}
+    <!-- Local JS -->
+    <script defer type="module"
+          src="{{ url_for('static', filename='js/chat_common.js') }}"></script>
+    <script defer type="module"
+          src="{{ url_for('chat.static', filename='js/live_chat.js') }}"></script>
+    <script defer
+          src="{{ url_for('main.static', filename='js/navbar.js') }}"></script>
 
-  {% block scripts %}{% endblock %}
-  {% block extra_scripts %}{% endblock %}
-</body>
+    {% block extra_js %}
+      <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    {% endblock %}
+
+    {% block scripts %}{% endblock %}
+    {% block extra_scripts %}{% endblock %}
+  </body>
 </html>

@@ -24,11 +24,19 @@ representatives.
 ---
 
 ## Getting Started
+To get this web application running on the web, first download a copy to your 
+local machine's droplet. You'll then need to build and deploy the application 
+using docker commands. Ensure you have all prerequisites installed beforehand.
 
-### Prerequisites
-bash
-python 3.12+
-git
-# optional: Docker 24+ for container workflow
+## Prerequisites
+- bash
+- python 3.12+
+- git
+- Docker 24+
+- Postgresql 16
 
-> **TODO:**
+> ## TODO:
+- Don't require people to log in to chat.
+- Don't require people to log in to fill out a client or application form.
+
+Later: Pick either global tailwind css or individual stylesheets and stick to one plan.

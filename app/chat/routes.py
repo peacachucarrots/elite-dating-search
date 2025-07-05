@@ -28,7 +28,7 @@ from . import bp
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
-def _create_session_for(user_id: int, socket_sid: str) -> ChatSession:
+def _create_session_for(user_id, socket_sid) -> ChatSession:
     """Create the *next* numbered session for this user."""
     next_seq = (
         db.session.query(func.coalesce(func.max(ChatSession.seq), 0))
@@ -142,36 +142,39 @@ SID_TO_NAME              = {}             # visitor_sid ➜ display_name
 SID_TO_SESSION           = {}             # visitor_sid ➜ chat.id
 WAITING_DESC: set[str]   = set()          # chose 'human' but no response yet
 
+def create_guest_user(name):
+    u = User(email=None, pw_hash=None, is_active=False)
+    u.roles.append(Role.query.filter_by(name="visitor").first())
+    db.session.add(u); db.session.commit()
+    return u
+
 # ---------------------------------------------------------------------------
 # Socket.IO lifecycle
 # ---------------------------------------------------------------------------
 @socketio.on("connect")
 def handle_connect(auth):
-    if not current_user.is_authenticated:
-        emit("system",
-             {"body": "Please log in to use the chat.",
-             "author": "system",
-             "ts": datetime.utcnow().isoformat(timespec='seconds')},
-             room=request.sid)
-        handle_disconnect()
-        return
-
-    if current_user.has_role("admin"):
-        role = "admin"
-    elif current_user.has_role("rep"):
-        role = "rep"
-    elif current_user.has_role("client"):
-        role = "client"
+    if current_user.is_authenticated:
+        user       = current_user
+        user_id    = user.id
+        role       = (
+            "admin"   if user.has_role("admin")  else
+            "rep"     if user.has_role("rep")    else
+            "client"  if user.has_role("client") else
+            "visitor"
+        )
+        display_name = _display_name(user)
     else:
-        role = "visitor"
-    ALIVE.add(request.sid)
+        user_id      = None
+        role         = "visitor"
+        display_name = (auth or {}).get("display_name") or "Visitor" 
 
-    user_id      = current_user.id
-    display_name = _display_name(current_user)
+    sid = request.sid
+    now_dt  = datetime.utcnow()
+    now_iso = now_dt.isoformat(timespec="seconds")
 
-    SID_TO_USER[request.sid] = user_id
-    SID_TO_NAME[request.sid] = display_name
-    now = datetime.utcnow()
+    ALIVE.add(sid)
+    SID_TO_NAME[sid] = display_name
+    SID_TO_USER[sid] = user_id
 
     match role:
         case "visitor" | "client":
@@ -184,81 +187,94 @@ def handle_connect(auth):
 
             created_new = chat is None
             if created_new:
-                chat = _create_session_for(user_id, request.sid)
+                chat = _create_session_for(user_id, sid)
 
-            SID_TO_SESSION[request.sid] = chat.id
-            VISITORS.add(request.sid)
-
-            if created_new:
                 greeting = "Hi! What can I help you with today?"
-                emit("visitor_msg",
-                     {"body": greeting,
-                      "author": "assistant",
-                      "ts": now.isoformat(timespec="seconds")},
-                     room=request.sid)
-
-                db.session.add(Message(chat_id=chat.id,
-                                       author="assistant",
-                                       body=greeting,
-                                       ts=now,
-                                       user_id=user_id))
-
-                if not reps_are_online():
-                    off_msg = ("Our representatives are available 9 a.m.–6 p.m. ET, "
-                               "Monday–Friday. Feel free to leave a message and we’ll "
-                               "reach out via email typically within the next business day.")
-                    emit("rep_msg",
-                         {"body": off_msg,
-                          "author": "assistant",
-                          "ts": now.isoformat(timespec="seconds")},
-                         room=request.sid)
-
-                    db.session.add(Message(chat_id=chat.id,
-                                           author="assistant",
-                                           body=off_msg,
-                                           ts=now,
-                                           user_id=user_id))
-
-                options = [{"id": k, "label": v["label"]} for k, v in FAQ.items()]
-                if reps_are_online():
-                    options.append({"id": "human", "label": "Connect me to a representative"})
-                emit("quick_options", {"options": options}, room=request.sid)
-
+                emit(
+                    "visitor_msg",
+                    {"body": greeting, "author": "assistant", "ts": now_iso},
+                    room=sid,
+                )
+                db.session.add(
+                    Message(
+                        chat_id=chat.id,
+                        author="assistant",
+                        body=greeting,
+                        ts=now_dt,
+                        user_id=user_id,
+                    )
+                )
                 db.session.commit()
 
-            else:
-                history = (
+            SID_TO_SESSION[sid] = chat.id
+            VISITORS.add(sid)
+
+            if created_new and not reps_are_online():
+                off_msg = (
+                    "Our representatives are available 9 a.m.–6 p.m. ET, "
+                    "Monday-Friday. Feel free to leave a message and we’ll "
+                    "reach out via email typically within the next business day."
+                )
+                emit(
+                    "rep_msg",
+                    {"body": off_msg, "author": "assistant", "ts": now_iso},
+                    room=sid,
+                )
+                db.session.add(
+                    Message(
+                        chat_id=chat.id,
+                        author="assistant",
+                        body=off_msg,
+                        ts=now_dt,
+                        user_id=user_id,
+                    )
+                )
+
+            options = [{"id": k, "label": v["label"]} for k, v in FAQ.items()]
+            if reps_are_online():
+                options.append({"id": "human", "label": "Connect me to a representative"})
+            emit("quick_options", {"options": options}, room=request.sid)
+
+            if not created_new:
+                for m in (
                     Message.query
                     .filter_by(chat_id=chat.id)
                     .order_by(Message.ts)
                     .all()
-                )
-                for m in history:
-                    emit("visitor_msg",
-                         {"body": m.body,
-                          "author": m.author,
-                          "ts": m.ts.isoformat()},
-                         room=request.sid)
+                ):
+                    emit(
+                        "visitor_msg",
+                        {"body": m.body, "author": m.author, "ts": m.ts.isoformat()},
+                        room=sid,
+                    )
 
-            emit("visitor_online",
-                 {"sid": request.sid, "username": display_name},
-                 room="reps")
-            current_app.logger.debug("+++ Visitor/Client connected", display_name)
+            emit("visitor_online", {"sid": sid, "username": display_name}, room="reps")
+            current_app.logger.debug("+++ Visitor/Client connected %s", display_name)
+            db.session.commit()
             return
         case "rep":
             if not current_user.has_role("rep"):
-                emit("system", "You are not authorized as a representative.")
+                emit("system", {"body": "You are not authorized as a representative."}, room=sid)
                 return
-            emit("visitor_msg",
-                 {"body": "Looking to chat? Tap the Rep Dashboard in the top right for a more comprehensive view.",
-                        "author": "assistant",
-                        "ts": now.isoformat(timespec="seconds")},
-                        room=request.sid)
-            REPS.add(request.sid)
+
+            REPS.add(sid)
             join_room("reps")
-            current_app.logger.debug("+++ REP connected", display_name)
+            emit(
+                "visitor_msg",
+                {
+                    "body": "Looking to chat? Tap the Rep Dashboard in the top right "
+                            "for a more comprehensive view.",
+                    "author": "assistant",
+                    "ts": now_iso,
+                },
+                room=sid,
+            )
+            current_app.logger.debug("+++ Rep connected %s", display_name)
             return
         case "admin":
+            if not current_user.is_authenticated:
+                emit("system", "You need to sign in as an admin first.")
+                return
             if not current_user.has_role("admin"):
                 emit("system", "You are not authorized as an admin.")
                 return
