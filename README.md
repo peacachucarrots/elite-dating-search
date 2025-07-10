@@ -24,9 +24,10 @@ representatives.
 ---
 
 ## Getting Started
-To get this web application running on the web, first download a copy to your 
+To get this web application running, first download a copy to your 
 local machine's droplet. You'll then need to build and deploy the application 
-using docker commands. Ensure you have all prerequisites installed beforehand.
+using docker commands. Ensure you have all python requirements installed on your 
+droplet beforehand.
 
 ## Prerequisites
 - bash
@@ -35,8 +36,15 @@ using docker commands. Ensure you have all prerequisites installed beforehand.
 - Docker 24+
 - Postgresql 16
 
-> ## TODO:
+## TODO:
+High Prio:
 - Don't require people to log in to chat.
 - Don't require people to log in to fill out a client or application form.
 
-Later: Pick either global tailwind css or individual stylesheets and stick to one plan.
+Medium Prio:
+- 1 candidate + 1 client profile per user available through a user profile page, with the option to edit information
+- Fix the bug in the DOB section of the client application
+- Hide last name and add a section for a unique user alias in the candidate/client applications
+
+Low Prio:
+- Pick either global tailwind css or individual stylesheets and stick to one plan.

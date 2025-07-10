@@ -21,6 +21,7 @@ from app.chat.utils import reps_are_online, is_off_hours
 from app.extensions import socketio, db
 from app.models.chat import ChatSession, Message
 from app.models.program import ProgramApplication, ProgramType
+from app.models.role import Role
 from app.models.user import User
 from app.program.service import latest_program_apps, FIELD_LABELS
 from . import bp
@@ -30,6 +31,9 @@ from . import bp
 # ---------------------------------------------------------------------------
 def _create_session_for(user_id, socket_sid) -> ChatSession:
     """Create the *next* numbered session for this user."""
+    if user_id is None:
+        return ChatSession(user_id=None, socket_sid=socket_sid, seq=-1)
+
     next_seq = (
         db.session.query(func.coalesce(func.max(ChatSession.seq), 0))
         .filter_by(user_id=user_id)
@@ -166,7 +170,7 @@ def handle_connect(auth):
     else:
         user_id      = None
         role         = "visitor"
-        display_name = (auth or {}).get("display_name") or "Visitor" 
+        display_name = (auth or {}).get("display_name") or "Visitor"
 
     sid = request.sid
     now_dt  = datetime.utcnow()
@@ -178,12 +182,15 @@ def handle_connect(auth):
 
     match role:
         case "visitor" | "client":
-            chat = (
-                ChatSession.query
-                .filter_by(user_id=user_id, closed_at=None)
-                .order_by(ChatSession.opened_at.desc())
-                .first()
-            )
+            if user_id is not None:
+                chat = (
+                    ChatSession.query
+                    .filter_by(user_id=user_id, closed_at=None)
+                    .order_by(ChatSession.opened_at.desc())
+                    .first()
+                )
+            else:
+                chat = None
 
             created_new = chat is None
             if created_new:
@@ -195,16 +202,17 @@ def handle_connect(auth):
                     {"body": greeting, "author": "assistant", "ts": now_iso},
                     room=sid,
                 )
-                db.session.add(
-                    Message(
-                        chat_id=chat.id,
-                        author="assistant",
-                        body=greeting,
-                        ts=now_dt,
-                        user_id=user_id,
+                if user_id is not None:
+                    db.session.add(
+                        Message(
+                            chat_id=chat.id,
+                            author="assistant",
+                            body=greeting,
+                            ts=now_dt,
+                            user_id=user_id,
+                        )
                     )
-                )
-                db.session.commit()
+                    db.session.commit()
 
             SID_TO_SESSION[sid] = chat.id
             VISITORS.add(sid)
@@ -281,7 +289,7 @@ def handle_connect(auth):
             emit("visitor_msg",
                  {"body": f"Welcome Admin {current_user.profile.first_name}!",
                   "author": "assistant",
-                  "ts": now.isoformat(timespec="seconds")},
+                  "ts": now_iso},
                  room=request.sid)
             current_app.logger.debug("+++ Admin connected", display_name)
             return
@@ -354,8 +362,6 @@ def handle_disconnect(auth):
             if chat and chat.closed_at is None:
                 chat.closed_at = datetime.utcnow()
                 db.session.commit()
-
-    current_app.logger.debug("--- disconnect", username or sid)
 
 # ---------------------------------------------------------------------------
 # Rep dashboard actions

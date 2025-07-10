@@ -31,7 +31,7 @@ login_manager.session_protection = "strong"
 migrate = Migrate()
 mail = Mail()
 csrf = CSRFProtect()
-limiter = Limiter(key_func=get_remote_address, storage_uri=os.environ.get("LIMITER_STORAGE_URI"))
+limiter = Limiter(key_func=get_remote_address, storage_uri=os.environ.get("RATELIMIT_STORAGE_URI"))
 
 # ----------------------------------------------------------------------
 # Ready for future extensions

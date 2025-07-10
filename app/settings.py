@@ -60,9 +60,9 @@ class Dev(Base):
     DEBUG  = True
     TESTING = False
 
-    SOCKETIO_ASYNC_MODE = os.environ.get("SOCKETIO_ASYNC_MODE")
-    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
-    RATELIMIT_STORAGE_URI = os.environ.get("RATELIMIT_STORAGE_URI")
+    SOCKETIO_ASYNC_MODE = "threading"
+    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://eds:eds0204@localhost:5432/eds"
+    RATELIMIT_STORAGE_URI = "memory://"
     SQLALCHEMY_ECHO = True
 
 
